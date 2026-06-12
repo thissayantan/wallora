@@ -56,24 +56,24 @@ every task; run unit tests after every phase. See CLAUDE.md for autonomy rules.
 
 ## Phase 2 — Browsing UI
 
-- [ ] P2-a: Home screen: staggered/masonry LazyVerticalStaggeredGrid with Paging 3,
+- [x] P2-a: Home screen: staggered/masonry LazyVerticalStaggeredGrid with Paging 3,
       horizontally scrollable multi-select category chip row (OR-combine), source
       filter bottom sheet, pull-to-refresh, empty/error/offline states, Coil thumb
       loading with placeholder/error. Commit.
-- [ ] P2-b: Search screen: Material 3 SearchBar, concurrent fan-out search across
+- [x] P2-b: Search screen: Material 3 SearchBar, concurrent fan-out search across
       enabled sources, merged paged results, recent searches (DataStore) with clear,
       category-name search triggers category selection. Commit.
-- [ ] P2-c: Detail screen: full-bleed preview (Coil, full-res), author + source
+- [x] P2-c: Detail screen: full-bleed preview (Coil, full-res), author + source
       attribution (tappable links), resolution display, Set Wallpaper (Home/Lock/Both)
       action, Favorite toggle, Share intent, Download via MediaStore, "More like this"
       (search by category/tags). Commit.
-- [ ] P2-d: Favorites screen + History screen — simple LazyVerticalGrid grids,
+- [x] P2-d: Favorites screen + History screen — simple LazyVerticalGrid grids,
       reuse thumb loading. Minimal Settings screen scaffold (empty placeholder nav
       destination). Commit.
-- [ ] P2-e: Adaptive layouts: WindowSizeClass-based column scaling (compact 2 / medium 3
+- [x] P2-e: Adaptive layouts: WindowSizeClass-based column scaling (compact 2 / medium 3
       / expanded 4–5). Expanded: NavigableListDetailPaneScaffold two-pane. Landscape
       support. Compose UI tests for Home grid + chip multi-select (Robolectric). Commit.
-- [ ] P2-phase-test: `./gradlew testDebugUnitTest` — Compose UI tests pass.
+- [x] P2-phase-test: `./gradlew testDebugUnitTest` — Compose UI tests pass.
 
 ## Phase 3 — Setting wallpapers & editor
 

@@ -2,8 +2,8 @@ package com.wallora.app.ui.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -12,7 +12,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -23,15 +22,21 @@ import com.wallora.app.R
 import com.wallora.app.ui.favorites.FavoritesScreen
 import com.wallora.app.ui.history.HistoryScreen
 import com.wallora.app.ui.home.HomeScreen
+import com.wallora.app.ui.search.SearchScreen
 import com.wallora.app.ui.settings.SettingsScreen
 
 sealed class WalloraRoute(val route: String) {
     data object Home : WalloraRoute("home")
+    data object Search : WalloraRoute("search")
     data object Favorites : WalloraRoute("favorites")
     data object History : WalloraRoute("history")
     data object Settings : WalloraRoute("settings")
-    data object Detail : WalloraRoute("detail/{wallpaperId}") {
-        fun createRoute(id: String) = "detail/$id"
+    // Detail is a full-screen route, not in bottom nav
+    data object Detail : WalloraRoute("detail/{globalKey}") {
+        fun createRoute(globalKey: String): String {
+            // URL-encode the globalKey to avoid path conflicts with the colon separator
+            return "detail/${java.net.URLEncoder.encode(globalKey, "UTF-8")}"
+        }
     }
 }
 
@@ -48,24 +53,30 @@ fun WalloraNavGraph() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
+    val isDetailRoute = currentDestination?.route?.startsWith("detail/") == true
+
     Scaffold(
         bottomBar = {
-            NavigationBar {
-                bottomNavItems.forEach { (route, icon, labelRes) ->
-                    NavigationBarItem(
-                        selected = currentDestination?.hierarchy?.any { it.route == route.route } == true,
-                        onClick = {
-                            navController.navigate(route.route) {
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
+            if (!isDetailRoute) {
+                NavigationBar {
+                    bottomNavItems.forEach { (route, icon, labelRes) ->
+                        NavigationBarItem(
+                            selected = currentDestination?.hierarchy?.any {
+                                it.route == route.route
+                            } == true,
+                            onClick = {
+                                navController.navigate(route.route) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
                                 }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
-                        icon = { Icon(icon, contentDescription = stringResource(labelRes)) },
-                        label = { Text(stringResource(labelRes)) },
-                    )
+                            },
+                            icon = { Icon(icon, contentDescription = null) },
+                            label = { Text(androidx.compose.ui.res.stringResource(labelRes)) },
+                        )
+                    }
                 }
             }
         },
@@ -74,29 +85,59 @@ fun WalloraNavGraph() {
             composable(WalloraRoute.Home.route) {
                 HomeScreen(
                     contentPadding = innerPadding,
-                    onWallpaperClick = { id ->
-                        navController.navigate(WalloraRoute.Detail.createRoute(id))
+                    onWallpaperClick = { key ->
+                        navController.navigate(WalloraRoute.Detail.createRoute(key))
+                    },
+                    onSearchClick = { navController.navigate(WalloraRoute.Search.route) },
+                )
+            }
+            composable(WalloraRoute.Search.route) {
+                SearchScreen(
+                    contentPadding = innerPadding,
+                    onWallpaperClick = { key ->
+                        navController.navigate(WalloraRoute.Detail.createRoute(key))
                     },
                 )
             }
             composable(WalloraRoute.Favorites.route) {
                 FavoritesScreen(
                     contentPadding = innerPadding,
-                    onWallpaperClick = { id ->
-                        navController.navigate(WalloraRoute.Detail.createRoute(id))
+                    onWallpaperClick = { key ->
+                        navController.navigate(WalloraRoute.Detail.createRoute(key))
                     },
                 )
             }
             composable(WalloraRoute.History.route) {
                 HistoryScreen(
                     contentPadding = innerPadding,
-                    onWallpaperClick = { id ->
-                        navController.navigate(WalloraRoute.Detail.createRoute(id))
+                    onWallpaperClick = { key ->
+                        navController.navigate(WalloraRoute.Detail.createRoute(key))
                     },
                 )
             }
             composable(WalloraRoute.Settings.route) {
                 SettingsScreen(contentPadding = innerPadding)
+            }
+            // Detail screen: full-screen, no bottom bar
+            // NOTE: We pass the wallpaper via back-stack saved state to avoid re-fetching
+            // for the MVP. If wallpaper isn't found in state, show loading.
+            composable(WalloraRoute.Detail.route) { backStackEntry ->
+                // Retrieve wallpaper from the previous back stack entry's saved state
+                val wallpaper = navController.previousBackStackEntry
+                    ?.savedStateHandle
+                    ?.get<com.wallora.app.domain.model.Wallpaper>("wallpaper")
+                if (wallpaper != null) {
+                    com.wallora.app.ui.detail.DetailScreen(
+                        wallpaper = wallpaper,
+                        onBack = { navController.popBackStack() },
+                        onSetWallpaper = { /* TODO Phase 3 */ },
+                        onEditAndSet = { /* TODO Phase 3 */ },
+                        onMoreLikeThis = { /* TODO Phase 2 search */ },
+                    )
+                } else {
+                    // Wallpaper not in saved state — navigate back
+                    navController.popBackStack()
+                }
             }
         }
     }

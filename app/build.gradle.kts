@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.ktlint)
 }
 
@@ -111,6 +112,7 @@ dependencies {
     // Navigation
     implementation(libs.navigation.compose)
     implementation(libs.material3.adaptive.navigation.suite)
+    implementation(libs.compose.windowsizeclass)
 
     // Hilt
     implementation(libs.hilt.android)
