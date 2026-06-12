@@ -1,0 +1,70 @@
+{
+  "data": [
+    {
+      "id": "wq3g9k",
+      "url": "https://wallhaven.cc/w/wq3g9k",
+      "short_url": "https://whvn.cc/wq3g9k",
+      "views": 12345,
+      "favorites": 678,
+      "source": "",
+      "purity": "sfw",
+      "category": "general",
+      "dimension_x": 2160,
+      "dimension_y": 3840,
+      "resolution": "2160x3840",
+      "ratio": "9:16",
+      "file_size": 3456789,
+      "file_type": "image/jpeg",
+      "created_at": "2024-01-15 10:30:00",
+      "colors": ["#1a2b3c", "#4d5e6f"],
+      "path": "https://w.wallhaven.cc/full/wq/wallhaven-wq3g9k.jpg",
+      "thumbs": {
+        "large": "https://th.wallhaven.cc/lg/wq/wq3g9k.jpg",
+        "original": "https://th.wallhaven.cc/orig/wq/wq3g9k.jpg",
+        "small": "https://th.wallhaven.cc/small/wq/wq3g9k.jpg"
+      },
+      "tags": [
+        { "id": 1, "name": "nature", "alias": "nature", "category": "Ecology", "purity": "sfw" },
+        { "id": 2, "name": "landscape", "alias": "", "category": "General", "purity": "sfw" }
+      ],
+      "uploader": {
+        "username": "uploader_user",
+        "group": "User",
+        "avatar": { "200px": "https://wallhaven.cc/images/user/avatar/200/user.png" }
+      }
+    },
+    {
+      "id": "ex4mpl",
+      "url": "https://wallhaven.cc/w/ex4mpl",
+      "short_url": "https://whvn.cc/ex4mpl",
+      "views": 5000,
+      "favorites": 100,
+      "source": "",
+      "purity": "sfw",
+      "category": "general",
+      "dimension_x": 1440,
+      "dimension_y": 2560,
+      "resolution": "1440x2560",
+      "ratio": "9:16",
+      "file_size": 1234567,
+      "file_type": "image/png",
+      "created_at": "2024-02-20 15:00:00",
+      "colors": ["#ff0000"],
+      "path": "https://w.wallhaven.cc/full/ex/wallhaven-ex4mpl.png",
+      "thumbs": {
+        "large": "https://th.wallhaven.cc/lg/ex/ex4mpl.jpg",
+        "original": "https://th.wallhaven.cc/orig/ex/ex4mpl.jpg",
+        "small": "https://th.wallhaven.cc/small/ex/ex4mpl.jpg"
+      },
+      "tags": [],
+      "uploader": null
+    }
+  ],
+  "meta": {
+    "current_page": 1,
+    "last_page": 10,
+    "per_page": 24,
+    "total": 240,
+    "query": "nature"
+  }
+}

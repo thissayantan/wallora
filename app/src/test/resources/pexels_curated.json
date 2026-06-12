@@ -1,0 +1,50 @@
+{
+  "page": 1,
+  "per_page": 2,
+  "total_results": 100,
+  "next_page": "https://api.pexels.com/v1/curated/?page=2&per_page=2",
+  "photos": [
+    {
+      "id": 12345,
+      "width": 3024,
+      "height": 4032,
+      "url": "https://www.pexels.com/photo/12345/",
+      "photographer": "Jane Doe",
+      "photographer_url": "https://www.pexels.com/@janedoe",
+      "photographer_id": 99,
+      "avg_color": "#6B7B8A",
+      "src": {
+        "original": "https://images.pexels.com/photos/12345/pexels-photo-12345.jpeg",
+        "large2x": "https://images.pexels.com/photos/12345/pexels-photo-12345.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "large": "https://images.pexels.com/photos/12345/pexels-photo-12345.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
+        "medium": "https://images.pexels.com/photos/12345/pexels-photo-12345.jpeg?auto=compress&cs=tinysrgb&h=350",
+        "small": "https://images.pexels.com/photos/12345/pexels-photo-12345.jpeg?auto=compress&cs=tinysrgb&h=130",
+        "portrait": "https://images.pexels.com/photos/12345/pexels-photo-12345.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1200&w=800",
+        "landscape": "https://images.pexels.com/photos/12345/pexels-photo-12345.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200",
+        "tiny": "https://images.pexels.com/photos/12345/pexels-photo-12345.jpeg?auto=compress&cs=tinysrgb&dpr=1&fit=crop&h=200&w=280"
+      },
+      "alt": "Mountain landscape"
+    },
+    {
+      "id": 67890,
+      "width": 4000,
+      "height": 6000,
+      "url": "https://www.pexels.com/photo/67890/",
+      "photographer": "John Smith",
+      "photographer_url": "https://www.pexels.com/@johnsmith",
+      "photographer_id": 77,
+      "avg_color": "#A3B4C5",
+      "src": {
+        "original": "https://images.pexels.com/photos/67890/pexels-photo-67890.jpeg",
+        "large2x": "https://images.pexels.com/photos/67890/pexels-photo-67890.jpeg?auto=compress&cs=tinysrgb&dpr=2",
+        "large": "https://images.pexels.com/photos/67890/pexels-photo-67890.jpeg?auto=compress&cs=tinysrgb",
+        "medium": "https://images.pexels.com/photos/67890/pexels-photo-67890.jpeg?auto=compress&cs=tinysrgb&h=350",
+        "small": "https://images.pexels.com/photos/67890/pexels-photo-67890.jpeg?auto=compress&cs=tinysrgb&h=130",
+        "portrait": "",
+        "landscape": "",
+        "tiny": "https://images.pexels.com/photos/67890/pexels-photo-67890.jpeg?auto=compress&cs=tinysrgb&dpr=1&fit=crop&h=200&w=280"
+      },
+      "alt": "Ocean sunset"
+    }
+  ]
+}

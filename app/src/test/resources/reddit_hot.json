@@ -1,0 +1,134 @@
+{
+  "kind": "Listing",
+  "data": {
+    "after": "t3_abc123",
+    "before": null,
+    "dist": 5,
+    "children": [
+      {
+        "kind": "t3",
+        "data": {
+          "id": "img001",
+          "title": "Beautiful mountain wallpaper [3024x4032]",
+          "author": "nature_fan",
+          "subreddit": "EarthPorn",
+          "permalink": "/r/EarthPorn/comments/img001/beautiful_mountain_wallpaper/",
+          "url": "https://i.redd.it/img001.jpg",
+          "url_overridden_by_dest": "https://i.redd.it/img001.jpg",
+          "post_hint": "image",
+          "over_18": false,
+          "is_video": false,
+          "is_gallery": false,
+          "domain": "i.redd.it",
+          "score": 9500,
+          "ups": 9500,
+          "preview": {
+            "images": [
+              {
+                "source": { "url": "https://preview.redd.it/img001.jpg?width=3024&format=pjpg&auto=webp", "width": 3024, "height": 4032 },
+                "resolutions": [
+                  { "url": "https://preview.redd.it/img001.jpg?width=108&format=pjpg&auto=webp", "width": 108, "height": 144 },
+                  { "url": "https://preview.redd.it/img001.jpg?width=216&format=pjpg&auto=webp", "width": 216, "height": 288 },
+                  { "url": "https://preview.redd.it/img001.jpg?width=640&format=pjpg&auto=webp", "width": 640, "height": 853 }
+                ],
+                "id": "prev001"
+              }
+            ],
+            "enabled": true
+          }
+        }
+      },
+      {
+        "kind": "t3",
+        "data": {
+          "id": "nsfw001",
+          "title": "NSFW post",
+          "author": "bad_actor",
+          "subreddit": "EarthPorn",
+          "permalink": "/r/EarthPorn/comments/nsfw001/",
+          "url": "https://i.redd.it/nsfw001.jpg",
+          "url_overridden_by_dest": "https://i.redd.it/nsfw001.jpg",
+          "post_hint": "image",
+          "over_18": true,
+          "is_video": false,
+          "is_gallery": false,
+          "domain": "i.redd.it",
+          "score": 100,
+          "ups": 100,
+          "preview": null
+        }
+      },
+      {
+        "kind": "t3",
+        "data": {
+          "id": "video001",
+          "title": "Video post",
+          "author": "video_poster",
+          "subreddit": "EarthPorn",
+          "permalink": "/r/EarthPorn/comments/video001/",
+          "url": "https://v.redd.it/video001",
+          "url_overridden_by_dest": "https://v.redd.it/video001",
+          "post_hint": "hosted:video",
+          "over_18": false,
+          "is_video": true,
+          "is_gallery": false,
+          "domain": "v.redd.it",
+          "score": 5000,
+          "ups": 5000,
+          "preview": null
+        }
+      },
+      {
+        "kind": "t3",
+        "data": {
+          "id": "gallery001",
+          "title": "Gallery post",
+          "author": "gallery_poster",
+          "subreddit": "EarthPorn",
+          "permalink": "/r/EarthPorn/comments/gallery001/",
+          "url": "https://www.reddit.com/gallery/gallery001",
+          "url_overridden_by_dest": "https://www.reddit.com/gallery/gallery001",
+          "post_hint": "self",
+          "over_18": false,
+          "is_video": false,
+          "is_gallery": true,
+          "domain": "reddit.com",
+          "score": 3000,
+          "ups": 3000,
+          "preview": null
+        }
+      },
+      {
+        "kind": "t3",
+        "data": {
+          "id": "imgur001",
+          "title": "Night sky from imgur [1440x2560]",
+          "author": "stargazer",
+          "subreddit": "spaceporn",
+          "permalink": "/r/spaceporn/comments/imgur001/night_sky/",
+          "url": "https://i.imgur.com/imgur001.png",
+          "url_overridden_by_dest": "https://i.imgur.com/imgur001.png",
+          "post_hint": "image",
+          "over_18": false,
+          "is_video": false,
+          "is_gallery": false,
+          "domain": "i.imgur.com",
+          "score": 7200,
+          "ups": 7200,
+          "preview": {
+            "images": [
+              {
+                "source": { "url": "https://preview.redd.it/imgur001.png?auto=webp", "width": 1440, "height": 2560 },
+                "resolutions": [
+                  { "url": "https://preview.redd.it/imgur001.png?width=640&auto=webp", "width": 640, "height": 1138 }
+                ],
+                "id": "prev_imgur001"
+              }
+            ],
+            "enabled": true
+          }
+        }
+      }
+    ]
+  }
+}

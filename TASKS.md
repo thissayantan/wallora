@@ -5,54 +5,54 @@ every task; run unit tests after every phase. See CLAUDE.md for autonomy rules.
 
 ## Phase 0 — Project bootstrap
 
-- [ ] P0-a: JDK 17 — download Eclipse Temurin 17 Linux x64 tarball → ~/.local/jdk17;
+- [x] P0-a: JDK 17 — download Eclipse Temurin 17 Linux x64 tarball → ~/.local/jdk17;
       export JAVA_HOME+PATH for session; persist to ~/.bashrc, ~/.zshrc, and
       gradle.properties (org.gradle.java.home). Record version in DECISIONS.md.
-- [ ] P0-b: Android SDK — download commandlinetools-linux zip → ~/Android/Sdk/cmdline-tools/latest;
+- [x] P0-b: Android SDK — download commandlinetools-linux zip → ~/Android/Sdk/cmdline-tools/latest;
       `yes | sdkmanager --licenses`; install platform-tools, platforms;android-35,
       build-tools;35.0.0. Set ANDROID_HOME, write local.properties sdk.dir.
       Record versions in DECISIONS.md.
-- [ ] P0-c: Gradle wrapper — download Gradle 8.9 binary zip → ~/.local/gradle8;
+- [x] P0-c: Gradle wrapper — download Gradle 8.9 binary zip → ~/.local/gradle8;
       generate gradlew + wrapper jar in the project root. Verify:
       `sdkmanager --list_installed`, `./gradlew --version`. Commit DECISIONS.md.
-- [ ] P0-d: Create Android project structure — Kotlin DSL, Compose, Material 3,
+- [x] P0-d: Create Android project structure — Kotlin DSL, Compose, Material 3,
       minSdk 31, targetSdk/compileSdk 35, version catalog (libs.versions.toml),
       Hilt, package layout data/domain/ui/service/worker/widget. `git init` + first commit.
-- [ ] P0-e: local.properties.example + BuildConfig wiring for PEXELS_API_KEY,
+- [x] P0-e: local.properties.example + BuildConfig wiring for PEXELS_API_KEY,
       UNSPLASH_ACCESS_KEY, WALLHAVEN_API_KEY — empty-safe defaults (""). Commit.
-- [ ] P0-f: App theme — dynamic color (dynamicLightColorScheme / dynamicDarkColorScheme
+- [x] P0-f: App theme — dynamic color (dynamicLightColorScheme / dynamicDarkColorScheme
       on SDK 31+), dark/light support, edge-to-edge WindowInsets. Commit.
-- [ ] P0-g: Quality tooling — ktlint via gradle-lint-plugin or detekt wired into
+- [x] P0-g: Quality tooling — ktlint via gradle-lint-plugin or detekt wired into
       build; also add SafeBitmapDecoder utility stub (region + sampled decode,
       OOM-safe) that will be used by apply pipeline and editor. Commit.
 
 ## Phase 1 — Data layer & sources
 
-- [ ] P1-a: Core domain models: Wallpaper, Category (enum + subreddit/query mapping),
+- [x] P1-a: Core domain models: Wallpaper, Category (enum + subreddit/query mapping),
       SourceId, Page<T>, EditParams. Commit.
-- [ ] P1-b: Room database: WallpaperEntity (cache TTL), FavoriteEntity, HistoryEntity,
+- [x] P1-b: Room database: WallpaperEntity (cache TTL), FavoriteEntity, HistoryEntity,
       RecentSearchEntity + DAOs + Database class. DataStore SettingsRepository
       (sources enabled/disabled, category defaults, rotation prefs). Commit.
-- [ ] P1-c: Retrofit / OkHttp stack: logging interceptor, per-source throttling
+- [x] P1-c: Retrofit / OkHttp stack: logging interceptor, per-source throttling
       interceptor (token-bucket or simple delay), kotlinx.serialization converter,
       Result<T> error wrapper. Commit.
-- [ ] P1-d: WallpaperSource interface. Pexels implementation: curated + search
+- [x] P1-d: WallpaperSource interface. Pexels implementation: curated + search
       endpoints, category mapping, API-key header. JSON-fixture unit tests for
       Pexels mapper (pexels_curated.json fixture committed). Commit.
-- [ ] P1-e: Wallhaven implementation: categories, atleast-resolution filter, SFW-only,
+- [x] P1-e: Wallhaven implementation: categories, atleast-resolution filter, SFW-only,
       optional API key. JSON-fixture unit tests (wallhaven_search.json fixture). Commit.
-- [ ] P1-f: Reddit implementation: subreddit mapping per SPEC §3, listing .json
+- [x] P1-f: Reddit implementation: subreddit mapping per SPEC §3, listing .json
       endpoint, custom User-Agent, direct-image predicate (i.redd.it / imgur direct),
       NSFW filter, gallery/video drop, pagination cursor. JSON-fixture unit tests
       (reddit_hot.json hand-authored fixture). Fail-soft at runtime. Commit.
-- [ ] P1-g: Unsplash implementation: optional source, attribution fields, download-ping
+- [x] P1-g: Unsplash implementation: optional source, attribution fields, download-ping
       hook on apply, hidden when key missing. JSON-fixture unit tests. Commit.
-- [ ] P1-h: WallpaperRepository (a): Room TTL page cache — insert/expire logic,
+- [x] P1-h: WallpaperRepository (a): Room TTL page cache — insert/expire logic,
       cache-hit path. Commit.
-- [ ] P1-i: WallpaperRepository (b): multi-source fan-out PagingSource —
+- [x] P1-i: WallpaperRepository (b): multi-source fan-out PagingSource —
       round-robin interleave across enabled sources, URL dedup (bloom/set),
       per-source fail-soft. Unit tests for merge/dedup. Commit.
-- [ ] P1-phase-test: `./gradlew testDebugUnitTest` — all Phase 1 unit tests pass.
+- [x] P1-phase-test: `./gradlew testDebugUnitTest` — all Phase 1 unit tests pass.
 
 ## Phase 2 — Browsing UI
 
