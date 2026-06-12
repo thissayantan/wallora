@@ -28,6 +28,15 @@ const val RETROFIT_UNSPLASH = "unsplash"
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
+    /** Shared OkHttpClient for downloads (no throttle or auth headers — used by download use case). */
+    @Singleton
+    @Provides
+    fun provideDownloadClient(): OkHttpClient =
+        OkHttpClient.Builder()
+            .connectTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .readTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .build()
+
     @Singleton
     @Provides
     fun provideJson(): Json = Json {

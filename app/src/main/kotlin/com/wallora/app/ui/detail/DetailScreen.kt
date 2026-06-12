@@ -16,11 +16,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Brush
-import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.GridView
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Wallpaper
 import androidx.compose.material3.BottomAppBar
@@ -32,6 +30,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -54,6 +54,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.wallora.app.R
 import com.wallora.app.domain.model.Wallpaper
+import com.wallora.app.domain.usecase.WallpaperTarget
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,14 +67,26 @@ fun DetailScreen(
     viewModel: DetailViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val isApplying by viewModel.isApplying.collectAsStateWithLifecycle()
     val context = LocalContext.current
     var showSetDialog by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(wallpaper) { viewModel.loadWallpaper(wallpaper) }
+
+    // Collect one-shot events
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is DetailEvent.ShowMessage -> snackbarHostState.showSnackbar(event.message)
+            }
+        }
+    }
 
     val isFavorite = (uiState as? DetailUiState.Success)?.isFavorite ?: false
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { },
@@ -99,15 +112,33 @@ fun DetailScreen(
         bottomBar = {
             BottomAppBar {
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly,
                 ) {
-                    FilledTonalButton(onClick = { showSetDialog = true }) {
-                        Icon(Icons.Default.Wallpaper, null)
-                        Text(stringResource(R.string.action_set_wallpaper), modifier = Modifier.padding(start = 4.dp))
+                    FilledTonalButton(
+                        onClick = { showSetDialog = true },
+                        enabled = !isApplying,
+                    ) {
+                        if (isApplying) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(18.dp),
+                                strokeWidth = 2.dp,
+                            )
+                        } else {
+                            Icon(Icons.Default.Wallpaper, null)
+                        }
+                        Text(
+                            stringResource(R.string.action_set_wallpaper),
+                            modifier = Modifier.padding(start = 4.dp),
+                        )
                     }
                     IconButton(onClick = { onEditAndSet(wallpaper) }) {
-                        Icon(Icons.Default.Brush, contentDescription = stringResource(R.string.action_edit_and_set))
+                        Icon(
+                            Icons.Default.Brush,
+                            contentDescription = stringResource(R.string.action_edit_and_set),
+                        )
                     }
                     IconButton(onClick = {
                         val intent = Intent(Intent.ACTION_SEND).apply {
@@ -133,6 +164,18 @@ fun DetailScreen(
                 contentScale = ContentScale.Fit,
                 modifier = Modifier.fillMaxSize(),
             )
+
+            // Full-screen progress overlay while applying
+            if (isApplying) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
 
             // Attribution overlay at bottom
             Column(
@@ -173,14 +216,14 @@ fun DetailScreen(
                 )
                 Spacer(Modifier.height(16.dp))
                 listOf(
-                    R.string.action_set_home,
-                    R.string.action_set_lock,
-                    R.string.action_set_both,
-                ).forEach { labelRes ->
+                    WallpaperTarget.HOME to R.string.action_set_home,
+                    WallpaperTarget.LOCK to R.string.action_set_lock,
+                    WallpaperTarget.BOTH to R.string.action_set_both,
+                ).forEach { (target, labelRes) ->
                     TextButton(
                         onClick = {
                             showSetDialog = false
-                            onSetWallpaper(wallpaper)
+                            viewModel.applyWallpaper(target)
                         },
                         modifier = Modifier.fillMaxWidth(),
                     ) {
