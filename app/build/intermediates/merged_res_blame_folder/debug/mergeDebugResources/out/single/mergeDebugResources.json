@@ -1,0 +1,26 @@
+[
+    {
+        "merged": "com.wallora.app-debug-86:/drawable_ic_launcher_background.xml.flat",
+        "source": "com.wallora.app-main-88:/drawable/ic_launcher_background.xml"
+    },
+    {
+        "merged": "com.wallora.app-debug-86:/xml_backup_rules.xml.flat",
+        "source": "com.wallora.app-main-88:/xml/backup_rules.xml"
+    },
+    {
+        "merged": "com.wallora.app-debug-86:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "com.wallora.app-main-88:/drawable/ic_launcher_foreground.xml"
+    },
+    {
+        "merged": "com.wallora.app-debug-86:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "com.wallora.app-main-88:/mipmap-anydpi-v26/ic_launcher_round.xml"
+    },
+    {
+        "merged": "com.wallora.app-debug-86:/xml_data_extraction_rules.xml.flat",
+        "source": "com.wallora.app-main-88:/xml/data_extraction_rules.xml"
+    },
+    {
+        "merged": "com.wallora.app-debug-86:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "com.wallora.app-main-88:/mipmap-anydpi-v26/ic_launcher.xml"
+    }
+]

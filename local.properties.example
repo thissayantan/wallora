@@ -1,0 +1,16 @@
+# Copy this file to local.properties and fill in your API keys.
+# local.properties is git-ignored. NEVER commit real keys.
+
+sdk.dir=/path/to/your/Android/Sdk
+
+# Pexels API key — get one at https://www.pexels.com/api/
+# Required for Pexels wallpaper source. If absent, source shows as "key missing".
+PEXELS_API_KEY=
+
+# Unsplash Access Key — get one at https://unsplash.com/developers
+# Required for Unsplash source. Must follow attribution rules (§3 in SPEC.md).
+UNSPLASH_ACCESS_KEY=
+
+# Wallhaven API key — optional, get at https://wallhaven.cc/settings/account
+# Not required for SFW content; key unlocks NSFW (which this app filters out anyway).
+WALLHAVEN_API_KEY=
