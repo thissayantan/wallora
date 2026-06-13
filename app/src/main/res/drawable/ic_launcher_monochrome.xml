@@ -1,23 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Monochrome icon for Android 13+ themed icon support.
-     Single-color (white) so the OS can tint it with the system accent. -->
+<!-- Monochrome layer for Android 13+ themed icon support.
+     Even-odd fill punches the frame interior transparent so the OS accent
+     tints only the ring, mountains, and sun. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Wallpaper frame -->
+
+    <!-- Frame ring: outer rounded rect minus inner cutout (evenOdd rule) -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M34,38 L74,38 Q76,38 76,40 L76,70 Q76,72 74,72 L34,72 Q32,72 32,70 L32,40 Q32,38 34,38 Z" />
-    <!-- Cut-out sun (transparent circle, punched into frame) -->
+        android:fillType="evenOdd"
+        android:pathData="M30,28 L78,28 Q88,28 88,38 L88,72 Q88,82 78,82 L30,82 Q20,82 20,72 L20,38 Q20,28 30,28 Z M30,33 L78,33 Q83,33 83,38 L83,63 Q83,68 78,68 L30,68 Q25,68 25,63 L25,38 Q25,33 30,33 Z" />
+
+    <!-- Mountain silhouette -->
     <path
-        android:fillColor="#00000000"
-        android:pathData="M54,48 m-8,0 a8,8 0 1,0 16,0 a8,8 0 1,0 -16,0" />
-    <!-- Horizon line -->
+        android:fillColor="#FFFFFF"
+        android:pathData="M22,70 L41,52 L54,61 L67,46 L86,70 Z" />
+
+    <!-- Sun disc -->
     <path
-        android:fillColor="#00000000"
-        android:strokeColor="#FFFFFF"
-        android:strokeWidth="2"
-        android:pathData="M32,62 L44,54 L52,60 L62,50 L76,62" />
+        android:fillColor="#FFFFFF"
+        android:pathData="M76,43 m-5,0 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0" />
+
 </vector>
