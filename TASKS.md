@@ -105,10 +105,10 @@ every task; run unit tests after every phase. See CLAUDE.md for autonomy rules.
       canScheduleExactAlarms() check; inexact fallback; BOOT_COMPLETED BroadcastReceiver
       re-registers alarms + periodic work; SCHEDULE_EXACT_ALARM permission declared in
       manifest with graceful flow. Commit.
-- [ ] P4-d: Rotation settings wiring — Settings rows for mode/playlist/times/constraints;
+- [x] P4-d: Rotation settings wiring — Settings rows for mode/playlist/times/constraints;
       "next change" status display; "on unlock" option hidden in static mode with
       inline explanation. Commit.
-- [ ] P4-phase-test: `./gradlew testDebugUnitTest`.
+- [x] P4-phase-test: `./gradlew testDebugUnitTest`.
 
 ## Phase 5 — Live wallpaper mode & skip controls
 

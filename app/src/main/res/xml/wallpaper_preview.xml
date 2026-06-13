@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Live wallpaper metadata for the system's wallpaper picker.
+    Shown when the user selects Wallora from the live wallpaper chooser.
+-->
+<wallpaper xmlns:android="http://schemas.android.com/apk/res/android"
+    android:description="@string/app_name"
+    android:thumbnail="@mipmap/ic_launcher"
+    android:settingsActivity="com.wallora.app.MainActivity" />
