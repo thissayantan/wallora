@@ -33,6 +33,7 @@
     <string name="source_key_missing_desc">Add key to local.properties to enable this source</string>
 
     <!-- Actions -->
+    <string name="action_back">Back</string>
     <string name="action_set_wallpaper">Set wallpaper</string>
     <string name="action_set_home">Home screen</string>
     <string name="action_set_lock">Lock screen</string>
@@ -119,4 +120,103 @@
 
     <!-- Settings — double-tap hint -->
     <string name="settings_gesture_hint">Most launchers consume the double-tap; use a launcher gesture or the app shortcut instead</string>
+
+    <!-- Settings — master list group labels -->
+    <string name="settings_group_content">Content</string>
+    <string name="settings_group_wallpaper">Wallpaper</string>
+    <string name="settings_group_app">App</string>
+
+    <!-- Settings — master list row titles + subtitles -->
+    <string name="settings_sources_title">Sources &amp; API keys</string>
+    <string name="settings_sources_subtitle">Enabled providers and personal API keys</string>
+    <string name="settings_categories_title">Categories &amp; keywords</string>
+    <string name="settings_categories_subtitle">Browse focus, custom topics, Reddit subreddits</string>
+    <string name="settings_rotation_title">Auto-change wallpaper</string>
+    <string name="settings_rotation_subtitle">Schedule, interval and playlist</string>
+    <string name="settings_live_title">Live wallpaper &amp; parallax</string>
+    <string name="settings_live_subtitle">Parallax scrolling and live wallpaper mode</string>
+    <string name="settings_remote_title">Change from anywhere</string>
+    <string name="settings_remote_subtitle">Launcher gesture, QS tile, widget, Tasker</string>
+    <string name="settings_appearance_title">Appearance</string>
+    <string name="settings_appearance_subtitle">App theme</string>
+    <string name="settings_clear_cache_subtitle">Free up disk space used by cached images</string>
+    <string name="settings_about_subtitle">Version, developer and licenses</string>
+
+    <!-- Settings — search -->
+    <string name="settings_search_hint">Search settings…</string>
+    <string name="settings_search_no_results">No settings found for "%1$s"</string>
+
+    <!-- Settings — Sources page -->
+    <string name="settings_source_needs_key">Add your API key below to enable</string>
+    <string name="settings_api_keys_section">API Keys</string>
+    <string name="settings_api_keys_hint">Add your own free API keys. Stored on-device only.</string>
+    <string name="settings_api_pexels_label">Pexels API key</string>
+    <string name="settings_api_pexels_hint">Free key at pexels.com/api</string>
+    <string name="settings_api_unsplash_label">Unsplash Access Key</string>
+    <string name="settings_api_unsplash_hint">Free key at unsplash.com/developers</string>
+    <string name="settings_api_wallhaven_label">Wallhaven API key (optional)</string>
+    <string name="settings_api_wallhaven_hint">wallhaven.cc/settings/account — unlocks higher limits</string>
+    <string name="settings_api_key_configured">Key configured</string>
+    <string name="settings_api_key_save">Save</string>
+    <string name="settings_api_key_clear">Clear</string>
+    <string name="settings_api_key_show">Show</string>
+    <string name="settings_api_key_hide">Hide</string>
+    <string name="settings_api_key_edit">Edit</string>
+
+    <!-- Settings — Categories page -->
+    <string name="settings_categories_focus_hint">Select categories to focus on — leave all off to show everything</string>
+    <string name="settings_custom_keyword_add">Add keyword</string>
+    <string name="settings_custom_keyword_dialog_title">Add custom category</string>
+    <string name="settings_custom_keyword_dialog_body">Type any keyword to add it as a browsable category.</string>
+    <string name="settings_custom_keyword_placeholder">e.g. ocean sunset</string>
+    <string name="settings_reddit_section">Reddit sources</string>
+    <string name="settings_reddit_hint">Subreddits Wallora browses for wallpapers</string>
+    <string name="settings_reddit_add">Add subreddit</string>
+    <string name="settings_reddit_placeholder">e.g. wallpapers</string>
+    <string name="settings_reddit_reset">Reset to defaults</string>
+    <string name="settings_remove_content_desc">Remove %1$s</string>
+
+    <!-- Settings — Rotation page -->
+    <string name="settings_rotation_enable">Enable auto-change</string>
+    <string name="settings_rotation_enable_desc">Rotates wallpaper on a schedule or at set times</string>
+    <string name="settings_rotation_playlist">Playlist</string>
+    <string name="settings_rotation_playlist_categories">Current categories</string>
+    <string name="settings_rotation_playlist_favorites">Favorites only</string>
+    <string name="settings_rotation_add_time">Add time</string>
+    <string name="settings_rotation_time_placeholder">e.g. 08:00</string>
+    <string name="settings_rotation_no_times">No specific times set</string>
+
+    <!-- Settings — Live page -->
+    <string name="settings_parallax_desc">Scrolls as you swipe between home screens. Requires live wallpaper mode and a launcher that sends scroll offsets.</string>
+    <string name="settings_filters_section">Wallpaper filters</string>
+    <string name="settings_filters_none">No filters applied</string>
+    <string name="settings_filters_desc">Use Edit &amp; Set in any wallpaper preview to configure default adjustments.</string>
+    <string name="settings_filters_reset">Reset filters</string>
+
+    <!-- Settings — Remote page -->
+    <string name="settings_remote_intro">No need to open the app — Wallora integrates with your launcher, notification shade and automation apps.</string>
+    <string name="settings_remote_longpress_title">Long-press app icon</string>
+    <string name="settings_remote_longpress_desc">Tap "Next wallpaper" — works with any launcher</string>
+    <string name="settings_remote_gesture_title">Nova / Lawnchair gesture</string>
+    <string name="settings_remote_gesture_desc">Launcher settings → Gestures → App shortcuts → Wallora → Next wallpaper</string>
+    <string name="settings_remote_tile_title">Quick Settings tile</string>
+    <string name="settings_remote_tile_desc">Pull down shade → edit tiles → drag "Next wallpaper" into active tiles</string>
+    <string name="settings_remote_tasker_title">Tasker / automation</string>
+    <string name="settings_remote_tasker_desc">Intent action: com.wallora.app.action.NEXT_WALLPAPER</string>
+
+    <!-- Settings — About page -->
+    <string name="settings_about_version">Wallora v1.0</string>
+    <string name="settings_about_license">Open-source · MIT License</string>
+    <string name="settings_developer">Developer</string>
+    <string name="settings_developer_name">Sayantan Das</string>
+    <string name="settings_github">GitHub</string>
+    <string name="settings_credits_title">Photo credits</string>
+    <string name="settings_credits_desc">Photos from Pexels · Wallhaven · Unsplash · Reddit. Attribution per each source\'s license.</string>
+
+    <!-- Settings — Appearance popup -->
+    <string name="settings_theme_title">Choose theme</string>
+
+    <!-- Settings — Clear cache confirm -->
+    <string name="settings_clear_cache_confirm_title">Clear image cache?</string>
+    <string name="settings_clear_cache_confirm_body">This will remove all cached thumbnails and full-resolution images. They will be re-downloaded as needed.</string>
 </resources>

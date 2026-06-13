@@ -1,5 +1,7 @@
 package com.wallora.app.ui.navigation
 
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.History
@@ -15,6 +17,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -30,6 +33,14 @@ import com.wallora.app.ui.history.HistoryScreen
 import com.wallora.app.ui.home.HomeScreen
 import com.wallora.app.ui.search.SearchScreen
 import com.wallora.app.ui.settings.SettingsScreen
+import com.wallora.app.ui.settings.SettingsViewModel
+import com.wallora.app.ui.settings.WalloraSettingsRoute
+import com.wallora.app.ui.settings.pages.SettingsAboutPage
+import com.wallora.app.ui.settings.pages.SettingsCategoriesPage
+import com.wallora.app.ui.settings.pages.SettingsLivePage
+import com.wallora.app.ui.settings.pages.SettingsRemotePage
+import com.wallora.app.ui.settings.pages.SettingsRotationPage
+import com.wallora.app.ui.settings.pages.SettingsSourcesPage
 
 sealed class WalloraRoute(val route: String) {
     data object Home : WalloraRoute("home")
@@ -37,6 +48,13 @@ sealed class WalloraRoute(val route: String) {
     data object Favorites : WalloraRoute("favorites")
     data object History : WalloraRoute("history")
     data object Settings : WalloraRoute("settings")
+    // Settings sub-pages (bottom bar hidden on these)
+    data object SettingsSources : WalloraRoute(WalloraSettingsRoute.SOURCES)
+    data object SettingsCategories : WalloraRoute(WalloraSettingsRoute.CATEGORIES)
+    data object SettingsRotation : WalloraRoute(WalloraSettingsRoute.ROTATION)
+    data object SettingsLive : WalloraRoute(WalloraSettingsRoute.LIVE)
+    data object SettingsRemote : WalloraRoute(WalloraSettingsRoute.REMOTE)
+    data object SettingsAbout : WalloraRoute(WalloraSettingsRoute.ABOUT)
     // Detail is a full-screen route, not in bottom nav
     data object Detail : WalloraRoute("detail/{globalKey}") {
         fun createRoute(globalKey: String): String {
@@ -52,7 +70,8 @@ sealed class WalloraRoute(val route: String) {
     }
 }
 
-private val fullScreenRoutes = setOf("detail/", "editor/")
+// "settings/" prefix matches all sub-pages but NOT the master "settings" tab itself.
+private val fullScreenRoutes = setOf("detail/", "editor/", "settings/")
 
 private val bottomNavItems = listOf(
     Triple(WalloraRoute.Home, Icons.Default.Home, R.string.nav_home),
@@ -140,7 +159,88 @@ fun WalloraNavGraph() {
                 )
             }
             composable(WalloraRoute.Settings.route) {
-                SettingsScreen(contentPadding = innerPadding)
+                SettingsScreen(
+                    contentPadding = innerPadding,
+                    onNavigate = { route -> navController.navigate(route) },
+                )
+            }
+
+            // ── Settings sub-pages (shared single ViewModel scoped to master entry) ──
+            // Slide transition: drill-in from right, pop back to left.
+            val settingsEnter = slideInHorizontally { it }
+            val settingsExit = slideOutHorizontally { -it / 3 }
+            val settingsPopEnter = slideInHorizontally { -it / 3 }
+            val settingsPopExit = slideOutHorizontally { it }
+
+            composable(
+                route = WalloraRoute.SettingsSources.route,
+                enterTransition = { settingsEnter },
+                exitTransition = { settingsExit },
+                popEnterTransition = { settingsPopEnter },
+                popExitTransition = { settingsPopExit },
+            ) { entry ->
+                val parent = remember(entry) {
+                    navController.getBackStackEntry(WalloraRoute.Settings.route)
+                }
+                val vm: SettingsViewModel = hiltViewModel(parent)
+                SettingsSourcesPage(vm = vm, onBack = { navController.popBackStack() })
+            }
+            composable(
+                route = WalloraRoute.SettingsCategories.route,
+                enterTransition = { settingsEnter },
+                exitTransition = { settingsExit },
+                popEnterTransition = { settingsPopEnter },
+                popExitTransition = { settingsPopExit },
+            ) { entry ->
+                val parent = remember(entry) {
+                    navController.getBackStackEntry(WalloraRoute.Settings.route)
+                }
+                val vm: SettingsViewModel = hiltViewModel(parent)
+                SettingsCategoriesPage(vm = vm, onBack = { navController.popBackStack() })
+            }
+            composable(
+                route = WalloraRoute.SettingsRotation.route,
+                enterTransition = { settingsEnter },
+                exitTransition = { settingsExit },
+                popEnterTransition = { settingsPopEnter },
+                popExitTransition = { settingsPopExit },
+            ) { entry ->
+                val parent = remember(entry) {
+                    navController.getBackStackEntry(WalloraRoute.Settings.route)
+                }
+                val vm: SettingsViewModel = hiltViewModel(parent)
+                SettingsRotationPage(vm = vm, onBack = { navController.popBackStack() })
+            }
+            composable(
+                route = WalloraRoute.SettingsLive.route,
+                enterTransition = { settingsEnter },
+                exitTransition = { settingsExit },
+                popEnterTransition = { settingsPopEnter },
+                popExitTransition = { settingsPopExit },
+            ) { entry ->
+                val parent = remember(entry) {
+                    navController.getBackStackEntry(WalloraRoute.Settings.route)
+                }
+                val vm: SettingsViewModel = hiltViewModel(parent)
+                SettingsLivePage(vm = vm, onBack = { navController.popBackStack() })
+            }
+            composable(
+                route = WalloraRoute.SettingsRemote.route,
+                enterTransition = { settingsEnter },
+                exitTransition = { settingsExit },
+                popEnterTransition = { settingsPopEnter },
+                popExitTransition = { settingsPopExit },
+            ) {
+                SettingsRemotePage(onBack = { navController.popBackStack() })
+            }
+            composable(
+                route = WalloraRoute.SettingsAbout.route,
+                enterTransition = { settingsEnter },
+                exitTransition = { settingsExit },
+                popEnterTransition = { settingsPopEnter },
+                popExitTransition = { settingsPopExit },
+            ) {
+                SettingsAboutPage(onBack = { navController.popBackStack() })
             }
             // Detail screen: full-screen, no bottom bar
             // NOTE: We pass the wallpaper via back-stack saved state to avoid re-fetching
