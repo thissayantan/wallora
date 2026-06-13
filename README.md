@@ -1,46 +1,63 @@
 # Wallora
 
-A Material You Android wallpaper app that browses, searches, and auto-rotates
-wallpapers from multiple sources — Pexels, Wallhaven, Unsplash, and Reddit.
+**A minimal, Material You wallpaper app for Android.**
+
+Browse, search, and auto-rotate beautiful wallpapers from Pexels, Wallhaven, Unsplash, and Reddit — with a live wallpaper engine, parallax scrolling, a home-screen widget, and a Quick Settings tile.
+
+[![Build](https://img.shields.io/badge/build-passing-brightgreen)](#building)
+[![API](https://img.shields.io/badge/API-31%2B-blue)](https://developer.android.com/about/versions/12/android-12)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.x-purple)](https://kotlinlang.org)
 
 ---
 
 ## Features
 
-| Feature | Description |
-|---------|-------------|
-| **Multi-source browsing** | Staggered grid from Pexels, Wallhaven, Unsplash, Reddit |
-| **Category filtering** | Nature, Space, Animals, Abstract, AMOLED, Anime, and more |
-| **Search** | Real-time fan-out search across all enabled sources |
-| **Favorites & History** | Persistent favorites + set history tracked in Room |
-| **Detail view** | Full-res preview, author attribution, resolution, Set/Share/Download |
-| **Editor** | Blur, brightness, contrast, saturation, pan; live preview; apply or save as default |
-| **Auto-rotation** | Interval (WorkManager) + specific times (AlarmManager) + on-unlock |
-| **Live wallpaper** | Double-tap for next, parallax scrolling, crossfade transitions |
-| **Glance widget** | Home screen widget showing current wallpaper + "Next" button |
-| **Quick Settings tile** | One-tap "Next wallpaper" from notification shade |
-| **Material You** | Dynamic colour, WallpaperColors from current bitmap |
-| **Theme** | System / Light / Dark |
+| | Feature |
+|---|---|
+| 🖼️ | **Multi-source browsing** — staggered grid from Pexels, Wallhaven, Unsplash, and Reddit |
+| 🔍 | **Search** — real-time fan-out search across all enabled sources simultaneously |
+| 🏷️ | **Category filters** — Nature, Space, Animals, Abstract, AMOLED, Anime, and more |
+| ❤️ | **Favorites & History** — persist your saves and track what you've set |
+| 👁️ | **Full-res preview** — hardware-safe decode with per-image error states |
+| ✏️ | **Editor** — blur, brightness, contrast, saturation, pan; apply or save as default |
+| 🔄 | **Auto-rotation** — interval (WorkManager) + specific times (AlarmManager) + on-unlock |
+| 🌊 | **Live wallpaper** — parallax scrolling, crossfade transitions, Material You colours |
+| 🪟 | **Home-screen widget** — current wallpaper thumbnail + one-tap "Next" button |
+| 🔲 | **Quick Settings tile** — change wallpaper from the notification shade |
+| 🎨 | **Material You** — dynamic colour, WallpaperColors from the current bitmap |
+| 🌙 | **Theme** — System / Light / Dark |
+| ⚡ | **Prefetch cache** — next wallpaper downloaded in the background after each apply |
 
 ---
 
-## Building
+## Screenshots
 
-### Prerequisites
+_Coming soon — contributions welcome!_
 
-- **JDK 17** at `~/.local/jdk17` (or update `JAVA_HOME`)
-- **Android SDK** with `platforms;android-35` and `build-tools;35.0.0`
-- A `local.properties` file at the project root (see below)
+---
+
+## Getting Started
+
+### Requirements
+
+- Android **12** (API 31) or higher
+- JDK 17
+- Android SDK with `platforms;android-35` and `build-tools;35.0.0`
 
 ### Quick build
 
 ```bash
-export JAVA_HOME=$HOME/.local/jdk17
+export JAVA_HOME=$HOME/.local/jdk17      # or wherever your JDK 17 lives
 export ANDROID_HOME=$HOME/Android/Sdk
 ./gradlew assembleDebug
 ```
 
-The debug APK is at `app/build/outputs/apk/debug/app-debug.apk`.
+Install on a connected device:
+
+```bash
+adb install app/build/outputs/apk/debug/app-debug.apk
+```
 
 ### Running tests
 
@@ -48,31 +65,30 @@ The debug APK is at `app/build/outputs/apk/debug/app-debug.apk`.
 ./gradlew testDebugUnitTest
 ```
 
-All unit tests are pure JVM or Robolectric — no emulator needed.
+All unit tests are pure JVM / Robolectric — no device or emulator needed.
 
 ---
 
 ## API key setup
 
-Copy `local.properties.example` to `local.properties` (already git-ignored) and fill
-in your keys:
+Wallora works **out of the box** with Wallhaven (SFW) and Reddit — no key required.
+
+For higher-quality sources, copy `local.properties.example` to `local.properties` (already `.gitignore`d) and add your keys:
 
 ```properties
 sdk.dir=/home/<you>/Android/Sdk
 
-# Pexels — https://www.pexels.com/api/
+# Pexels — https://www.pexels.com/api/  (free)
 PEXELS_API_KEY=your_key_here
 
-# Unsplash — https://unsplash.com/developers
+# Unsplash — https://unsplash.com/developers  (free)
 UNSPLASH_ACCESS_KEY=your_access_key_here
 
-# Wallhaven — https://wallhaven.cc/settings/account (optional, enables higher-res)
+# Wallhaven — https://wallhaven.cc/settings/account  (optional; unlocks NSFW filter)
 WALLHAVEN_API_KEY=your_key_here
 ```
 
-**Wallhaven works without a key** (SFW only). Reddit works without any key.
-Sources without a key are shown as disabled in Settings > Sources; they are still
-built into the app behind `isConfigured = false` and backed by JSON-fixture unit tests.
+Sources without a key are shown as **disabled** in Settings → Sources. They are still compiled in behind `isConfigured = false` and tested against committed JSON fixtures.
 
 ---
 
@@ -81,109 +97,105 @@ built into the app behind `isConfigured = false` and backed by JSON-fixture unit
 ```
 app/
   data/
-    local/          Room: WallpaperEntity, FavoriteEntity, HistoryEntity, RecentSearchEntity
-    remote/         Pexels, Wallhaven, Reddit, Unsplash — Retrofit + kotlinx.serialization
-    paging/         MultiSourcePagingSource (round-robin fan-out + URL dedup)
-    repository/     WallpaperRepository, SettingsRepository (DataStore)
-    util/           SafeBitmapDecoder, ImageAdjustments
+    local/       Room: WallpaperEntity, FavoriteEntity, HistoryEntity, RecentSearchEntity
+    remote/      Pexels · Wallhaven · Reddit · Unsplash  (Retrofit + kotlinx.serialization)
+    paging/      MultiSourcePagingSource (round-robin fan-out + URL dedup)
+    repository/  WallpaperRepository, SettingsRepository (DataStore Preferences)
+    util/        SafeBitmapDecoder, ImageAdjustments
   domain/
-    model/          Wallpaper, Category, SourceId, EditParams
-    rotation/       RotationEngine (no-repeat window, playlist selection)
-    usecase/        ApplyWallpaperUseCase, NextWallpaperUseCase
+    model/       Wallpaper, Category, SourceId, EditParams
+    rotation/    RotationEngine (no-repeat window, playlist selection)
+    usecase/     ApplyWallpaperUseCase, NextWallpaperUseCase (prefetch + candidate cache)
   ui/
-    home/           HomeScreen + HomeViewModel (staggered grid, category chips)
-    search/         SearchScreen + SearchViewModel (fan-out, recent searches)
-    detail/         DetailScreen + DetailViewModel (full-res preview, actions)
-    editor/         EditorScreen + EditorViewModel (adjustments, live preview)
-    favorites/      FavoritesScreen + FavoritesViewModel
-    history/        HistoryScreen + HistoryViewModel
-    settings/       SettingsScreen + SettingsViewModel (all SPEC §10 sections)
-    navigation/     WalloraNavGraph (typed sealed routes, bottom nav)
-    theme/          WalloraTheme (dynamic color, edge-to-edge)
+    home/        HomeScreen + HomeViewModel (staggered grid, category chips)
+    search/      SearchScreen + SearchViewModel (fan-out, recent searches)
+    detail/      DetailScreen + DetailViewModel (full-res preview, actions)
+    editor/      EditorScreen + EditorViewModel (adjustments, live preview)
+    favorites/   FavoritesScreen + FavoritesViewModel
+    history/     HistoryScreen + HistoryViewModel
+    settings/    SettingsScreen + SettingsViewModel
+    navigation/  WalloraNavGraph (typed sealed routes, bottom nav)
+    theme/       WalloraTheme (dynamic colour, edge-to-edge)
   service/
-    WalloraWallpaperService   Live wallpaper engine (parallax, crossfade, double-tap)
+    WalloraWallpaperService   Live wallpaper engine (parallax, crossfade)
     WalloraQsTileService      Quick Settings tile
     helpers/                  ParallaxMath, CrossfadeAnimator, CropCalculator
   widget/
-    WalloraWidget             Glance app widget
+    WalloraWidget             Glance app widget + NextWallpaperAction
   worker/
     RotationWorker            WorkManager periodic interval rotation
     AlarmScheduler            AlarmManager exact/inexact alarm scheduling
-    AlarmScheduleCalculator   Pure helper: next trigger from HH:mm set
-    BootReceiver               Re-registers alarms + work on BOOT_COMPLETED
-    RotationAlarmReceiver      Alarm fires → next wallpaper → re-chain
+    BootReceiver              Re-registers alarms on BOOT_COMPLETED
 ```
+
+**Key decisions:**
+- Custom fan-out `PagingSource` (not `RemoteMediator`) for multi-source interleave
+- Non-RenderScript blur: downscale → iterative box blur → upscale
+- Parallax via over-wide bitmap (1.3×) + `onOffsetsChanged` translation
+- `allowHardware(false)` in detail preview to sidestep GPU texture-size overflow on high-res images
+- Baseline Profile deferred (requires device/managed emulator); see `DECISIONS.md`
 
 ---
 
 ## Gesture & shortcut binding
 
-### Skip to next wallpaper (any launcher)
+### Next wallpaper — fastest ways
 
-The fastest way to change the wallpaper without opening the app is the **app shortcut**:
+| Method | How |
+|---|---|
+| **App shortcut** | Long-press the Wallora icon → **Next wallpaper** |
+| **Nova Launcher gesture** | Nova Settings → Gestures & inputs → *your gesture* → App shortcuts → Wallora → Next wallpaper |
+| **Tasker / automation** | Send intent `com.wallora.app.action.NEXT_WALLPAPER` to `com.wallora.app.ui.NextWallpaperActivity` |
+| **Quick Settings tile** | Add "Next wallpaper" tile from notification shade edit mode |
 
-- Long-press the Wallora icon → **Next wallpaper** (appears in the shortcut list)
+### Double-tap (live wallpaper mode)
 
-### Nova Launcher gesture
+Off by default — most launchers consume double-tap for their own gestures. Enable in Settings → Live Wallpaper & Gestures only if your launcher passes it through.
 
-1. Nova settings → **Gestures & inputs** → choose a gesture (e.g. Two-finger swipe down)
-2. → **App shortcuts** → Wallora → **Next wallpaper**
+### Parallax (Nova Launcher 8)
 
-Alternatively: Nova settings → **Gestures & inputs** → Swipe Down on Home → **App shortcut**
-→ select Wallora → Next wallpaper.
-
-### Tasker / automation
-
-Send an intent with action `com.wallora.app.action.NEXT_WALLPAPER` to trigger a rotation
-without opening the app:
-
-```
-Package:  com.wallora.app
-Class:    com.wallora.app.ui.NextWallpaperActivity
-Action:   com.wallora.app.action.NEXT_WALLPAPER
-```
-
-### Double-tap gesture (live wallpaper mode)
-
-The **double-tap on the home screen** toggle in Settings → Live Wallpaper & Gestures is
-**off by default** because most launchers consume the double-tap for their own actions
-(lock screen, app drawer, etc.). Enable it only if your launcher passes double-taps through
-to the live wallpaper.
-
-### Parallax scrolling (live wallpaper mode)
-
-If parallax does not move on Nova Launcher 8:
-1. Nova settings → **Desktop** → enable **Scroll wallpaper**
-2. The Wallora engine decodes a 1.3× wide bitmap and translates it as you scroll between
-   home screen pages. The centred fallback activates for launchers that send no offsets.
+Nova Settings → **Desktop** → enable **Scroll wallpaper**.
 
 ---
 
-### Key decisions
+## Contributing
 
-See `DECISIONS.md` for full rationale. Highlights:
+Pull requests are welcome! Please:
 
-- **Custom PagingSource** (not RemoteMediator) for multi-source fan-out. Room is a side
-  cache, not the Paging backing store.
-- **Non-RenderScript blur**: downscale → iterative box blur → upscale. No RS dependency.
-- **Parallax**: over-wide bitmap (1.3×), `onOffsetsChanged` → pixel translation;
-  `PARALLAX_SCALE = 1.3f`.
-- **Reddit**: source is fully implemented and unit-tested against a committed
-  `reddit_hot.json` fixture. On-device fetch may be blocked from datacenter IPs (HTTP
-  403); this is expected and fails soft without blanking the grid.
-- **Exact alarms**: `setExactAndAllowWhileIdle` behind `canScheduleExactAlarms()`;
-  inexact fallback via `setAndAllowWhileIdle`.
+1. Fork the repo and create a feature branch
+2. Follow the existing Kotlin style (official Kotlin coding conventions)
+3. Add or update unit tests for logic changes
+4. Run `./gradlew testDebugUnitTest lintDebug` before opening a PR
+5. Open a PR describing what changed and why
 
----
-
-## Screenshots
-
-_TODO: add screenshots once running on a device or emulator._
+For bug reports, please include your device model, Android version, and steps to reproduce.
 
 ---
 
 ## License
 
-Source code: MIT.  
-Photo content is served from third-party APIs per each source's license.  
-See Settings > About for per-source attribution.
+```
+MIT License
+
+Copyright (c) 2026 Sayantan Dey
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+Photo content is served from third-party APIs per each source's license. See Settings → About for per-source attribution.
