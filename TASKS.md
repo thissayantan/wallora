@@ -99,7 +99,7 @@ every task; run unit tests after every phase. See CLAUDE.md for autonomy rules.
 - [x] P4-a: Interval rotation — WorkManager PeriodicWorkRequest (15m minimum;
       offer 15m/30m/1h/3h/6h/12h/24h), Wi-Fi-only and charging-only constraints,
       Settings UI rows for interval + constraints. Commit.
-- [ ] P4-b: AlarmScheduleCalculator — pure helper: given a list of time-of-day pairs
+- [x] P4-b: AlarmScheduleCalculator — pure helper: given a list of time-of-day pairs
       and current instant, return next trigger instant. Unit tests. Commit.
 - [ ] P4-c: Exact alarm trigger — AlarmManager setExactAndAllowWhileIdle behind
       canScheduleExactAlarms() check; inexact fallback; BOOT_COMPLETED BroadcastReceiver
