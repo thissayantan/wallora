@@ -108,7 +108,7 @@ under the live service; parallax has no bitmap to translate.
 
 ## Group E — parallax (Nova Launcher 8)
 
-- [ ] E1. **Parallax actually moves (Root cause #2, shared with A2-live).** After the
+- [x] E1. **Parallax actually moves (Root cause #2, shared with A2-live).** After the
       engine bitmap wiring (A2-live), ensure: (a) `setOffsetNotificationsEnabled(true)` in
       `Engine.onCreate`; (b) bitmap decoded at `overwideBitmapWidth = (surfaceWidth * 1.3f)
       .roundToInt()` (or source width, whichever smaller); (c) `desiredMinimumWidth` returns

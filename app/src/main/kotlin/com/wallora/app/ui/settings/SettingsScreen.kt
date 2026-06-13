@@ -221,14 +221,16 @@ fun SettingsScreen(
             SettingsSectionHeader("Live Wallpaper & Gestures")
             ListItem(
                 headlineContent = { Text(stringResource(R.string.settings_gesture)) },
-                supportingContent = { Text("Double-tap home screen to skip to next wallpaper") },
+                supportingContent = { Text(stringResource(R.string.settings_gesture_hint)) },
                 trailingContent = {
                     Switch(checked = doubleTapEnabled, onCheckedChange = viewModel::setDoubleTapEnabled)
                 },
             )
             ListItem(
                 headlineContent = { Text(stringResource(R.string.settings_parallax)) },
-                supportingContent = { Text(stringResource(R.string.settings_parallax_hint)) },
+                supportingContent = {
+                    Text("${stringResource(R.string.settings_parallax_hint)} — Nova Launcher: enable Settings → Scroll wallpaper")
+                },
                 trailingContent = {
                     Switch(checked = parallaxEnabled, onCheckedChange = viewModel::setParallaxEnabled)
                 },
