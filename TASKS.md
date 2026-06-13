@@ -77,11 +77,11 @@ every task; run unit tests after every phase. See CLAUDE.md for autonomy rules.
 
 ## Phase 3 — Setting wallpapers & editor
 
-- [ ] P3-a: Apply pipeline — full-res download → SafeBitmapDecoder (region/sampled
+- [x] P3-a: Apply pipeline — full-res download → SafeBitmapDecoder (region/sampled
       OOM-safe decode to device screen size, center-crop) → WallpaperManager set
       Home/Lock/Both; Unsplash download-ping on apply; success/failure snackbars;
       progress indicator. Commit.
-- [ ] P3-b: Adjustment pipeline — pure EditParams (blur, brightness, contrast,
+- [x] P3-b: Adjustment pipeline — pure EditParams (blur, brightness, contrast,
       saturation, crop offset); ColorMatrix math for b/c/s; non-RenderScript blur
       (downscale→stack-blur→upscale or renderscript-toolkit); unit tests for
       ColorMatrix math and blur radius bounds. Commit.

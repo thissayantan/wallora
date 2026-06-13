@@ -8,7 +8,9 @@ import android.util.Log
 import android.view.WindowManager
 import com.wallora.app.data.remote.UnsplashSource
 import com.wallora.app.data.repository.WallpaperRepository
+import com.wallora.app.data.util.ImageAdjustments
 import com.wallora.app.data.util.SafeBitmapDecoder
+import com.wallora.app.domain.model.EditParams
 import com.wallora.app.domain.model.SourceId
 import com.wallora.app.domain.model.Wallpaper
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -45,13 +47,19 @@ class ApplyWallpaperUseCase @Inject constructor(
         wallpaper: Wallpaper,
         target: WallpaperTarget,
         editedBitmap: Bitmap? = null, // pre-edited bitmap from the editor, if any
+        editParams: EditParams? = null, // adjustments to apply after decoding
     ): ApplyResult = withContext(Dispatchers.IO) {
         try {
-            val bitmap = editedBitmap ?: run {
+            val rawBitmap = editedBitmap ?: run {
                 val (screenW, screenH) = screenSize()
                 val bytes = downloadBytes(wallpaper.fullUrl) ?: return@withContext ApplyResult.Failure("Download failed")
                 SafeBitmapDecoder.decodeRegion(bytes, screenW, screenH)
                     ?: return@withContext ApplyResult.Failure("Could not decode image")
+            }
+            val bitmap = if (editParams != null && editParams != EditParams.Default) {
+                ImageAdjustments.apply(rawBitmap, editParams)
+            } else {
+                rawBitmap
             }
 
             val manager = WallpaperManager.getInstance(context)
@@ -70,7 +78,10 @@ class ApplyWallpaperUseCase @Inject constructor(
                 unsplashSource.trackDownload(wallpaper.sourcePageUrl)
             }
 
-            if (editedBitmap == null) bitmap.recycle()
+            // Recycle intermediate bitmap if we allocated it
+            if (editedBitmap == null || (editParams != null && editParams != EditParams.Default)) {
+                bitmap.recycle()
+            }
 
             ApplyResult.Success
         } catch (e: Exception) {

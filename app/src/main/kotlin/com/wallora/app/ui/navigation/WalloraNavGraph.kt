@@ -19,6 +19,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.wallora.app.R
+import com.wallora.app.ui.editor.EditorScreen
 import com.wallora.app.ui.favorites.FavoritesScreen
 import com.wallora.app.ui.history.HistoryScreen
 import com.wallora.app.ui.home.HomeScreen
@@ -38,7 +39,15 @@ sealed class WalloraRoute(val route: String) {
             return "detail/${java.net.URLEncoder.encode(globalKey, "UTF-8")}"
         }
     }
+
+    // Editor is a full-screen route launched from Detail
+    data object Editor : WalloraRoute("editor/{globalKey}") {
+        fun createRoute(globalKey: String): String =
+            "editor/${java.net.URLEncoder.encode(globalKey, "UTF-8")}"
+    }
 }
+
+private val fullScreenRoutes = setOf("detail/", "editor/")
 
 private val bottomNavItems = listOf(
     Triple(WalloraRoute.Home, Icons.Default.Home, R.string.nav_home),
@@ -53,7 +62,9 @@ fun WalloraNavGraph() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    val isDetailRoute = currentDestination?.route?.startsWith("detail/") == true
+    val isDetailRoute = fullScreenRoutes.any { prefix ->
+        currentDestination?.route?.startsWith(prefix) == true
+    }
 
     Scaffold(
         bottomBar = {
@@ -130,12 +141,30 @@ fun WalloraNavGraph() {
                     com.wallora.app.ui.detail.DetailScreen(
                         wallpaper = wallpaper,
                         onBack = { navController.popBackStack() },
-                        onSetWallpaper = { /* TODO Phase 3 */ },
-                        onEditAndSet = { /* TODO Phase 3 */ },
+                        onSetWallpaper = { /* handled inside DetailScreen via ViewModel */ },
+                        onEditAndSet = { w ->
+                            navController.currentBackStackEntry
+                                ?.savedStateHandle
+                                ?.set("wallpaper", w)
+                            navController.navigate(WalloraRoute.Editor.createRoute(w.globalKey))
+                        },
                         onMoreLikeThis = { /* TODO Phase 2 search */ },
                     )
                 } else {
                     // Wallpaper not in saved state — navigate back
+                    navController.popBackStack()
+                }
+            }
+            composable(WalloraRoute.Editor.route) {
+                val wallpaper = navController.previousBackStackEntry
+                    ?.savedStateHandle
+                    ?.get<com.wallora.app.domain.model.Wallpaper>("wallpaper")
+                if (wallpaper != null) {
+                    EditorScreen(
+                        wallpaper = wallpaper,
+                        onBack = { navController.popBackStack() },
+                    )
+                } else {
                     navController.popBackStack()
                 }
             }
