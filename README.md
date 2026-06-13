@@ -9,6 +9,16 @@ Browse, search, and auto-rotate beautiful wallpapers from Pexels, Wallhaven, Uns
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.x-purple)](https://kotlinlang.org)
 
+<p align="center">
+  <a href="https://github.com/thissayantan/wallora/releases/download/v1.0.0/app-release.apk">
+    <img src="https://img.shields.io/badge/Download%20APK-v1.0.0-6750A4?style=for-the-badge&logo=android&logoColor=white" alt="Download APK">
+  </a>
+  &nbsp;
+  <a href="https://github.com/thissayantan/wallora/releases/latest">
+    <img src="https://img.shields.io/github/v/release/thissayantan/wallora?style=for-the-badge&color=4E36A0&label=Latest%20Release" alt="Latest Release">
+  </a>
+</p>
+
 ---
 
 ## Features
