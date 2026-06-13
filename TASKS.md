@@ -143,7 +143,7 @@ every task; run unit tests after every phase. See CLAUDE.md for autonomy rules.
       About/Licenses (per-source attribution). Commit.
 - [x] P6-b: Adaptive/themed app icon (adaptive icon with foreground + background,
       monochrome variant), splash screen API (SplashScreen compat). Commit.
-- [ ] P6-c: Performance pass — Coil memory/disk cache tuning, confirm thumbs-only in
+- [x] P6-c: Performance pass — Coil memory/disk cache tuning, confirm thumbs-only in
       grids / full-res only in detail+apply, fix any empty/error states missed earlier,
       no jank audit. Commit.
 - [ ] P6-d: Final verification — `./gradlew assembleDebug` + `./gradlew testDebugUnitTest`

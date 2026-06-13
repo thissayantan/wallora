@@ -1,5 +1,6 @@
 package com.wallora.app.ui.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,11 +20,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.wallora.app.domain.model.Wallpaper
 
 /**
@@ -84,6 +87,13 @@ fun WallpaperThumbCard(
         wallpaper.width.toFloat() / wallpaper.height.toFloat()
     } else 0.5625f // default portrait 9:16
 
+    val context = LocalContext.current
+    val imageRequest = ImageRequest.Builder(context)
+        .data(wallpaper.thumbUrl)
+        .diskCacheKey(wallpaper.globalKey + "_thumb")
+        .crossfade(true)
+        .build()
+
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -93,10 +103,12 @@ fun WallpaperThumbCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         AsyncImage(
-            model = wallpaper.thumbUrl,
+            model = imageRequest,
             contentDescription = wallpaper.author,
             contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surfaceVariant),
         )
     }
 }

@@ -42,6 +42,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.foundation.background
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -52,6 +53,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.wallora.app.R
 import com.wallora.app.domain.model.Wallpaper
 import com.wallora.app.domain.usecase.WallpaperTarget
@@ -157,12 +159,18 @@ fun DetailScreen(
         },
     ) { padding ->
         Box(modifier = Modifier.fillMaxSize()) {
-            // Full-bleed wallpaper preview
+            // Full-bleed wallpaper preview — load full-res with crossfade
             AsyncImage(
-                model = wallpaper.fullUrl,
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(wallpaper.fullUrl)
+                    .diskCacheKey(wallpaper.globalKey + "_full")
+                    .crossfade(500)
+                    .build(),
                 contentDescription = wallpaper.author,
                 contentScale = ContentScale.Fit,
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
             )
 
             // Full-screen progress overlay while applying
