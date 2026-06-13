@@ -1,27 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Monochrome layer for Android 13+ themed icon support.
-     Even-odd fill punches the frame interior transparent so the OS accent
-     tints only the ring, mountains, and sun. -->
+<!--
+  Monochrome layer for Android 13+ themed icons.
+  The OS tints all non-transparent pixels with the system accent colour.
+  Back cards at 50% alpha → lighter tint, front card at 100% → full tint,
+  creating a depth effect that mirrors the full-colour logo.
+-->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
 
-    <!-- Frame ring: outer rounded rect minus inner cutout (evenOdd rule) -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:fillType="evenOdd"
-        android:pathData="M30,28 L78,28 Q88,28 88,38 L88,72 Q88,82 78,82 L30,82 Q20,82 20,72 L20,38 Q20,28 30,28 Z M30,33 L78,33 Q83,33 83,38 L83,63 Q83,68 78,68 L30,68 Q25,68 25,63 L25,38 Q25,33 30,33 Z" />
+    <!-- Left fan card (lower alpha reads as "behind") -->
+    <group
+        android:rotation="-14"
+        android:pivotX="54"
+        android:pivotY="54">
+        <path
+            android:fillColor="#FFFFFF"
+            android:fillAlpha="0.50"
+            android:pathData="M40.92,30.38 L67.08,30.38 Q71.72,30.38 71.72,35.02 L71.72,72.99 Q71.72,77.63 67.08,77.63 L40.92,77.63 Q36.28,77.63 36.28,72.99 L36.28,35.02 Q36.28,30.38 40.92,30.38 Z" />
+    </group>
 
-    <!-- Mountain silhouette -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M22,70 L41,52 L54,61 L67,46 L86,70 Z" />
+    <!-- Right fan card -->
+    <group
+        android:rotation="14"
+        android:pivotX="54"
+        android:pivotY="54">
+        <path
+            android:fillColor="#FFFFFF"
+            android:fillAlpha="0.50"
+            android:pathData="M40.92,30.38 L67.08,30.38 Q71.72,30.38 71.72,35.02 L71.72,72.99 Q71.72,77.63 67.08,77.63 L40.92,77.63 Q36.28,77.63 36.28,72.99 L36.28,35.02 Q36.28,30.38 40.92,30.38 Z" />
+    </group>
 
-    <!-- Sun disc -->
+    <!-- Front card: full opacity -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M76,43 m-5,0 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0" />
+        android:pathData="M40.92,30.38 L67.08,30.38 Q71.72,30.38 71.72,35.02 L71.72,72.99 Q71.72,77.63 67.08,77.63 L40.92,77.63 Q36.28,77.63 36.28,72.99 L36.28,35.02 Q36.28,30.38 40.92,30.38 Z" />
+
+    <!-- Subtle landscape detail inside the front card -->
+    <group>
+        <clip-path
+            android:pathData="M40.92,30.38 L67.08,30.38 Q71.72,30.38 71.72,35.02 L71.72,72.99 Q71.72,77.63 67.08,77.63 L40.92,77.63 Q36.28,77.63 36.28,72.99 L36.28,35.02 Q36.28,30.38 40.92,30.38 Z" />
+        <!-- Dark tint overlay for sun + hills so they read against the white card -->
+        <path
+            android:fillColor="#000000"
+            android:fillAlpha="0.20"
+            android:pathData="M39.87,41.77 a4.85,4.85 0 1,0 9.70,0 a4.85,4.85 0 1,0 -9.70,0" />
+        <path
+            android:fillColor="#000000"
+            android:fillAlpha="0.12"
+            android:pathData="M36.28,70.88 Q46.41,63.28 55.27,68.77 Q63.28,73.41 71.72,67.50 L71.72,77.63 L36.28,77.63 Z" />
+        <path
+            android:fillColor="#000000"
+            android:fillAlpha="0.20"
+            android:pathData="M36.28,73.41 Q45.14,67.50 54.00,71.72 Q63.28,75.94 71.72,70.03 L71.72,77.63 L36.28,77.63 Z" />
+    </group>
 
 </vector>

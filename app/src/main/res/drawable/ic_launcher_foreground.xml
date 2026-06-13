@@ -1,33 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  Wallora adaptive icon foreground — converted from wallora_logo.svg.
+  Source viewport: 512×512. Android viewport: 108×108.
+  Scale factor: 108/512 = 0.2109375.
+
+  Structure (matches SVG):
+    1. Left fan card   – white 30% alpha, rotated -14° around icon center (54,54)
+    2. Right fan card  – white 30% alpha, rotated +14° around icon center (54,54)
+    3. Elevation shadow – #2A1C57 22% alpha, offset 2dp down from front card
+    4. Front card       – solid white
+    5. Clipped landscape – sun circle + two hill layers inside the front card
+-->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
 
-    <!-- Full-bleed dark surface — clipped to the launcher mask shape -->
-    <path
-        android:fillColor="#1C1B1F"
-        android:pathData="M0,0 L108,0 L108,108 L0,108 Z" />
+    <!-- Left fan card: semi-transparent, rotated -14° around icon centre -->
+    <group
+        android:rotation="-14"
+        android:pivotX="54"
+        android:pivotY="54">
+        <path
+            android:fillColor="#FFFFFF"
+            android:fillAlpha="0.30"
+            android:pathData="M40.92,30.38 L67.08,30.38 Q71.72,30.38 71.72,35.02 L71.72,72.99 Q71.72,77.63 67.08,77.63 L40.92,77.63 Q36.28,77.63 36.28,72.99 L36.28,35.02 Q36.28,30.38 40.92,30.38 Z" />
+    </group>
 
-    <!-- White photo frame: outer rounded rect (20,28)→(88,82) -->
+    <!-- Right fan card: semi-transparent, rotated +14° around icon centre -->
+    <group
+        android:rotation="14"
+        android:pivotX="54"
+        android:pivotY="54">
+        <path
+            android:fillColor="#FFFFFF"
+            android:fillAlpha="0.30"
+            android:pathData="M40.92,30.38 L67.08,30.38 Q71.72,30.38 71.72,35.02 L71.72,72.99 Q71.72,77.63 67.08,77.63 L40.92,77.63 Q36.28,77.63 36.28,72.99 L36.28,35.02 Q36.28,30.38 40.92,30.38 Z" />
+    </group>
+
+    <!-- Elevation shadow: same card shape, shifted 2.11dp down, no blur -->
+    <path
+        android:fillColor="#2A1C57"
+        android:fillAlpha="0.22"
+        android:pathData="M40.92,32.49 L67.08,32.49 Q71.72,32.49 71.72,37.13 L71.72,75.10 Q71.72,79.74 67.08,79.74 L40.92,79.74 Q36.28,79.74 36.28,75.10 L36.28,37.13 Q36.28,32.49 40.92,32.49 Z" />
+
+    <!-- Front card: solid white -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M30,28 L78,28 Q88,28 88,38 L88,72 Q88,82 78,82 L30,82 Q20,82 20,72 L20,38 Q20,28 30,28 Z" />
+        android:pathData="M40.92,30.38 L67.08,30.38 Q71.72,30.38 71.72,35.02 L71.72,72.99 Q71.72,77.63 67.08,77.63 L40.92,77.63 Q36.28,77.63 36.28,72.99 L36.28,35.02 Q36.28,30.38 40.92,30.38 Z" />
 
-    <!-- Dark sky: inner rounded rect punches the frame center back to dark -->
-    <path
-        android:fillColor="#1C1B1F"
-        android:pathData="M30,33 L78,33 Q83,33 83,38 L83,63 Q83,68 78,68 L30,68 Q25,68 25,63 L25,38 Q25,33 30,33 Z" />
+    <!-- Landscape scene clipped to the front card bounds -->
+    <group>
+        <clip-path
+            android:pathData="M40.92,30.38 L67.08,30.38 Q71.72,30.38 71.72,35.02 L71.72,72.99 Q71.72,77.63 67.08,77.63 L40.92,77.63 Q36.28,77.63 36.28,72.99 L36.28,35.02 Q36.28,30.38 40.92,30.38 Z" />
 
-    <!-- White mountain silhouette against dark sky -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M22,70 L41,52 L54,61 L67,46 L86,70 Z" />
+        <!-- Sun circle: cx=44.72 cy=41.77 r=4.85 -->
+        <path
+            android:fillColor="#B5A2EC"
+            android:pathData="M39.87,41.77 a4.85,4.85 0 1,0 9.70,0 a4.85,4.85 0 1,0 -9.70,0" />
 
-    <!-- White sun disc, upper-right of sky area -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M76,43 m-5,0 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0" />
+        <!-- Hill 1 (lighter, behind) -->
+        <path
+            android:fillColor="#C7B8F0"
+            android:pathData="M36.28,70.88 Q46.41,63.28 55.27,68.77 Q63.28,73.41 71.72,67.50 L71.72,77.63 L36.28,77.63 Z" />
+
+        <!-- Hill 2 (darker, foreground) -->
+        <path
+            android:fillColor="#6750A4"
+            android:pathData="M36.28,73.41 Q45.14,67.50 54.00,71.72 Q63.28,75.94 71.72,70.03 L71.72,77.63 L36.28,77.63 Z" />
+    </group>
 
 </vector>

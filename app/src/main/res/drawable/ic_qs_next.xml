@@ -1,23 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- QS tile icon: wallpaper/image glyph with a refresh-next arrow.
-     Single path color so the QS panel can tint it (active/inactive). -->
+<!--
+  "Next wallpaper" icon for the QS tile and app shortcut.
+  24×24dp, single colour (#FFFFFF) so the OS/QS panel tints it freely.
+
+  Design: the Wallora card silhouette (left) + skip-forward arrow (right).
+  The card is a proportionally correct mini version of the logo's front card.
+  The arrow is a filled right-pointing skip symbol (bar + chevron).
+-->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
     android:viewportWidth="24"
     android:viewportHeight="24">
 
-    <!-- Image/photo outline: rectangle with landscape lines -->
+    <!-- Card silhouette: mini Wallora card, left-aligned -->
     <path
-        android:fillColor="#FFFFFFFF"
-        android:pathData="M21,3H3C1.9,3 1,3.9 1,5v14c0,1.1 0.9,2 2,2h7v-2H3V5h18v8h2V5C23,3.9 22.1,3 21,3z
-                          M5,15l3.5,-4.5 2.5,3.01 3.5,-4.51 4.5,6H5z" />
+        android:fillColor="#FFFFFF"
+        android:pathData="M4,2.5 L12,2.5 Q14,2.5 14,4.5 L14,19.5 Q14,21.5 12,21.5 L4,21.5 Q2,21.5 2,19.5 L2,4.5 Q2,2.5 4,2.5 Z" />
 
-    <!-- Circular refresh/next arrow (right half-arc with arrowhead) -->
+    <!-- Skip-forward arrow: vertical bar + filled right-pointing chevron -->
+    <!-- Bar -->
     <path
-        android:fillColor="#FFFFFFFF"
-        android:pathData="M20,14 c-2.21,0 -4,1.79 -4,4 c0,1.03 0.39,1.96 1.02,2.67 L15.5,22 l4.5,0 l0,-4.5
-                          l-1.54,1.54 C18.09,18.67 18,18.34 18,18 c0,-1.1 0.9,-2 2,-2 c1.1,0 2,0.9 2,2
-                          c0,0.75 -0.41,1.4 -1.01,1.76 L21.6,21.4 C22.46,20.74 23,19.74 23,18.6
-                          C23,16.07 21.76,14 20,14z" />
+        android:fillColor="#FFFFFF"
+        android:pathData="M16,8 L17.5,8 L17.5,16 L16,16 Z" />
+    <!-- Chevron -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M17.5,8 L17.5,16 L22.5,12 Z" />
+
 </vector>

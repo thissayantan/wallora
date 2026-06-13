@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Adaptive icon background: purple gradient matching the logo -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="#00000000" />
+    <gradient
+        android:type="linear"
+        android:startColor="#7A5BD8"
+        android:endColor="#4E36A0"
+        android:angle="270" />
 </shape>
