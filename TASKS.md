@@ -101,7 +101,7 @@ every task; run unit tests after every phase. See CLAUDE.md for autonomy rules.
       Settings UI rows for interval + constraints. Commit.
 - [x] P4-b: AlarmScheduleCalculator — pure helper: given a list of time-of-day pairs
       and current instant, return next trigger instant. Unit tests. Commit.
-- [ ] P4-c: Exact alarm trigger — AlarmManager setExactAndAllowWhileIdle behind
+- [x] P4-c: Exact alarm trigger — AlarmManager setExactAndAllowWhileIdle behind
       canScheduleExactAlarms() check; inexact fallback; BOOT_COMPLETED BroadcastReceiver
       re-registers alarms + periodic work; SCHEDULE_EXACT_ALARM permission declared in
       manifest with graceful flow. Commit.
