@@ -119,7 +119,7 @@ under the live service; parallax has no bitmap to translate.
 
 ## Group F — performance (LOW priority)
 
-- [ ] F1. **Performance pass.** Coil memory (20%) + disk (250 MB) already tuned — leave.
+- [x] F1. **Performance pass.** Coil memory (20%) + disk (250 MB) already tuned — leave.
       Confirm `WallpaperGrid` thumb requests are size-constrained (no oversized thumbs).
       Baseline Profile generation requires a device/managed emulator (unavailable per
       CLAUDE.md) — defer and document in DECISIONS.md. Optionally hand-author a minimal
