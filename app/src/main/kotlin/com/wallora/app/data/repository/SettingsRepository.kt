@@ -258,10 +258,6 @@ class SettingsRepository @Inject constructor(
     }
 
     companion object {
-        val DEFAULT_SUBREDDITS = listOf(
-            "wallpapers", "wallpaper", "EarthPorn", "spaceporn", "CityPorn",
-            "Amoledbackgrounds", "MobileWallpaper", "AIArt", "midjourney",
-            "ImaginaryLandscapes", "carporn", "ArchitecturePorn",
-        )
+        val DEFAULT_SUBREDDITS = listOf("iWallpaper")
     }
 }

@@ -49,18 +49,21 @@ import com.wallora.app.ui.settings.components.SettingsScaffold
 private data class KnownSubreddit(val name: String, val description: String)
 
 private val KNOWN_SUBREDDITS = listOf(
-    KnownSubreddit("wallpapers",        "General wallpaper community"),
-    KnownSubreddit("wallpaper",         "Wallpaper collection & requests"),
-    KnownSubreddit("EarthPorn",         "Stunning natural landscapes"),
-    KnownSubreddit("spaceporn",         "Space & astronomy photography"),
-    KnownSubreddit("CityPorn",          "Urban & cityscape photography"),
-    KnownSubreddit("Amoledbackgrounds", "Dark AMOLED-optimized wallpapers"),
-    KnownSubreddit("MobileWallpaper",   "Portrait wallpapers for mobile"),
-    KnownSubreddit("AIArt",             "AI-generated artwork"),
-    KnownSubreddit("midjourney",        "Midjourney AI creations"),
+    KnownSubreddit("iWallpaper",         "High-quality phone wallpapers (portrait-focused)"),
+    KnownSubreddit("Verticalwallpapers", "Portrait-only wallpapers for mobile screens"),
+    KnownSubreddit("phonewallpapers",    "Wallpapers sized for phone screens"),
+    KnownSubreddit("wallpapers",         "General wallpaper community"),
+    KnownSubreddit("wallpaper",          "Wallpaper collection & requests"),
+    KnownSubreddit("MobileWallpaper",    "Portrait wallpapers for mobile"),
+    KnownSubreddit("Amoledbackgrounds",  "Dark AMOLED-optimized wallpapers"),
+    KnownSubreddit("EarthPorn",          "Stunning natural landscapes"),
+    KnownSubreddit("spaceporn",          "Space & astronomy photography"),
+    KnownSubreddit("CityPorn",           "Urban & cityscape photography"),
+    KnownSubreddit("AIArt",              "AI-generated artwork"),
+    KnownSubreddit("midjourney",         "Midjourney AI creations"),
     KnownSubreddit("ImaginaryLandscapes","Fantasy & fictional landscapes"),
-    KnownSubreddit("carporn",           "Cars & automotive photography"),
-    KnownSubreddit("ArchitecturePorn",  "Architecture & building photography"),
+    KnownSubreddit("carporn",            "Cars & automotive photography"),
+    KnownSubreddit("ArchitecturePorn",   "Architecture & building photography"),
 )
 
 @OptIn(ExperimentalLayoutApi::class)
