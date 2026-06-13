@@ -21,8 +21,8 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v3
 
-      - name: Build debug APK
-        run: ./gradlew assembleDebug
+      - name: Build release APK
+        run: ./gradlew assembleRelease
 
       - name: Get version name
         id: version
@@ -30,11 +30,10 @@ jobs:
           VERSION=$(grep 'versionName' app/build.gradle.kts | grep -oP '"\K[^"]+')
           SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
           echo "name=Wallora v${VERSION} (${SHORT_SHA})" >> "$GITHUB_OUTPUT"
-          echo "tag=latest" >> "$GITHUB_OUTPUT"
-          echo "apk_name=wallora-${VERSION}-${SHORT_SHA}-debug.apk" >> "$GITHUB_OUTPUT"
+          echo "apk_name=wallora-${VERSION}-${SHORT_SHA}.apk" >> "$GITHUB_OUTPUT"
 
       - name: Rename APK
-        run: cp app/build/outputs/apk/debug/app-debug.apk "${{ steps.version.outputs.apk_name }}"
+        run: cp app/build/outputs/apk/release/app-release.apk "${{ steps.version.outputs.apk_name }}"
 
       - name: Update rolling release
         uses: softprops/action-gh-release@v2
@@ -42,8 +41,8 @@ jobs:
           tag_name: latest
           name: ${{ steps.version.outputs.name }}
           body: |
-            Latest debug build from `master`.
+            Latest build from `master`.
             Commit: ${{ github.sha }}
             ${{ github.event.head_commit.message }}
-          prerelease: true
+          prerelease: false
           files: ${{ steps.version.outputs.apk_name }}

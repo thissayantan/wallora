@@ -67,7 +67,8 @@ android {
                 "proguard-rules.pro"
             )
             val relCfg = signingConfigs.getByName("release")
-            if (relCfg.storeFile != null) signingConfig = relCfg
+            signingConfig = if (relCfg.storeFile != null) relCfg
+                            else signingConfigs.getByName("debug")
         }
     }
 
