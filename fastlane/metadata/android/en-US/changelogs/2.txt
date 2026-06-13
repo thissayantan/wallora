@@ -1,0 +1,7 @@
+v1.1 — Bug fixes & improvements
+
+• Fix crash when quickly switching categories while wallpapers are loading
+• Add default categories (Minimal, Dark/AMOLED, Nature) for fresh installs
+• Dark splash screen with subtle fade-in animation
+• Add r/iWallpaper, r/Verticalwallpapers, r/phonewallpapers subreddits
+• Harden numeric DTO fields against integer overflow from large API responses
