@@ -35,6 +35,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.wallora.app.R
+import com.wallora.app.domain.model.Wallpaper
 import com.wallora.app.ui.components.WallpaperGrid
 import com.wallora.app.ui.components.adaptive.gridColumns
 
@@ -42,7 +43,7 @@ import com.wallora.app.ui.components.adaptive.gridColumns
 @Composable
 fun SearchScreen(
     contentPadding: PaddingValues,
-    onWallpaperClick: (String) -> Unit,
+    onWallpaperClick: (Wallpaper) -> Unit,
     viewModel: SearchViewModel = hiltViewModel(),
 ) {
     val query by viewModel.query.collectAsStateWithLifecycle()
@@ -116,7 +117,7 @@ fun SearchScreen(
                 items = searchResults,
                 columns = columns,
                 contentPadding = contentPadding,
-                onWallpaperClick = { wallpaper -> onWallpaperClick(wallpaper.globalKey) },
+                onWallpaperClick = { wallpaper -> onWallpaperClick(wallpaper) },
                 modifier = Modifier.fillMaxSize(),
             )
         } else {

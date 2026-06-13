@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.wallora.app.domain.model.Wallpaper
 import com.wallora.app.ui.components.EmptyState
 import com.wallora.app.ui.components.WallpaperThumbCard
 import com.wallora.app.ui.components.adaptive.gridColumns
@@ -18,7 +19,7 @@ import com.wallora.app.ui.components.adaptive.gridColumns
 @Composable
 fun FavoritesScreen(
     contentPadding: PaddingValues,
-    onWallpaperClick: (String) -> Unit,
+    onWallpaperClick: (Wallpaper) -> Unit,
     viewModel: FavoritesViewModel = hiltViewModel(),
 ) {
     val favorites by viewModel.favorites.collectAsStateWithLifecycle(emptyList())
@@ -35,7 +36,7 @@ fun FavoritesScreen(
             items(favorites, key = { it.globalKey }) { wallpaper ->
                 WallpaperThumbCard(
                     wallpaper = wallpaper,
-                    onClick = { onWallpaperClick(wallpaper.globalKey) },
+                    onClick = { onWallpaperClick(wallpaper) },
                 )
             }
         }

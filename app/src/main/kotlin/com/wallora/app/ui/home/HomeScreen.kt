@@ -43,7 +43,7 @@ import com.wallora.app.ui.components.adaptive.gridColumns
 @Composable
 fun HomeScreen(
     contentPadding: PaddingValues,
-    onWallpaperClick: (String) -> Unit,
+    onWallpaperClick: (Wallpaper) -> Unit,
     onSearchClick: () -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
@@ -116,7 +116,7 @@ fun HomeScreen(
                         columns = columns,
                         contentPadding = contentPadding,
                         onWallpaperClick = { wallpaper ->
-                            onWallpaperClick(wallpaper.globalKey)
+                            onWallpaperClick(wallpaper)
                         },
                     )
                 }

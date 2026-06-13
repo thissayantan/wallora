@@ -19,6 +19,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.wallora.app.R
+import com.wallora.app.domain.model.Wallpaper
 import com.wallora.app.ui.editor.EditorScreen
 import com.wallora.app.ui.favorites.FavoritesScreen
 import com.wallora.app.ui.history.HistoryScreen
@@ -96,8 +97,10 @@ fun WalloraNavGraph() {
             composable(WalloraRoute.Home.route) {
                 HomeScreen(
                     contentPadding = innerPadding,
-                    onWallpaperClick = { key ->
-                        navController.navigate(WalloraRoute.Detail.createRoute(key))
+                    onWallpaperClick = { wallpaper ->
+                        navController.currentBackStackEntry
+                            ?.savedStateHandle?.set("wallpaper", wallpaper)
+                        navController.navigate(WalloraRoute.Detail.createRoute(wallpaper.globalKey))
                     },
                     onSearchClick = { navController.navigate(WalloraRoute.Search.route) },
                 )
@@ -105,24 +108,30 @@ fun WalloraNavGraph() {
             composable(WalloraRoute.Search.route) {
                 SearchScreen(
                     contentPadding = innerPadding,
-                    onWallpaperClick = { key ->
-                        navController.navigate(WalloraRoute.Detail.createRoute(key))
+                    onWallpaperClick = { wallpaper ->
+                        navController.currentBackStackEntry
+                            ?.savedStateHandle?.set("wallpaper", wallpaper)
+                        navController.navigate(WalloraRoute.Detail.createRoute(wallpaper.globalKey))
                     },
                 )
             }
             composable(WalloraRoute.Favorites.route) {
                 FavoritesScreen(
                     contentPadding = innerPadding,
-                    onWallpaperClick = { key ->
-                        navController.navigate(WalloraRoute.Detail.createRoute(key))
+                    onWallpaperClick = { wallpaper ->
+                        navController.currentBackStackEntry
+                            ?.savedStateHandle?.set("wallpaper", wallpaper)
+                        navController.navigate(WalloraRoute.Detail.createRoute(wallpaper.globalKey))
                     },
                 )
             }
             composable(WalloraRoute.History.route) {
                 HistoryScreen(
                     contentPadding = innerPadding,
-                    onWallpaperClick = { key ->
-                        navController.navigate(WalloraRoute.Detail.createRoute(key))
+                    onWallpaperClick = { wallpaper ->
+                        navController.currentBackStackEntry
+                            ?.savedStateHandle?.set("wallpaper", wallpaper)
+                        navController.navigate(WalloraRoute.Detail.createRoute(wallpaper.globalKey))
                     },
                 )
             }

@@ -10,6 +10,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.wallora.app.domain.model.Wallpaper
 import com.wallora.app.ui.components.EmptyState
 import com.wallora.app.ui.components.WallpaperThumbCard
 import com.wallora.app.ui.components.adaptive.gridColumns
@@ -17,7 +18,7 @@ import com.wallora.app.ui.components.adaptive.gridColumns
 @Composable
 fun HistoryScreen(
     contentPadding: PaddingValues,
-    onWallpaperClick: (String) -> Unit,
+    onWallpaperClick: (Wallpaper) -> Unit,
     viewModel: HistoryViewModel = hiltViewModel(),
 ) {
     val history by viewModel.history.collectAsStateWithLifecycle(emptyList())
@@ -34,7 +35,7 @@ fun HistoryScreen(
             items(history, key = { it.globalKey }) { wallpaper ->
                 WallpaperThumbCard(
                     wallpaper = wallpaper,
-                    onClick = { onWallpaperClick(wallpaper.globalKey) },
+                    onClick = { onWallpaperClick(wallpaper) },
                 )
             }
         }
