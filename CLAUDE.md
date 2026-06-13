@@ -43,8 +43,11 @@ TASKS.md, in order, without stopping for confirmation.
 - Compose: stateless composables + ViewModel state holders; previews for key screens.
 - All user-visible strings in strings.xml. No hardcoded API keys anywhere; keys come
   from local.properties → BuildConfig (see SPEC.md §3) with safe empty defaults.
-- Commit with git after each task: conventional commit messages
-  (feat:/fix:/test:/chore:), one task ≈ one commit. Initialize the repo in Phase 0.
+- Commit with git after each task, one task ≈ one commit. Always use gitmoji format:
+  `<emoji> <type>(<scope>): <description>` — e.g. `✨ feat(ui): add wallpaper grid`
+  Emoji map: ✨ feat · 🐛 fix · 📝 docs · ♻️ refactor · ⚡ perf · ✅ test
+             🔒 security · 🔧 chore · 🗑️ remove · 🏗️ arch · 💄 ui · 🎉 init
+  Scopes: ui · api · worker · db · config · infra · ci · docs · search
 - Errors fail soft in the UI (per-source failures must not blank the whole grid).
 
 ## What not to do
