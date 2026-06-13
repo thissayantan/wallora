@@ -65,14 +65,13 @@ internal fun isDirectImagePost(post: RedditPostData): Boolean {
         (lc.contains("i.redd.it") || lc.contains("i.imgur.com") || lc.contains("imgur.com/"))
 }
 
-/** Only include images that are reasonably portrait-compatible (not ultra-wide). */
+/** Only include images that are portrait-compatible (height ≥ 70 % of width). */
 internal fun isPortraitCompatible(post: RedditPostData): Boolean {
-    val preview = post.preview?.images?.firstOrNull()
-    val source = preview?.source ?: return true // no metadata → allow
+    val source = post.preview?.images?.firstOrNull()?.source
+        ?: return false // no dimension metadata → reject (safer than allowing unknown aspect ratio)
     val w = source.width
     val h = source.height
-    if (w <= 0 || h <= 0) return true
-    // Accept images where height is at least 70% of width (portrait or square-ish)
+    if (w <= 0 || h <= 0) return false
     return h.toFloat() / w.toFloat() >= 0.7f
 }
 

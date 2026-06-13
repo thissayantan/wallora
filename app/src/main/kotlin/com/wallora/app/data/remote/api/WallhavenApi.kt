@@ -12,6 +12,7 @@ interface WallhavenApi {
         @Query("categories") categories: String = "100",
         @Query("purity") purity: String = "100",
         @Query("atleast") atleast: String = "1080x1920",
+        @Query("ratios") ratios: String = "portrait",    // portrait-only (9x16, 10x16, 3x4 etc.)
         @Query("sorting") sorting: String = "toplist",   // toplist → highest-rated content
         @Query("topRange") topRange: String = "6M",      // past 6 months
         @Query("order") order: String = "desc",
