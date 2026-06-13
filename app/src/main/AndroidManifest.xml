@@ -72,6 +72,31 @@
                 android:resource="@xml/wallpaper_preview" />
         </service>
 
+        <!-- Quick Settings tile -->
+        <service
+            android:name=".service.WalloraQsTileService"
+            android:exported="true"
+            android:label="@string/qs_tile_label"
+            android:icon="@mipmap/ic_launcher"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
+        <!-- Glance home screen widget -->
+        <receiver
+            android:name=".widget.WalloraWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_description">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/wallora_widget_info" />
+        </receiver>
+
     </application>
 
 </manifest>

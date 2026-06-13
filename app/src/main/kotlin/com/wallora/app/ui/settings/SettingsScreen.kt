@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import android.content.Intent
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -155,6 +156,12 @@ fun SettingsScreen(
 
         Spacer(Modifier.height(24.dp))
 
+        // ── Live wallpaper section ────────────────────────────────────────────
+        SettingsSectionHeader("Live Wallpaper")
+        LiveWallpaperSection()
+
+        Spacer(Modifier.height(24.dp))
+
         // Placeholder for sections added in P6-a
         SettingsSectionHeader("More settings")
         ListItem(headlineContent = { Text("Additional settings — coming in Phase 6") })
@@ -249,6 +256,30 @@ fun SettingsScreen(
             },
         )
     }
+}
+
+@Composable
+private fun LiveWallpaperSection() {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    ListItem(
+        headlineContent = { Text(androidx.compose.ui.res.stringResource(R.string.settings_set_live_wallpaper)) },
+        supportingContent = { Text("Opens the system wallpaper picker") },
+        modifier = Modifier.clickable {
+            val intent = Intent(android.app.WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER).apply {
+                putExtra(
+                    android.app.WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
+                    android.content.ComponentName(context, com.wallora.app.service.WalloraWallpaperService::class.java),
+                )
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            try { context.startActivity(intent) } catch (_: Exception) {
+                context.startActivity(
+                    Intent(android.app.WallpaperManager.ACTION_LIVE_WALLPAPER_CHOOSER)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                )
+            }
+        },
+    )
 }
 
 @Composable

@@ -112,15 +112,15 @@ every task; run unit tests after every phase. See CLAUDE.md for autonomy rules.
 
 ## Phase 5 — Live wallpaper mode & skip controls
 
-- [ ] P5-a: WallpaperService Engine shell — barebones WallpaperService + Engine,
+- [x] P5-a: WallpaperService Engine shell — barebones WallpaperService + Engine,
       Android manifest declaration with preview metadata, battery-safe (draw only on
       change, not continuous loop). Commit.
-- [ ] P5-b: Pure helpers + tests: ParallaxMath (xOffset→pixel translation, over-wide
+- [x] P5-b: Pure helpers + tests: ParallaxMath (xOffset→pixel translation, over-wide
       bounds, fixed-offset fallback), CrossfadeAnimator (alpha interpolation over
       time), CropCalculator (center-crop / desiredMinimumWidth). Unit tests. Commit.
-- [ ] P5-c: Double-tap gesture → next wallpaper inside Engine (GestureDetector,
+- [x] P5-c: Double-tap gesture → next wallpaper inside Engine (GestureDetector,
       debounced, configurable off/double-tap via Settings). Commit.
-- [ ] P5-d: Parallax render + EditParams at render time — over-wide bitmap render
+- [x] P5-d: Parallax render + EditParams at render time — over-wide bitmap render
       (1.3–1.5x), onOffsetsChanged horizontal translation with smoothing, fixed-offset
       launcher fallback, persisted EditParams (blur/brightness/etc.) applied at render
       time; Settings toggle DEFAULT ON. Commit.

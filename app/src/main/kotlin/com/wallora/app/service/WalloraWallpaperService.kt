@@ -1,9 +1,12 @@
 package com.wallora.app.service
 
+import android.app.WallpaperColors
+import android.content.IntentFilter
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
-import android.graphics.Rect
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.service.wallpaper.WallpaperService
@@ -74,6 +77,22 @@ class WalloraWallpaperService : WallpaperService() {
         private var editParams = EditParams.Default
         private var parallaxEnabled = true
 
+        // ── On-unlock receiver ────────────────────────────────────────────────
+
+        /** Dynamically registered — not in manifest (ACTION_USER_PRESENT can't be static on 26+). */
+        private val userPresentReceiver = object : android.content.BroadcastReceiver() {
+            override fun onReceive(ctx: android.content.Context, intent: android.content.Intent) {
+                if (intent.action != android.content.Intent.ACTION_USER_PRESENT) return
+                engineScope.launch {
+                    val enabled = settingsRepository.rotationOnUnlock.first()
+                    if (enabled) {
+                        Log.d(TAG, "Screen unlocked — rotating wallpaper")
+                        nextWallpaperUseCase(WallpaperTarget.HOME)
+                    }
+                }
+            }
+        }
+
         // ── Gesture ───────────────────────────────────────────────────────────
 
         private val gestureDetector = GestureDetector(
@@ -141,7 +160,16 @@ class WalloraWallpaperService : WallpaperService() {
 
         override fun onVisibilityChanged(visible: Boolean) {
             super.onVisibilityChanged(visible)
-            if (visible) drawFrame()
+            if (visible) {
+                drawFrame()
+                // Register on-unlock receiver only while engine is visible
+                registerReceiver(
+                    userPresentReceiver,
+                    IntentFilter(android.content.Intent.ACTION_USER_PRESENT),
+                )
+            } else {
+                try { unregisterReceiver(userPresentReceiver) } catch (_: IllegalArgumentException) { }
+            }
         }
 
         override fun onOffsetsChanged(
@@ -236,6 +264,20 @@ class WalloraWallpaperService : WallpaperService() {
             canvas.restore()
         }
 
+        // ── WallpaperColors (Material You) ────────────────────────────────────
+
+        override fun onComputeColors(): WallpaperColors? {
+            val bmp = currentBitmap ?: return null
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+                try {
+                    WallpaperColors.fromBitmap(bmp)
+                } catch (e: Exception) {
+                    Log.w(TAG, "WallpaperColors.fromBitmap failed", e)
+                    null
+                }
+            } else null
+        }
+
         /** Called by [UserPresentReceiver] or rotation engine when a new wallpaper should be shown. */
         fun loadBitmap(bitmap: Bitmap) {
             val adjusted = if (editParams != EditParams.Default) {
@@ -249,6 +291,10 @@ class WalloraWallpaperService : WallpaperService() {
                 nextBitmap = adjusted
                 crossfadeAnimator = CrossfadeAnimator()
                 drawFrame()
+            }
+            // Notify system of new dominant colors for Material You dynamic theming
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+                notifyColorsChanged()
             }
         }
     }
