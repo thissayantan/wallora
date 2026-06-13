@@ -89,7 +89,7 @@ under the live service; parallax has no bitmap to translate.
 
 ## Group C — widget
 
-- [ ] C1. **Widget applies next wallpaper in place.** Create
+- [x] C1. **Widget applies next wallpaper in place.** Create
       `widget/NextWallpaperAction.kt` implementing `ActionCallback`; obtain
       `NextWallpaperUseCase` via `EntryPointAccessors.fromApplication(context,
       WalloraEntryPoint::class.java)` (Glance callbacks aren't Hilt-injected). Call

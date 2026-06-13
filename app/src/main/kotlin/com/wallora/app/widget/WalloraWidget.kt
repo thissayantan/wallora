@@ -8,10 +8,12 @@ import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
+import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.provideContent
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
+import androidx.glance.layout.Row
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.padding
 import androidx.glance.text.Text
@@ -19,9 +21,14 @@ import com.wallora.app.MainActivity
 import com.wallora.app.R
 
 /**
- * Home screen widget showing a "Next wallpaper" button that opens the app.
- * The widget is intentionally simple: full next-wallpaper triggering from a widget
- * requires a WorkManager one-shot job (added in Phase 6 if needed).
+ * Home screen widget for Wallora.
+ *
+ * Layout:
+ * - App name label (tapping it opens the app)
+ * - "Next" button (tapping it applies the next wallpaper in-place via [NextWallpaperAction])
+ *
+ * C1 fix: primary tap calls [actionRunCallback]<[NextWallpaperAction]>() instead of
+ * launching MainActivity. A secondary "Open" label still opens the app.
  */
 class WalloraWidget : GlanceAppWidget() {
 
@@ -32,11 +39,19 @@ class WalloraWidget : GlanceAppWidget() {
                 contentAlignment = Alignment.Center,
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = context.getString(R.string.app_name))
+                    // App name — tap to open the app
                     Box(
                         modifier = GlanceModifier
-                            .padding(top = 8.dp)
+                            .padding(bottom = 4.dp)
                             .clickable(actionStartActivity<MainActivity>()),
+                    ) {
+                        Text(text = context.getString(R.string.app_name))
+                    }
+                    // Next button — applies the next wallpaper in place (C1 fix)
+                    Box(
+                        modifier = GlanceModifier
+                            .padding(top = 4.dp)
+                            .clickable(actionRunCallback<NextWallpaperAction>()),
                     ) {
                         Text(text = context.getString(R.string.widget_next))
                     }
