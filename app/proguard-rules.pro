@@ -1,5 +1,9 @@
 # Wallora ProGuard rules
 
+# R8 optimizer has a ConcurrentModificationException bug with AGP 8.5.2.
+# Disable optimisation; shrinking + obfuscation still run.
+-dontoptimize
+
 # Keep kotlinx.serialization
 -keepattributes *Annotation*, InnerClasses
 -dontnote kotlinx.serialization.AnnotationsKt

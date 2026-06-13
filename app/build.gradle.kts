@@ -45,6 +45,20 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            // Keys loaded from local.properties (git-ignored).
+            // Falls back to debug signing when properties are absent (CI / clean clone).
+            val ksFile = localProps.getProperty("RELEASE_STORE_FILE", "")
+            if (ksFile.isNotEmpty()) {
+                storeFile = file(ksFile)
+                storePassword = localProps.getProperty("RELEASE_STORE_PASSWORD", "")
+                keyAlias = localProps.getProperty("RELEASE_KEY_ALIAS", "")
+                keyPassword = localProps.getProperty("RELEASE_KEY_PASSWORD", "")
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
@@ -52,6 +66,8 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            val relCfg = signingConfigs.getByName("release")
+            if (relCfg.storeFile != null) signingConfig = relCfg
         }
     }
 
