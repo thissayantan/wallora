@@ -1,0 +1,28 @@
+Wallora is a clean, open-source Android wallpaper app built with Jetpack Compose and Material You.
+
+FEATURES
+• Browse a staggered grid of wallpapers from Pexels, Wallhaven, Unsplash, and Reddit
+• Real-time search across all enabled sources simultaneously
+• Category filters: Nature, Space, Animals, Abstract, AMOLED, Anime, and more
+• Favorites and history — keep track of what you love and what you've set
+• Full-resolution preview with hardware-safe decoding (never shows a black screen)
+• Editor: blur, brightness, contrast, saturation, and pan — apply or save as default
+• Auto-rotation: set an interval, specific times of day, or trigger on screen unlock
+• Live wallpaper engine with parallax scrolling and crossfade transitions
+• Material You dynamic colour — the UI adapts to your current wallpaper
+• Home-screen Glance widget: see your current wallpaper and tap to get the next one
+• Quick Settings tile for one-tap wallpaper changes from the notification shade
+• Prefetch cache: the next wallpaper is downloaded in the background so rotation is near-instant
+• No tracking, no analytics, no ads
+
+PERMISSIONS
+• SET_WALLPAPER — to apply wallpapers
+• INTERNET — to fetch wallpapers from sources
+• RECEIVE_BOOT_COMPLETED — to re-register auto-rotation alarms after reboot
+• FOREGROUND_SERVICE — for the live wallpaper engine
+
+API KEYS
+Wallhaven (SFW tier) and Reddit work without any key. Pexels and Unsplash require free API keys from their developer portals; build from source and add them to local.properties.
+
+SOURCE CODE
+https://github.com/thissayantan/wallora
