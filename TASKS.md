@@ -96,7 +96,7 @@ every task; run unit tests after every phase. See CLAUDE.md for autonomy rules.
 
 ## Phase 4 — Auto-rotation triggers
 
-- [ ] P4-a: Interval rotation — WorkManager PeriodicWorkRequest (15m minimum;
+- [x] P4-a: Interval rotation — WorkManager PeriodicWorkRequest (15m minimum;
       offer 15m/30m/1h/3h/6h/12h/24h), Wi-Fi-only and charging-only constraints,
       Settings UI rows for interval + constraints. Commit.
 - [ ] P4-b: AlarmScheduleCalculator — pure helper: given a list of time-of-day pairs
