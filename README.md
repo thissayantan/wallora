@@ -114,6 +114,51 @@ app/
     RotationAlarmReceiver      Alarm fires → next wallpaper → re-chain
 ```
 
+---
+
+## Gesture & shortcut binding
+
+### Skip to next wallpaper (any launcher)
+
+The fastest way to change the wallpaper without opening the app is the **app shortcut**:
+
+- Long-press the Wallora icon → **Next wallpaper** (appears in the shortcut list)
+
+### Nova Launcher gesture
+
+1. Nova settings → **Gestures & inputs** → choose a gesture (e.g. Two-finger swipe down)
+2. → **App shortcuts** → Wallora → **Next wallpaper**
+
+Alternatively: Nova settings → **Gestures & inputs** → Swipe Down on Home → **App shortcut**
+→ select Wallora → Next wallpaper.
+
+### Tasker / automation
+
+Send an intent with action `com.wallora.app.action.NEXT_WALLPAPER` to trigger a rotation
+without opening the app:
+
+```
+Package:  com.wallora.app
+Class:    com.wallora.app.ui.NextWallpaperActivity
+Action:   com.wallora.app.action.NEXT_WALLPAPER
+```
+
+### Double-tap gesture (live wallpaper mode)
+
+The **double-tap on the home screen** toggle in Settings → Live Wallpaper & Gestures is
+**off by default** because most launchers consume the double-tap for their own actions
+(lock screen, app drawer, etc.). Enable it only if your launcher passes double-taps through
+to the live wallpaper.
+
+### Parallax scrolling (live wallpaper mode)
+
+If parallax does not move on Nova Launcher 8:
+1. Nova settings → **Desktop** → enable **Scroll wallpaper**
+2. The Wallora engine decodes a 1.3× wide bitmap and translates it as you scroll between
+   home screen pages. The centred fallback activates for launchers that send no offsets.
+
+---
+
 ### Key decisions
 
 See `DECISIONS.md` for full rationale. Highlights:

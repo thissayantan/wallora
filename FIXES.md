@@ -129,6 +129,6 @@ under the live service; parallax has no bitmap to translate.
 
 ## Final verification
 
-- [ ] `./gradlew assembleDebug` green, `./gradlew testDebugUnitTest` green,
+- [x] `./gradlew assembleDebug` green, `./gradlew testDebugUnitTest` green,
       `./gradlew lintDebug` reasonably clean (no new errors). Update README and
       DECISIONS.md. Final commit.
