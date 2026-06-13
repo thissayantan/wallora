@@ -13,6 +13,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # full history needed for git log changelog
 
       - uses: actions/setup-java@v4
         with:
@@ -28,11 +30,52 @@ jobs:
         id: version
         run: |
           VERSION=$(grep 'versionName' app/build.gradle.kts | grep -oP '"\K[^"]+')
-          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
-          echo "name=Wallora v${VERSION}" >> "$GITHUB_OUTPUT"
           echo "tag=v${VERSION}" >> "$GITHUB_OUTPUT"
           echo "apk_name=wallora-v${VERSION}.apk" >> "$GITHUB_OUTPUT"
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          TAG="${{ steps.version.outputs.tag }}"
+          PREV_TAG=$(git tag --sort=-version:refname | grep -v "^${TAG}$" | head -1)
+
+          if [ -z "$PREV_TAG" ]; then
+            # Initial release — write static feature list
+            cat << 'EOF' > /tmp/changelog.md
+          ## Features
+
+          - **Multi-source browsing** — pulls wallpapers from Pexels, Unsplash, Wallhaven, and Reddit simultaneously
+          - **Portrait-only filtering** — all sources return only wallpapers that fit a phone screen
+          - **Auto-change wallpaper** — scheduled rotation with configurable interval, playlist (favourites or categories), and time-of-day slots
+          - **Live wallpaper & parallax** — set Wallora as a live wallpaper for a subtle depth effect on the home screen
+          - **Favourites** — long-press any wallpaper to save it; browse your collection offline
+          - **Category browsing** — curated topics (Nature, Architecture, Space, Abstract, Animals, and more)
+          - **Custom topics** — add your own search keywords as browsable categories
+          - **Reddit subreddits** — toggle from 12 pre-configured subreddits or add your own
+          - **API key support** — bring your own Pexels, Unsplash, or Wallhaven key for higher rate limits
+          - **Settings search** — find any setting instantly from the search bar
+          - **Minimal Material 3 UI** — clean, dark-friendly design with no ads or tracking
+          - **Change from anywhere** — supports Nova/Lawnchair gestures, quick-settings tile, and Tasker intent
+          EOF
+          else
+            echo "Changes since ${PREV_TAG}:" > /tmp/changelog.md
+            echo "" >> /tmp/changelog.md
+            git log "${PREV_TAG}..HEAD" \
+              --pretty=format:"- %s" \
+              --no-merges \
+              | grep -v "Co-Authored-By" \
+              | grep -Ev "^- 🔧 chore\(ci\)" \
+              >> /tmp/changelog.md
+          fi
+
+          # Pass multi-line output to GitHub
+          {
+            echo "body<<CHANGELOG_EOF"
+            cat /tmp/changelog.md
+            echo "CHANGELOG_EOF"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Rename APK
         run: cp app/build/outputs/apk/release/app-release.apk "${{ steps.version.outputs.apk_name }}"
@@ -41,18 +84,15 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.tag }}
-          name: ${{ steps.version.outputs.name }}
+          name: Wallora ${{ steps.version.outputs.tag }}
           body: |
-            ## Wallora ${{ steps.version.outputs.name }}
+            ${{ steps.changelog.outputs.body }}
 
-            A minimal, privacy-respecting wallpaper app for Android.
+            ---
 
             ### Install
-            Download `wallora-v${{ steps.version.outputs.version }}.apk` and install via:
-            - Settings → Apps → Install unknown apps (enable for your browser/Files app)
-            - Or: `adb install wallora-v${{ steps.version.outputs.version }}.apk`
-
-            ### What's new
-            ${{ github.event.head_commit.message }}
+            Download `wallora-${{ steps.version.outputs.tag }}.apk` and sideload it:
+            - **Files app / browser:** Settings → Apps → Install unknown apps → enable for your app, then tap the APK
+            - **ADB:** `adb install wallora-${{ steps.version.outputs.tag }}.apk`
           make_latest: true
           files: ${{ steps.version.outputs.apk_name }}
