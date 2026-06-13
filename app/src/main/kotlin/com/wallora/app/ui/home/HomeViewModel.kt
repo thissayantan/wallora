@@ -12,10 +12,8 @@ import com.wallora.app.domain.model.Wallpaper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
@@ -28,13 +26,15 @@ class HomeViewModel @Inject constructor(
     private val settingsRepo: SettingsRepository,
 ) : ViewModel() {
 
-    // Selected categories (empty = all)
-    private val _selectedCategories = MutableStateFlow<Set<Category>>(emptySet())
-    val selectedCategories: StateFlow<Set<Category>> = _selectedCategories.asStateFlow()
+    // Selected categories (empty = all) — persisted in DataStore so they survive navigation
+    // and process death. Single source of truth shared with SettingsViewModel. (D1 fix)
+    val selectedCategories: StateFlow<Set<Category>> =
+        settingsRepo.selectedCategories
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptySet())
 
     // Source filter sheet visible
-    private val _filterSheetVisible = MutableStateFlow(false)
-    val filterSheetVisible: StateFlow<Boolean> = _filterSheetVisible.asStateFlow()
+    private val _filterSheetVisible = kotlinx.coroutines.flow.MutableStateFlow(false)
+    val filterSheetVisible: StateFlow<Boolean> = _filterSheetVisible
 
     // Enabled sources from settings
     val enabledSources: StateFlow<Set<SourceId>> = settingsRepo.enabledSources
@@ -42,19 +42,23 @@ class HomeViewModel @Inject constructor(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val wallpapers: Flow<PagingData<Wallpaper>> =
-        combine(_selectedCategories, enabledSources) { cats, sources -> cats to sources }
+        combine(selectedCategories, enabledSources) { cats, sources -> cats to sources }
             .flatMapLatest { (cats, sources) ->
                 repository.browse(cats.toList(), sources)
             }
             .cachedIn(viewModelScope)
 
     fun toggleCategory(category: Category) {
-        _selectedCategories.value = _selectedCategories.value.toMutableSet().apply {
-            if (contains(category)) remove(category) else add(category)
+        viewModelScope.launch {
+            val current = selectedCategories.value.toMutableSet()
+            if (category in current) current.remove(category) else current.add(category)
+            settingsRepo.setSelectedCategories(current)
         }
     }
 
-    fun clearCategories() { _selectedCategories.value = emptySet() }
+    fun clearCategories() {
+        viewModelScope.launch { settingsRepo.setSelectedCategories(emptySet()) }
+    }
 
     fun showFilterSheet() { _filterSheetVisible.value = true }
     fun hideFilterSheet() { _filterSheetVisible.value = false }

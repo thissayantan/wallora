@@ -110,13 +110,34 @@ class SettingsRepository @Inject constructor(
     suspend fun setRotationPlaylist(playlist: String) =
         dataStore.edit { it[rotationPlaylistKey] = playlist }
 
+    // ── Current wallpaper (for live engine observability) ────────────────────
+    private val currentWallpaperFullUrlKey = stringPreferencesKey("current_wallpaper_full_url")
+    private val currentWallpaperThumbUrlKey = stringPreferencesKey("current_wallpaper_thumb_url")
+
+    /**
+     * The full-res and thumb URL of the most recently applied wallpaper.
+     * The live wallpaper engine observes this to reload its bitmap on rotation.
+     * Null when no wallpaper has been persisted yet (fresh install).
+     */
+    val currentWallpaperUrls: Flow<Pair<String, String>?> = dataStore.data.map { prefs ->
+        val full = prefs[currentWallpaperFullUrlKey] ?: return@map null
+        full to (prefs[currentWallpaperThumbUrlKey] ?: "")
+    }
+
+    suspend fun setCurrentWallpaperUrls(fullUrl: String, thumbUrl: String) {
+        dataStore.edit { prefs ->
+            prefs[currentWallpaperFullUrlKey] = fullUrl
+            prefs[currentWallpaperThumbUrlKey] = thumbUrl
+        }
+    }
+
     // ── Gesture & live wallpaper ─────────────────────────────────────────────
     private val doubleTapGestureKey = booleanPreferencesKey("double_tap_gesture")
     private val parallaxEnabledKey = booleanPreferencesKey("parallax_enabled")
     private val isLiveWallpaperActiveKey = booleanPreferencesKey("live_wallpaper_active")
 
     val doubleTapGestureEnabled: Flow<Boolean> = dataStore.data.map { prefs ->
-        prefs[doubleTapGestureKey] ?: true
+        prefs[doubleTapGestureKey] ?: false  // DEFAULT OFF: most launchers consume the gesture
     }
     val parallaxEnabled: Flow<Boolean> = dataStore.data.map { prefs ->
         prefs[parallaxEnabledKey] ?: true  // DEFAULT ON per spec

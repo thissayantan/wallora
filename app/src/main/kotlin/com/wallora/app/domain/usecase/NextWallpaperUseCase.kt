@@ -75,6 +75,23 @@ class NextWallpaperUseCase @Inject constructor(
         }
 
         Log.d(TAG, "Rotating to: ${wallpaper.globalKey}")
+
+        // Always persist the picked wallpaper so the live engine can observe it.
+        settingsRepository.setCurrentWallpaperUrls(wallpaper.fullUrl, wallpaper.thumbUrl)
+
+        val isLiveActive = settingsRepository.isLiveWallpaperActive.first()
+        if (isLiveActive && target != WallpaperTarget.LOCK) {
+            // Live mode: engine observes DataStore and renders the bitmap itself.
+            // We must NOT call WallpaperManager.setBitmap(FLAG_SYSTEM) — it would
+            // deactivate the live wallpaper and revert to static.
+            // Still apply to LOCK screen statically when target == BOTH.
+            repository.addToHistory(wallpaper)
+            if (target == WallpaperTarget.BOTH) {
+                applyWallpaperUseCase(wallpaper, WallpaperTarget.LOCK)
+            }
+            return@withContext NextWallpaperResult.Applied(wallpaper)
+        }
+
         val applyResult = applyWallpaperUseCase(wallpaper, target)
         return@withContext when (applyResult) {
             is ApplyResult.Success -> NextWallpaperResult.Applied(wallpaper)

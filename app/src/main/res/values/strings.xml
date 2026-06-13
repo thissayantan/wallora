@@ -61,6 +61,8 @@
     <string name="detail_resolution">%1$d × %2$d</string>
     <string name="detail_by">Photo by %1$s</string>
     <string name="detail_on_source">on %1$s</string>
+    <string name="detail_load_failed">Couldn\'t load wallpaper</string>
+    <string name="detail_load_retry">Retry</string>
 
     <!-- Wallpaper apply -->
     <string name="apply_success">Wallpaper set!</string>
@@ -108,4 +110,11 @@
 
     <!-- QS Tile -->
     <string name="qs_tile_label">Next wallpaper</string>
+
+    <!-- Shortcuts -->
+    <string name="shortcut_next_label">Next wallpaper</string>
+    <string name="shortcut_next_short_label">Next</string>
+
+    <!-- Settings — double-tap hint -->
+    <string name="settings_gesture_hint">Most launchers consume the double-tap; use a launcher gesture or the app shortcut instead</string>
 </resources>

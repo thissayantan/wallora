@@ -182,7 +182,7 @@ class SettingsViewModel @Inject constructor(
 
     val doubleTapEnabled: StateFlow<Boolean> =
         settingsRepository.doubleTapGestureEnabled
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false) // default OFF
 
     val parallaxEnabled: StateFlow<Boolean> =
         settingsRepository.parallaxEnabled

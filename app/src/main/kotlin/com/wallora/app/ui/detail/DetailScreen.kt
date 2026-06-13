@@ -1,6 +1,7 @@
 package com.wallora.app.ui.detail
 
 import android.content.Intent
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +16,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.BrokenImage
 import androidx.compose.material.icons.filled.Brush
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
@@ -73,6 +75,9 @@ fun DetailScreen(
     val context = LocalContext.current
     var showSetDialog by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
+    // Track full-res load failure so the UI never shows a silent black box
+    var imageLoadFailed by remember(wallpaper.fullUrl) { mutableStateOf(false) }
+    val displayMetrics = context.resources.displayMetrics
 
     LaunchedEffect(wallpaper) { viewModel.loadWallpaper(wallpaper) }
 
@@ -159,19 +164,61 @@ fun DetailScreen(
         },
     ) { padding ->
         Box(modifier = Modifier.fillMaxSize()) {
-            // Full-bleed wallpaper preview — load full-res with crossfade
+            // Full-bleed wallpaper preview — software bitmap (allowHardware=false) to avoid
+            // GPU max-texture-size overflow on large originals (5K+ Wallhaven, Pexels original,
+            // etc.) which renders as black on Pixel 6 Pro. Size is capped to display dimensions
+            // so Coil applies inSampleSize before upload. Root cause: HARDWARE config + large
+            // originals exceed the GPU texture cap; Compose RecordingCanvas cannot draw them.
             AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(wallpaper.fullUrl)
-                    .diskCacheKey(wallpaper.globalKey + "_full")
-                    .crossfade(500)
-                    .build(),
+                model = remember(wallpaper.fullUrl) {
+                    ImageRequest.Builder(context)
+                        .data(wallpaper.fullUrl)
+                        .diskCacheKey(wallpaper.globalKey + "_full")
+                        .crossfade(500)
+                        .allowHardware(false) // software bitmap — always drawable by Compose canvas
+                        .size(displayMetrics.widthPixels, displayMetrics.heightPixels)
+                        .listener(
+                            onError = { _, result ->
+                                Log.e(
+                                    "WalloraDetail",
+                                    "Full-res load failed for ${wallpaper.fullUrl}: ${result.throwable.message}",
+                                    result.throwable,
+                                )
+                                imageLoadFailed = true
+                            },
+                            onSuccess = { _, _ -> imageLoadFailed = false },
+                        )
+                        .build()
+                },
                 contentDescription = wallpaper.author,
                 contentScale = ContentScale.Fit,
                 modifier = Modifier
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.surfaceVariant),
             )
+
+            // Visible error state — never silently show black on load failure
+            if (imageLoadFailed) {
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .padding(32.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.BrokenImage,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(64.dp),
+                    )
+                    Text(
+                        text = stringResource(R.string.detail_load_failed),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
 
             // Full-screen progress overlay while applying
             if (isApplying) {
