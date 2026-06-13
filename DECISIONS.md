@@ -20,3 +20,11 @@ for multi-source round-robin interleave. Room is used as a side TTL page cache
 (lookup by key), not as the Paging 3 backing store. This avoids the complexity of
 RemoteMediator coordinating N heterogeneous sources and gives direct control over
 interleaving and dedup logic.
+
+**Rotation pre-fetch**: TASKS.md P3-d mentions pre-fetching the next wallpaper on Wi-Fi
+as a background warm-up. Deferred from P3-d implementation — true pre-fetch requires an
+on-device persistent image cache beyond OkHttp's in-memory cache (e.g., writing to a
+temp File, then using that file on next apply). The rotation apply itself is already
+fast once the full-res URL is known. Pre-fetch will be revisited in Phase 6 performance
+pass if needed; the mechanism (kick off OkHttp download, store to cacheDir file) is
+straightforward to add then.

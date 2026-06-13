@@ -165,6 +165,33 @@ class WallpaperRepository @Inject constructor(
 
     suspend fun clearHistory() = historyDao.deleteAll()
 
+    /**
+     * Return the most-recent [limit] applied wallpaper globalKeys (newest first).
+     * Used by [com.wallora.app.domain.rotation.RotationEngine] for no-repeat logic.
+     */
+    suspend fun getRecentHistoryKeys(limit: Int): List<String> =
+        historyDao.getAll()
+            .sortedByDescending { it.setAt }
+            .take(limit)
+            .map { it.globalKey }
+
+    /** Snapshot of all favorited wallpapers (newest first). Used by rotation playlist. */
+    suspend fun getFavoritesSnapshot(): List<Wallpaper> =
+        favoriteDao.getAll().sortedByDescending { it.addedAt }.map { entity ->
+            Wallpaper(
+                id = entity.id,
+                sourceId = SourceId.valueOf(entity.sourceId),
+                thumbUrl = entity.thumbUrl,
+                fullUrl = entity.fullUrl,
+                width = entity.width,
+                height = entity.height,
+                author = entity.author,
+                authorUrl = entity.authorUrl,
+                sourcePageUrl = entity.sourcePageUrl,
+                colorHint = entity.colorHint,
+            )
+        }
+
     // ── Cache maintenance ─────────────────────────────────────────────────────
 
     suspend fun clearCache() {

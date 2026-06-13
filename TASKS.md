@@ -85,7 +85,7 @@ every task; run unit tests after every phase. See CLAUDE.md for autonomy rules.
       saturation, crop offset); ColorMatrix math for b/c/s; non-RenderScript blur
       (downscale→stack-blur→upscale or renderscript-toolkit); unit tests for
       ColorMatrix math and blur radius bounds. Commit.
-- [ ] P3-c: Editor UI — edit screen from detail, live downscaled preview + sliders,
+- [x] P3-c: Editor UI — edit screen from detail, live downscaled preview + sliders,
       Reset per slider, crop/pan gesture, full-res apply on confirm; live-mode:
       "apply to this wallpaper only" vs "set as default look" toggle, persisted via
       DataStore EditParams; Material You: WallpaperColors from final edited bitmap. Commit.
