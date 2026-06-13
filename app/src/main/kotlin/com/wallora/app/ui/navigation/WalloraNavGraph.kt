@@ -12,6 +12,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -20,6 +21,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.wallora.app.R
 import com.wallora.app.domain.model.Wallpaper
+import com.wallora.app.ui.detail.DetailScreen
 import com.wallora.app.ui.editor.EditorScreen
 import com.wallora.app.ui.favorites.FavoritesScreen
 import com.wallora.app.ui.history.HistoryScreen
@@ -86,7 +88,7 @@ fun WalloraNavGraph() {
                                 }
                             },
                             icon = { Icon(icon, contentDescription = null) },
-                            label = { Text(androidx.compose.ui.res.stringResource(labelRes)) },
+                            label = { Text(stringResource(labelRes)) },
                         )
                     }
                 }
@@ -145,9 +147,9 @@ fun WalloraNavGraph() {
                 // Retrieve wallpaper from the previous back stack entry's saved state
                 val wallpaper = navController.previousBackStackEntry
                     ?.savedStateHandle
-                    ?.get<com.wallora.app.domain.model.Wallpaper>("wallpaper")
+                    ?.get<Wallpaper>("wallpaper")
                 if (wallpaper != null) {
-                    com.wallora.app.ui.detail.DetailScreen(
+                    DetailScreen(
                         wallpaper = wallpaper,
                         onBack = { navController.popBackStack() },
                         onSetWallpaper = { /* handled inside DetailScreen via ViewModel */ },
@@ -167,7 +169,7 @@ fun WalloraNavGraph() {
             composable(WalloraRoute.Editor.route) {
                 val wallpaper = navController.previousBackStackEntry
                     ?.savedStateHandle
-                    ?.get<com.wallora.app.domain.model.Wallpaper>("wallpaper")
+                    ?.get<Wallpaper>("wallpaper")
                 if (wallpaper != null) {
                     EditorScreen(
                         wallpaper = wallpaper,

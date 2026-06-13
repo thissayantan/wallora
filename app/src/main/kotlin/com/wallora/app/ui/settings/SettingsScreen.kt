@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -45,6 +44,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wallora.app.BuildConfig
 import com.wallora.app.R
 import com.wallora.app.domain.model.Category
+import com.wallora.app.domain.model.EditParams
 import com.wallora.app.domain.model.SourceId
 import com.wallora.app.service.WalloraWallpaperService
 import java.util.concurrent.TimeUnit
@@ -108,7 +108,6 @@ fun SettingsScreen(
             SettingsSectionHeader(stringResource(R.string.settings_sources))
             SourceId.entries.forEach { source ->
                 val isConfigured = viewModel.sourceConfiguredMap[source] ?: false
-                val isEnabled = source in enabledSources
                 ListItem(
                     headlineContent = { Text(source.displayName) },
                     supportingContent = {
@@ -116,7 +115,7 @@ fun SettingsScreen(
                     },
                     trailingContent = {
                         Switch(
-                            checked = isEnabled && isConfigured,
+                            checked = source in enabledSources && isConfigured,
                             onCheckedChange = { viewModel.setSourceEnabled(source, it) },
                             enabled = isConfigured,
                         )
@@ -141,9 +140,8 @@ fun SettingsScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Category.entries.forEach { cat ->
-                    val selected = cat in selectedCategories
                     FilterChip(
-                        selected = selected,
+                        selected = cat in selectedCategories,
                         onClick = { viewModel.toggleCategory(cat) },
                         label = { Text(cat.name.lowercase().replaceFirstChar { it.uppercase() }) },
                     )
@@ -258,7 +256,7 @@ fun SettingsScreen(
 
             // ── Default look ──────────────────────────────────────────────────
             SettingsSectionHeader(stringResource(R.string.settings_default_look))
-            val paramsLabel = if (defaultParams == com.wallora.app.domain.model.EditParams.Default) "Default" else
+            val paramsLabel = if (defaultParams == EditParams.Default) "Default" else
                 "blur=${defaultParams.blur}, bright=${String.format("%.1f", defaultParams.brightness)}, contrast=${String.format("%.1f", defaultParams.contrast)}"
             ListItem(
                 headlineContent = { Text("Current adjustments") },

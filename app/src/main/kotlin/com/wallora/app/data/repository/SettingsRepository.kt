@@ -47,9 +47,11 @@ class SettingsRepository @Inject constructor(
     private val selectedCategoriesKey = stringSetPreferencesKey("selected_categories")
 
     val selectedCategories: Flow<Set<Category>> = dataStore.data.map { prefs ->
-        val raw = prefs[selectedCategoriesKey]
-        if (raw == null) emptySet() // empty = all categories
-        else raw.mapNotNull { runCatching { Category.valueOf(it) }.getOrNull() }.toSet()
+        // null = all categories
+        prefs[selectedCategoriesKey]
+            ?.mapNotNull { runCatching { Category.valueOf(it) }.getOrNull() }
+            ?.toSet()
+            ?: emptySet()
     }
 
     suspend fun setSelectedCategories(categories: Set<Category>) {

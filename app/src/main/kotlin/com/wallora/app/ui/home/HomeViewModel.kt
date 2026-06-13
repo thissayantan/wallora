@@ -12,6 +12,7 @@ import com.wallora.app.domain.model.Wallpaper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -33,7 +34,7 @@ class HomeViewModel @Inject constructor(
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptySet())
 
     // Source filter sheet visible
-    private val _filterSheetVisible = kotlinx.coroutines.flow.MutableStateFlow(false)
+    private val _filterSheetVisible = MutableStateFlow(false)
     val filterSheetVisible: StateFlow<Boolean> = _filterSheetVisible
 
     // Enabled sources from settings

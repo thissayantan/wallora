@@ -1,6 +1,5 @@
 package com.wallora.app.ui.home
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,7 +22,6 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -36,6 +34,7 @@ import com.wallora.app.domain.model.Category
 import com.wallora.app.domain.model.Wallpaper
 import com.wallora.app.ui.components.EmptyState
 import com.wallora.app.ui.components.ErrorState
+import com.wallora.app.ui.components.OfflineState
 import com.wallora.app.ui.components.WallpaperGrid
 import com.wallora.app.ui.components.adaptive.gridColumns
 
@@ -75,7 +74,7 @@ fun HomeScreen(
         ) {
             items(Category.entries) { category ->
                 FilterChip(
-                    selected = selectedCategories.contains(category),
+                    selected = category in selectedCategories,
                     onClick = { viewModel.toggleCategory(category) },
                     label = { Text(category.displayName) },
                     modifier = Modifier.padding(end = 8.dp),
@@ -88,10 +87,9 @@ fun HomeScreen(
 
         when {
             wallpapers.loadState.refresh is LoadState.Error -> {
-                val e = (wallpapers.loadState.refresh as LoadState.Error).error
-                val isNetwork = e is java.io.IOException
-                if (isNetwork) {
-                    com.wallora.app.ui.components.OfflineState(
+                val error = (wallpapers.loadState.refresh as LoadState.Error).error
+                if (error is java.io.IOException) {
+                    OfflineState(
                         onRetry = wallpapers::refresh,
                         modifier = Modifier.padding(contentPadding),
                     )
@@ -115,9 +113,7 @@ fun HomeScreen(
                         items = wallpapers,
                         columns = columns,
                         contentPadding = contentPadding,
-                        onWallpaperClick = { wallpaper ->
-                            onWallpaperClick(wallpaper)
-                        },
+                        onWallpaperClick = onWallpaperClick,
                     )
                 }
             }

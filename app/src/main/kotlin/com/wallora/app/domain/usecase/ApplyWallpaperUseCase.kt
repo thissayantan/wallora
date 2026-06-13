@@ -90,8 +90,8 @@ class ApplyWallpaperUseCase @Inject constructor(
         }
     }
 
-    private fun downloadBytes(url: String): ByteArray? {
-        return try {
+    private fun downloadBytes(url: String): ByteArray? =
+        try {
             val request = Request.Builder().url(url).build()
             okHttpClient.newCall(request).execute().use { response ->
                 if (response.isSuccessful) response.body?.bytes() else null
@@ -100,17 +100,14 @@ class ApplyWallpaperUseCase @Inject constructor(
             Log.e(TAG, "Download failed for $url", e)
             null
         }
-    }
 
-    private fun screenSize(): Pair<Int, Int> {
-        return try {
+    private fun screenSize(): Pair<Int, Int> =
+        try {
             val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-            val metrics = wm.currentWindowMetrics
-            val bounds = metrics.bounds
+            val bounds = wm.currentWindowMetrics.bounds
             bounds.width() to bounds.height()
         } catch (e: Exception) {
             // Fallback for Robolectric / tests
             1080 to 1920
         }
-    }
 }

@@ -7,7 +7,6 @@ import android.service.quicksettings.TileService
 import android.util.Log
 import androidx.annotation.RequiresApi
 import com.wallora.app.R
-import com.wallora.app.domain.usecase.NextWallpaperResult
 import com.wallora.app.domain.usecase.NextWallpaperUseCase
 import com.wallora.app.domain.usecase.WallpaperTarget
 import dagger.hilt.android.AndroidEntryPoint

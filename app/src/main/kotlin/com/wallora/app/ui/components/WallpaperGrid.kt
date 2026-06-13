@@ -84,7 +84,7 @@ fun WallpaperThumbCard(
     modifier: Modifier = Modifier,
 ) {
     val aspect = if (wallpaper.height > 0 && wallpaper.width > 0) {
-        wallpaper.width.toFloat() / wallpaper.height.toFloat()
+        wallpaper.width.toFloat() / wallpaper.height
     } else 0.5625f // default portrait 9:16
 
     val context = LocalContext.current

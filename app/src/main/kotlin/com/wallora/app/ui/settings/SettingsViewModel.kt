@@ -1,7 +1,6 @@
 package com.wallora.app.ui.settings
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import coil.Coil
@@ -48,8 +47,6 @@ class SettingsViewModel @Inject constructor(
     private val alarmScheduler: AlarmScheduler,
     private val sources: Set<@JvmSuppressWildcards WallpaperSource>,
 ) : ViewModel() {
-
-    private val TAG = "SettingsViewModel"
 
     private val _events = MutableSharedFlow<SettingsEvent>()
     val events: SharedFlow<SettingsEvent> = _events.asSharedFlow()

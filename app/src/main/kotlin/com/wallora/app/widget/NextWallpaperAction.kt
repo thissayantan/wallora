@@ -8,7 +8,6 @@ import androidx.glance.appwidget.action.ActionCallback
 import com.wallora.app.domain.usecase.NextWallpaperResult
 import com.wallora.app.domain.usecase.WallpaperTarget
 import dagger.hilt.android.EntryPointAccessors
-import kotlinx.coroutines.launch
 
 /**
  * Glance [ActionCallback] that applies the next wallpaper in-place.

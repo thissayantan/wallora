@@ -35,7 +35,7 @@ fun SourceFilterSheet(
                     modifier = Modifier.weight(1f),
                 )
                 Switch(
-                    checked = enabledSources.contains(source),
+                    checked = source in enabledSources,
                     onCheckedChange = { enabled -> onToggleSource(source, enabled) },
                 )
             }

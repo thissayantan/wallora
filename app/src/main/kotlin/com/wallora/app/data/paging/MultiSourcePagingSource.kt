@@ -42,7 +42,6 @@ class MultiSourcePagingSource(
 
     override suspend fun load(params: LoadParams<PageKey>): LoadResult<PageKey, Wallpaper> {
         val key = params.key ?: FIRST_PAGE
-        val seen = mutableSetOf<String>()
         val resultLists = mutableMapOf<String, List<Wallpaper>>()
         val nextCursors = mutableMapOf<String, String>()
 
@@ -95,11 +94,7 @@ class MultiSourcePagingSource(
         val interleaved = roundRobinInterleave(resultLists.values.toList())
 
         // Deduplicate by globalKey (URL-level dedup)
-        val deduped = interleaved.filter { wallpaper ->
-            val key2 = wallpaper.globalKey
-            if (key2 in seen) false
-            else { seen.add(key2); true }
-        }
+        val deduped = interleaved.distinctBy { it.globalKey }
 
         val nextKey = if (nextCursors.isEmpty()) null else PageKey(nextCursors)
 

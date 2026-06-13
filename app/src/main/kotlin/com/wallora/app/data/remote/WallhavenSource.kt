@@ -51,7 +51,7 @@ class WallhavenSource @Inject constructor(
         if (categories.isEmpty()) return "" to "100" // general
         val queries = categories.map { it.wallhavenQuery }.distinct().joinToString(" ")
         // Use the most specific catFlags from the selected categories
-        val hasAnime = categories.any { it.wallhavenCategories.contains("1", ignoreCase = false) && it == Category.ANIME }
+        val hasAnime = categories.any { it.wallhavenCategories.contains("1") && it == Category.ANIME }
         val catFlags = if (hasAnime) "011" else "100"
         return queries to catFlags
     }

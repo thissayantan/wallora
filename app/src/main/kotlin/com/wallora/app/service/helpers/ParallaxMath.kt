@@ -38,7 +38,6 @@ object ParallaxMath {
      * @return               desired bitmap width in pixels.
      */
     fun overwideBitmapWidth(surfaceWidth: Int, pageCount: Int = 1): Int {
-        val pages = pageCount.coerceAtLeast(1)
         return (surfaceWidth * PARALLAX_SCALE).toInt()
     }
 

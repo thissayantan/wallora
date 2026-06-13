@@ -77,8 +77,7 @@ object ImageAdjustments {
      */
     fun buildColorMatrix(brightness: Float, contrast: Float, saturation: Float): ColorMatrix {
         // Saturation matrix
-        val sat = ColorMatrix()
-        sat.setSaturation(saturation)
+        val sat = ColorMatrix().apply { setSaturation(saturation) }
 
         // Scale (contrast) + translate (brightness):
         // newValue = contrast * oldValue + brightness * 255
@@ -90,9 +89,7 @@ object ImageAdjustments {
         ))
 
         // Combine: first apply saturation, then contrast/brightness
-        val combined = ColorMatrix()
-        combined.setConcat(bc, sat)
-        return combined
+        return ColorMatrix().apply { setConcat(bc, sat) }
     }
 
     fun applyColorMatrix(source: Bitmap, brightness: Float, contrast: Float, saturation: Float): Bitmap {

@@ -32,11 +32,8 @@ class WalloraApp : Application(), Configuration.Provider, ImageLoaderFactory {
      */
     override fun newImageLoader(): ImageLoader {
         val maxHeapBytes = Runtime.getRuntime().maxMemory()
-        val memoryCacheBytes = (maxHeapBytes * 0.20).toLong()
-
-        val memoryCacheInt = memoryCacheBytes
+        val memoryCacheInt = (maxHeapBytes * 0.20).toLong()
             .coerceIn(32L * 1024 * 1024, 256L * 1024 * 1024)
-            .coerceAtMost(Int.MAX_VALUE.toLong())
             .toInt()
 
         return ImageLoader.Builder(this)

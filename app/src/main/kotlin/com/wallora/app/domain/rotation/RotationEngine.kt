@@ -33,12 +33,8 @@ object RotationEngine {
         if (candidates.isEmpty()) return PickResult.Empty
 
         val unseen = candidates.filter { it.globalKey !in recentKeys }
-        val pool = if (unseen.isEmpty()) {
-            // All candidates exhausted — reset and pick from full list
-            candidates
-        } else {
-            unseen
-        }
+        // All candidates exhausted — reset and pick from the full list
+        val pool = unseen.ifEmpty { candidates }
 
         val index = if (seed != null) {
             (seed % pool.size).toInt().let { if (it < 0) it + pool.size else it }

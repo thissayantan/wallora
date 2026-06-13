@@ -138,12 +138,11 @@ class NextWallpaperUseCase @Inject constructor(
         }
     }
 
-    private suspend fun getCandidates(playlistMode: String): List<Wallpaper> {
-        return when (playlistMode) {
+    private suspend fun getCandidates(playlistMode: String): List<Wallpaper> =
+        when (playlistMode) {
             "FAVORITES" -> repository.getFavoritesSnapshot()
             else -> getCategoryBrowseCandidates()
         }
-    }
 
     /**
      * Fetches one page of wallpapers per configured + enabled source for the currently

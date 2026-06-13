@@ -5,11 +5,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -58,7 +56,7 @@ fun SearchScreen(
                 SearchBarDefaults.InputField(
                     query = query,
                     onQueryChange = viewModel::onQueryChange,
-                    onSearch = { viewModel.onSearch(it) },
+                    onSearch = viewModel::onSearch,
                     expanded = isActive,
                     onExpandedChange = viewModel::setSearchActive,
                     placeholder = { Text(stringResource(R.string.search_hint)) },
@@ -74,7 +72,7 @@ fun SearchScreen(
             },
             expanded = isActive,
             onExpandedChange = viewModel::setSearchActive,
-            modifier = Modifier.fillMaxWidth().padding(horizontal = if (!isActive) 16.dp else 0.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = if (isActive) 0.dp else 16.dp),
         ) {
             // Recent searches list shown when search is active but no query yet
             if (recentSearches.isNotEmpty()) {
@@ -117,7 +115,7 @@ fun SearchScreen(
                 items = searchResults,
                 columns = columns,
                 contentPadding = contentPadding,
-                onWallpaperClick = { wallpaper -> onWallpaperClick(wallpaper) },
+                onWallpaperClick = onWallpaperClick,
                 modifier = Modifier.fillMaxSize(),
             )
         } else {
