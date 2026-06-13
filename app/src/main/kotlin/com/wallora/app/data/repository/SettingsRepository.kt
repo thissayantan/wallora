@@ -51,7 +51,7 @@ class SettingsRepository @Inject constructor(
         prefs[selectedCategoriesKey]
             ?.mapNotNull { runCatching { Category.valueOf(it) }.getOrNull() }
             ?.toSet()
-            ?: emptySet()
+            ?: DEFAULT_CATEGORIES  // fresh install: start with curated defaults
     }
 
     suspend fun setSelectedCategories(categories: Set<Category>) {
@@ -259,5 +259,8 @@ class SettingsRepository @Inject constructor(
 
     companion object {
         val DEFAULT_SUBREDDITS = listOf("iWallpaper")
+
+        /** Default categories shown on fresh install — covers minimal, dark/AMOLED, and nature. */
+        val DEFAULT_CATEGORIES = setOf(Category.MINIMAL, Category.AMOLED, Category.NATURE)
     }
 }

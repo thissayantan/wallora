@@ -14,8 +14,8 @@ data class WallhavenWallpaper(
     val id: String = "",
     val url: String = "",                // source page URL (wallhaven.cc/w/…)
     @SerialName("short_url") val shortUrl: String = "",
-    val views: Int = 0,
-    val favorites: Int = 0,
+    val views: Long = 0L,      // popular walls have millions of views — exceeds Int.MAX
+    val favorites: Long = 0L,  // defensive
     val source: String = "",
     val purity: String = "sfw",
     val category: String = "general",
@@ -66,7 +66,7 @@ data class WallhavenMeta(
     @SerialName("current_page") val currentPage: Int = 1,
     @SerialName("last_page") val lastPage: Int = 1,
     val per_page: Int = 24,
-    val total: Int = 0,
+    val total: Long = 0L,  // defensive: could exceed Int.MAX on large queries
     val query: String? = null,
     @SerialName("seed") val seed: String? = null,
 )

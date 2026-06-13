@@ -117,3 +117,46 @@ UltraHDR image (Pixel 6 Pro native HDR camera shot uploaded to Pexels/Unsplash).
 live wallpaper engine shows the image (not black) after setting as live wallpaper and
 rotating once. Enable Nova "Scroll wallpaper" and verify xOffset values appear in Logcat
 tag `WalloraEngine` (DEBUG build only).
+
+---
+
+## 2026-06-14
+
+**Crash fix — CancellationException swallowed in MultiSourcePagingSource**: Toggling a
+category while wallpapers are loading makes `HomeViewModel.flatMapLatest` cancel the
+in-flight paging coroutine. The `CancellationException` propagated into
+`MultiSourcePagingSource.load()` where a blanket `catch (e: Exception)` silently swallowed
+it, corrupting coroutine state and crashing the app. Fixed by adding `catch (e:
+CancellationException) { throw e }` before the generic catch — the canonical structured-
+concurrency rule: never swallow CancellationException.
+
+**DTO Int→Long widening**: Several API fields were `Int` but real values exceed
+`Int.MAX` (2,147,483,647). Confirmed: Pexels `photographer_id` = 2,151,143,420. Widened
+`id`, `photographerId`, `totalResults` in `PexelsDtos.kt`; `views`, `favorites`, `total`
+in `WallhavenDtos.kt`; `total` in `UnsplashDtos.kt`; `score`, `ups` in `RedditDtos.kt`.
+Width/height/page fields stay `Int` (never overflow).
+
+**Default categories = MINIMAL, AMOLED, NATURE**: User asked for "minimal, oled, amoled,
+nature" as defaults. AMOLED (displayName "Dark/AMOLED") covers oled/amoled/dark — there is
+no separate OLED entry. Changed `SettingsRepository.selectedCategories` fallback from
+`emptySet()` to `DEFAULT_CATEGORIES`. Fallback only fires on fresh install (key absent);
+subsequent toggles persist the explicit set.
+
+**Splash screen — dark background + animated icon, no delay**: Changed
+`windowSplashScreenBackground` from `#1565C0` to `#0E0E11` (near-black). Added
+`splash_icon_anim.xml` (AnimatedVectorDrawable) targeting a new `icon_root` wrapper group
+in `ic_launcher_foreground.xml`; plays a 400ms scale 0.88→1.0 + fade-in on entrance.
+`windowSplashScreenAnimationDuration` = 400ms. Deliberately no
+`setKeepOnScreenCondition` in `MainActivity` — the splash dismisses the instant the first
+Compose frame is ready, so launch time is unchanged.
+
+**IzzyOnDroid: dedicated release keystore via GitHub Secrets**: CI previously debug-signed
+with an ephemeral keystore (regenerated per run) — IzzyOnDroid would reject updates as
+"signature mismatch". Generated a 4096-bit RSA keystore at `~/.android/wallora-release.keystore`
+(not committed). Added `build.gradle.kts` env-var fallback so CI can sign via
+`SIGNING_KEYSTORE_B64` / `SIGNING_STORE_PASSWORD` / `SIGNING_KEY_ALIAS` secrets.
+Workflow decodes keystore to `$RUNNER_TEMP` before build; graceful debug fallback if
+secrets absent (forks). Fastlane metadata (`changelogs/1.txt`, screenshots, icon.png)
+added under `fastlane/metadata/android/en-US/`. README IzzyOnDroid badge + install section
+added; badge links go live after RFP accepted. RFP to be filed by the developer at
+https://gitlab.com/IzzyOnDroid/repo/-/issues.

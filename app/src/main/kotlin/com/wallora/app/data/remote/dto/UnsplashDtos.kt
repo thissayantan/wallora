@@ -55,7 +55,7 @@ data class UnsplashTag(
 
 @Serializable
 data class UnsplashSearchResponse(
-    val total: Int = 0,
+    val total: Long = 0L,  // defensive: could exceed Int.MAX on broad queries
     @SerialName("total_pages") val totalPages: Int = 0,
     val results: List<UnsplashPhoto> = emptyList(),
 )

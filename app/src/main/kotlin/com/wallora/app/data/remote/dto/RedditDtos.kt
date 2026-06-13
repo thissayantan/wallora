@@ -38,8 +38,8 @@ data class RedditPostData(
     @SerialName("is_gallery") val isGallery: Boolean? = false,
     @SerialName("domain") val domain: String = "",
     val preview: RedditPreview? = null,
-    @SerialName("score") val score: Int = 0,
-    @SerialName("ups") val ups: Int = 0,
+    @SerialName("score") val score: Long = 0L,  // viral posts can exceed Int.MAX
+    @SerialName("ups") val ups: Long = 0L,       // defensive
 )
 
 @Serializable

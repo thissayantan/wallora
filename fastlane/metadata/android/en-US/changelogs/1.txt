@@ -1,0 +1,13 @@
+First release of Wallora.
+
+• Multi-source wallpaper browsing — Pexels, Wallhaven, Unsplash, and Reddit simultaneously
+• Portrait-only filtering — only wallpapers that fit a phone screen
+• Auto-change wallpaper — scheduled rotation with configurable interval and time-of-day slots
+• Live wallpaper & parallax — set Wallora as a live wallpaper for a depth effect
+• Favourites — long-press any wallpaper to save; browse your collection offline
+• Category browsing — curated topics (Nature, Minimal, Dark/AMOLED, Space, Architecture, and more)
+• Custom topics — add your own search keywords as browsable categories
+• Reddit subreddits — toggle from pre-configured subreddits or add your own
+• Quick Settings tile — change wallpaper from the notification shade
+• Home-screen widget — current wallpaper thumbnail + one-tap "Next" button
+• Material You — dynamic colour extracted from the live wallpaper bitmap

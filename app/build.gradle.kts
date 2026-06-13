@@ -47,14 +47,18 @@ android {
 
     signingConfigs {
         create("release") {
-            // Keys loaded from local.properties (git-ignored).
-            // Falls back to debug signing when properties are absent (CI / clean clone).
-            val ksFile = localProps.getProperty("RELEASE_STORE_FILE", "")
+            // Priority: local.properties → env vars (GitHub Actions secrets) → debug fallback.
+            // The env-var path is used by CI via the "Decode release keystore" workflow step.
+            val ksFile = localProps.getProperty("RELEASE_STORE_FILE")
+                ?: System.getenv("RELEASE_STORE_FILE") ?: ""
             if (ksFile.isNotEmpty()) {
                 storeFile = file(ksFile)
-                storePassword = localProps.getProperty("RELEASE_STORE_PASSWORD", "")
-                keyAlias = localProps.getProperty("RELEASE_KEY_ALIAS", "")
-                keyPassword = localProps.getProperty("RELEASE_KEY_PASSWORD", "")
+                storePassword = localProps.getProperty("RELEASE_STORE_PASSWORD")
+                    ?: System.getenv("RELEASE_STORE_PASSWORD") ?: ""
+                keyAlias = localProps.getProperty("RELEASE_KEY_ALIAS")
+                    ?: System.getenv("RELEASE_KEY_ALIAS") ?: ""
+                keyPassword = localProps.getProperty("RELEASE_KEY_PASSWORD")
+                    ?: System.getenv("RELEASE_KEY_PASSWORD") ?: ""
             }
         }
     }

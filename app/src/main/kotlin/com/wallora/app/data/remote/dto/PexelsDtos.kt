@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 data class PexelsListResponse(
     val photos: List<PexelsPhoto> = emptyList(),
     @SerialName("next_page") val nextPage: String? = null,
-    @SerialName("total_results") val totalResults: Int = 0,
+    @SerialName("total_results") val totalResults: Long = 0L,  // can exceed Int.MAX on large collections
     val page: Int = 1,
     @SerialName("per_page") val perPage: Int = 15,
 )
@@ -16,21 +16,21 @@ data class PexelsListResponse(
 data class PexelsSearchResponse(
     val photos: List<PexelsPhoto> = emptyList(),
     @SerialName("next_page") val nextPage: String? = null,
-    @SerialName("total_results") val totalResults: Int = 0,
+    @SerialName("total_results") val totalResults: Long = 0L,  // can exceed Int.MAX on large collections
     val page: Int = 1,
     @SerialName("per_page") val perPage: Int = 15,
 )
 
 @Serializable
 data class PexelsPhoto(
-    val id: Int = 0,
+    val id: Long = 0L,                       // confirmed overflow: real ids exceed Int.MAX
     val width: Int = 0,
     val height: Int = 0,
     val url: String = "",                    // source page URL
     @SerialName("avg_color") val avgColor: String? = null,
     val photographer: String = "",
     @SerialName("photographer_url") val photographerUrl: String = "",
-    @SerialName("photographer_id") val photographerId: Int = 0,
+    @SerialName("photographer_id") val photographerId: Long = 0L,  // confirmed: 2151143420 > Int.MAX
     val src: PexelsSrc = PexelsSrc(),
     val alt: String = "",
 )

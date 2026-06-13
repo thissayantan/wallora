@@ -13,6 +13,10 @@ Browse, search, and auto-rotate stunning wallpapers from Pexels, Wallhaven, Unsp
   <a href="https://github.com/thissayantan/wallora/releases/latest">
     <img src="https://img.shields.io/github/v/release/thissayantan/wallora?style=for-the-badge&color=6750A4&logo=android&logoColor=white&label=Download%20APK" alt="Download latest APK">
   </a>
+  &nbsp;
+  <a href="https://apt.izzysoft.de/fdroid/index/apk/com.wallora.app">
+    <img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" alt="Get it on IzzyOnDroid" height="60">
+  </a>
 </p>
 
 ---
@@ -121,6 +125,17 @@ In Tasker: **Task → App → Send Intent** with the values above.
 - Android **12** (API 31) or higher
 - JDK 17
 - Android SDK with `platforms;android-35` and `build-tools;35.0.0`
+
+### Install from IzzyOnDroid (recommended for auto-updates)
+
+1. Install [F-Droid](https://f-droid.org) on your Android device.
+2. In F-Droid, go to **Settings → Repositories → +** and add:
+   ```
+   https://apt.izzysoft.de/fdroid/repo
+   ```
+3. Search for **Wallora** and install it — F-Droid will keep it up to date automatically.
+
+> **Note:** The IzzyOnDroid listing goes live once the inclusion request is accepted. Until then, sideload the APK from [Releases](https://github.com/thissayantan/wallora/releases/latest).
 
 ### Quick build
 

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Splash screen background — deep near-black, matches the app's dark theme -->
+    <color name="splash_background">#0E0E11</color>
+</resources>

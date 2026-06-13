@@ -17,6 +17,15 @@
     android:viewportWidth="108"
     android:viewportHeight="108">
 
+    <!--
+      Named root group so the splash AnimatedVectorDrawable (splash_icon_anim.xml)
+      can target "icon_root" for a scale+fade entrance. Purely structural — no visual change.
+    -->
+    <group
+        android:name="icon_root"
+        android:pivotX="54"
+        android:pivotY="54">
+
     <!-- Left fan card: semi-transparent, rotated -14° around icon centre -->
     <group
         android:rotation="-14"
@@ -70,5 +79,7 @@
             android:fillColor="#6750A4"
             android:pathData="M36.28,73.41 Q45.14,67.50 54.00,71.72 Q63.28,75.94 71.72,70.03 L71.72,77.63 L36.28,77.63 Z" />
     </group>
+
+    </group><!-- icon_root -->
 
 </vector>

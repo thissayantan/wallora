@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.wallora.app.data.local.dao.WallpaperDao
+import kotlinx.coroutines.CancellationException
 import com.wallora.app.data.local.entity.WallpaperEntity
 import com.wallora.app.domain.WallpaperSource
 import com.wallora.app.domain.model.Category
@@ -78,6 +79,8 @@ class MultiSourcePagingSource(
                         WallpaperEntity.fromDomain(wallpaper, cacheKey, now)
                     })
                     Log.d(TAG, "${source.id}: network fetch (${items.size} items)")
+                } catch (e: CancellationException) {
+                    throw e  // never swallow — flatMapLatest cancels in-flight loads on category change
                 } catch (e: Exception) {
                     Log.w(TAG, "${source.id}: fetch failed, skipping source", e)
                     resultLists[sourceKey] = emptyList()

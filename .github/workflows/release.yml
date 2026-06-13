@@ -23,6 +23,23 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v3
 
+      - name: Decode release keystore
+        # Decodes the base64 keystore secret into a temp file for stable APK signing.
+        # If the secret is absent (forks, open PRs) the build still succeeds via debug fallback.
+        env:
+          KEYSTORE_B64: ${{ secrets.SIGNING_KEYSTORE_B64 }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/wallora-release.keystore"
+            echo "RELEASE_STORE_FILE=$RUNNER_TEMP/wallora-release.keystore" >> "$GITHUB_ENV"
+            echo "RELEASE_STORE_PASSWORD=${{ secrets.SIGNING_STORE_PASSWORD }}" >> "$GITHUB_ENV"
+            echo "RELEASE_KEY_ALIAS=${{ secrets.SIGNING_KEY_ALIAS }}" >> "$GITHUB_ENV"
+            echo "RELEASE_KEY_PASSWORD=${{ secrets.SIGNING_STORE_PASSWORD }}" >> "$GITHUB_ENV"
+            echo "Using dedicated release keystore"
+          else
+            echo "No keystore secret found — will fall back to debug signing"
+          fi
+
       - name: Build release APK
         run: ./gradlew assembleRelease
 
