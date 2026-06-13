@@ -2,7 +2,9 @@ package com.wallora.app.ui
 
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
+import com.wallora.app.R
 import com.wallora.app.di.ApplicationScope
 import com.wallora.app.domain.usecase.NextWallpaperResult
 import com.wallora.app.domain.usecase.NextWallpaperUseCase
@@ -41,6 +43,7 @@ class NextWallpaperActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "Received next-wallpaper trigger")
+        Toast.makeText(this, R.string.toast_changing_wallpaper, Toast.LENGTH_SHORT).show()
         // Launch on applicationScope: work outlives this Activity (finish() below).
         applicationScope.launch {
             val result = nextWallpaperUseCase(WallpaperTarget.BOTH)

@@ -4,6 +4,8 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import coil.Coil
+import com.wallora.app.R
 import com.wallora.app.data.local.dao.WallpaperDao
 import com.wallora.app.data.repository.SettingsRepository
 import com.wallora.app.data.repository.WallpaperRepository
@@ -16,6 +18,7 @@ import com.wallora.app.worker.AlarmScheduler
 import com.wallora.app.worker.RotationWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.SharedFlow
@@ -25,6 +28,8 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -39,6 +44,7 @@ class SettingsViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val settingsRepository: SettingsRepository,
     private val wallpaperRepository: WallpaperRepository,
+    private val downloadClient: OkHttpClient,
     private val alarmScheduler: AlarmScheduler,
     private val sources: Set<@JvmSuppressWildcards WallpaperSource>,
 ) : ViewModel() {
@@ -219,7 +225,11 @@ class SettingsViewModel @Inject constructor(
     // ── Cache ─────────────────────────────────────────────────────────────────
 
     fun clearCache() = viewModelScope.launch {
-        wallpaperRepository.clearCache()
-        _events.emit(SettingsEvent.ShowMessage("Cache cleared"))
+        withContext(Dispatchers.IO) {
+            wallpaperRepository.clearCache()          // Room page cache
+            downloadClient.cache?.evictAll()           // OkHttp disk cache (wallpaper_http_cache)
+            Coil.imageLoader(context).diskCache?.clear() // Coil thumbnail disk cache
+        }
+        _events.emit(SettingsEvent.ShowMessage(context.getString(R.string.settings_clear_cache_done)))
     }
 }

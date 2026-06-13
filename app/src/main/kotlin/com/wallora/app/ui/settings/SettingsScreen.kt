@@ -289,7 +289,7 @@ fun SettingsScreen(
             SettingsSectionHeader(stringResource(R.string.settings_cache))
             ListItem(
                 headlineContent = { Text(stringResource(R.string.settings_clear_cache)) },
-                supportingContent = { Text("Clears browsed wallpapers cache") },
+                supportingContent = { Text("Thumbnails, full-res images, and page cache") },
                 modifier = Modifier.clickable { viewModel.clearCache() },
             )
 

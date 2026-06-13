@@ -1,17 +1,21 @@
 package com.wallora.app.di
 
+import android.content.Context
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.wallora.app.BuildConfig
 import com.wallora.app.data.remote.interceptor.ThrottleInterceptor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.serialization.json.Json
+import okhttp3.Cache
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
+import java.io.File
 import java.util.concurrent.TimeUnit
 import javax.inject.Named
 import javax.inject.Singleton
@@ -28,13 +32,28 @@ const val RETROFIT_UNSPLASH = "unsplash"
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    /** Shared OkHttpClient for downloads (no throttle or auth headers — used by download use case). */
+    /**
+     * Shared OkHttpClient for full-res image downloads.
+     * 150 MB disk cache so subsequent rotations to the same image are instant.
+     * A network interceptor forces Cache-Control: max-age=86400 on responses whose
+     * servers don't set cache headers (some CDNs omit them on direct URL hits).
+     */
     @Singleton
     @Provides
-    fun provideDownloadClient(): OkHttpClient =
+    fun provideDownloadClient(@ApplicationContext context: Context): OkHttpClient =
         OkHttpClient.Builder()
             .connectTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .readTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .cache(Cache(File(context.cacheDir, "wallpaper_http_cache"), 150L * 1024L * 1024L))
+            .addNetworkInterceptor { chain ->
+                val response = chain.proceed(chain.request())
+                // Honour server headers; only inject if missing
+                if (response.header("Cache-Control") == null) {
+                    response.newBuilder()
+                        .header("Cache-Control", "max-age=86400")
+                        .build()
+                } else response
+            }
             .build()
 
     @Singleton

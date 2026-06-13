@@ -3,15 +3,20 @@ package com.wallora.app.domain.usecase
 import android.util.Log
 import com.wallora.app.data.repository.SettingsRepository
 import com.wallora.app.data.repository.WallpaperRepository
+import com.wallora.app.di.ApplicationScope
 import com.wallora.app.domain.WallpaperSource
 import com.wallora.app.domain.model.Category
 import com.wallora.app.domain.model.SourceId
 import com.wallora.app.domain.model.Wallpaper
 import com.wallora.app.domain.rotation.PickResult
 import com.wallora.app.domain.rotation.RotationEngine
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -44,18 +49,29 @@ class NextWallpaperUseCase @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val applyWallpaperUseCase: ApplyWallpaperUseCase,
     private val sources: Set<@JvmSuppressWildcards WallpaperSource>,
+    private val okHttpClient: OkHttpClient,
+    @ApplicationScope private val appScope: CoroutineScope,
 ) {
     companion object {
         private const val TAG = "NextWallpaper"
-        /** Maximum recent history entries to consider for no-repeat. */
         private const val MAX_NO_REPEAT_WINDOW = 30
     }
+
+    /**
+     * In-memory candidate cache. Avoids re-hitting the source APIs on every rotation
+     * trigger. Populated on first call and refreshed in the background after each apply.
+     */
+    @Volatile private var candidateCache: List<Wallpaper> = emptyList()
 
     suspend operator fun invoke(
         target: WallpaperTarget = WallpaperTarget.BOTH,
     ): NextWallpaperResult = withContext(Dispatchers.IO) {
         val playlistMode = settingsRepository.rotationPlaylist.first()
-        val candidates = getCandidates(playlistMode)
+
+        // Use cached candidates if available (avoids re-fetching the API on every trigger).
+        val candidates = candidateCache.ifEmpty {
+            getCandidates(playlistMode).also { candidateCache = it }
+        }
         if (candidates.isEmpty()) {
             Log.w(TAG, "No candidates for playlist=$playlistMode")
             return@withContext NextWallpaperResult.NoPlaylist
@@ -75,27 +91,50 @@ class NextWallpaperUseCase @Inject constructor(
         }
 
         Log.d(TAG, "Rotating to: ${wallpaper.globalKey}")
-
-        // Always persist the picked wallpaper so the live engine can observe it.
         settingsRepository.setCurrentWallpaperUrls(wallpaper.fullUrl, wallpaper.thumbUrl)
 
         val isLiveActive = settingsRepository.isLiveWallpaperActive.first()
         if (isLiveActive && target != WallpaperTarget.LOCK) {
-            // Live mode: engine observes DataStore and renders the bitmap itself.
-            // We must NOT call WallpaperManager.setBitmap(FLAG_SYSTEM) — it would
-            // deactivate the live wallpaper and revert to static.
-            // Still apply to LOCK screen statically when target == BOTH.
             repository.addToHistory(wallpaper)
             if (target == WallpaperTarget.BOTH) {
                 applyWallpaperUseCase(wallpaper, WallpaperTarget.LOCK)
             }
+            scheduleBackgroundPrefetch(playlistMode, wallpaper)
             return@withContext NextWallpaperResult.Applied(wallpaper)
         }
 
         val applyResult = applyWallpaperUseCase(wallpaper, target)
         return@withContext when (applyResult) {
-            is ApplyResult.Success -> NextWallpaperResult.Applied(wallpaper)
+            is ApplyResult.Success -> {
+                scheduleBackgroundPrefetch(playlistMode, wallpaper)
+                NextWallpaperResult.Applied(wallpaper)
+            }
             is ApplyResult.Failure -> NextWallpaperResult.Failure(applyResult.message)
+        }
+    }
+
+    /**
+     * Fire-and-forget: refresh the candidate list and warm the OkHttp disk cache for
+     * the wallpaper that is most likely to be picked on the next rotation trigger.
+     * Runs on [appScope] so it survives the caller finishing.
+     */
+    private fun scheduleBackgroundPrefetch(playlistMode: String, justApplied: Wallpaper) {
+        appScope.launch(Dispatchers.IO) {
+            try {
+                val fresh = getCandidates(playlistMode)
+                if (fresh.isNotEmpty()) candidateCache = fresh
+
+                val updatedHistory = repository.getRecentHistoryKeys(MAX_NO_REPEAT_WINDOW)
+                val window = RotationEngine.noRepeatWindow(fresh.size, MAX_NO_REPEAT_WINDOW)
+                val nextPick = RotationEngine.pickNext(fresh, updatedHistory.take(window).toSet())
+                if (nextPick is PickResult.Found) {
+                    val url = nextPick.wallpaper.fullUrl
+                    Log.d(TAG, "Prefetching: $url")
+                    okHttpClient.newCall(Request.Builder().url(url).build()).execute().close()
+                }
+            } catch (e: Exception) {
+                Log.d(TAG, "Background prefetch skipped: ${e.message}")
+            }
         }
     }
 
