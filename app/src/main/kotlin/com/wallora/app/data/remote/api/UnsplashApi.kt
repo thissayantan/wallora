@@ -14,6 +14,7 @@ interface UnsplashApi {
         @Query("order_by") orderBy: String = "popular",
         @Query("per_page") perPage: Int = PAGE_SIZE,
         @Query("page") page: Int = 1,
+        @Query("orientation") orientation: String = "portrait",
     ): List<UnsplashPhoto>
 
     @GET("search/photos")

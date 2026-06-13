@@ -1,8 +1,8 @@
 package com.wallora.app.data.remote
 
-import com.wallora.app.BuildConfig
 import com.wallora.app.data.remote.api.PexelsApi
 import com.wallora.app.data.remote.dto.PexelsPhoto
+import com.wallora.app.di.UserKeyCache
 import com.wallora.app.domain.WallpaperSource
 import com.wallora.app.domain.model.Category
 import com.wallora.app.domain.model.Page
@@ -14,10 +14,11 @@ import javax.inject.Singleton
 @Singleton
 class PexelsSource @Inject constructor(
     private val api: PexelsApi,
+    private val userKeyCache: UserKeyCache,
 ) : WallpaperSource {
 
     override val id: SourceId = SourceId.PEXELS
-    override val isConfigured: Boolean get() = BuildConfig.PEXELS_API_KEY.isNotBlank()
+    override val isConfigured: Boolean get() = userKeyCache.effectivePexelsKey.isNotBlank()
 
     override suspend fun browse(categories: List<Category>, page: String): Page<Wallpaper> {
         val pageNum = page.toIntOrNull() ?: 1
@@ -47,14 +48,14 @@ class PexelsSource @Inject constructor(
     }
 }
 
-/** Convert a Pexels photo DTO to the domain [Wallpaper] model. */
 internal fun PexelsPhoto.toDomain(category: Category?): Wallpaper {
     val colorHint = avgColor?.removePrefix("#")?.toLongOrNull(16)?.toInt()
+    // large2x is ~1920px wide — sufficient for any phone screen and ~5× smaller than original
     return Wallpaper(
         id = id.toString(),
         sourceId = SourceId.PEXELS,
         thumbUrl = src.medium.ifBlank { src.small },
-        fullUrl = src.original.ifBlank { src.large2x },
+        fullUrl = src.large2x.ifBlank { src.original },
         width = width,
         height = height,
         author = photographer,

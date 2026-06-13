@@ -9,10 +9,11 @@ interface WallhavenApi {
     @GET("api/v1/search")
     suspend fun search(
         @Query("q") query: String = "",
-        @Query("categories") categories: String = "100", // 1=general,0=anime,0=people → "100"
-        @Query("purity") purity: String = "100",         // 1=sfw, 0=sketchy, 0=nsfw → "100"
-        @Query("atleast") atleast: String = "1080x1920", // portrait HD
-        @Query("sorting") sorting: String = "relevance",
+        @Query("categories") categories: String = "100",
+        @Query("purity") purity: String = "100",
+        @Query("atleast") atleast: String = "1080x1920",
+        @Query("sorting") sorting: String = "toplist",   // toplist → highest-rated content
+        @Query("topRange") topRange: String = "6M",      // past 6 months
         @Query("order") order: String = "desc",
         @Query("page") page: Int = 1,
     ): WallhavenResponse

@@ -330,14 +330,19 @@ class WalloraWallpaperService : WallpaperService() {
 
         override fun onComputeColors(): WallpaperColors? {
             val bmp = currentBitmap ?: return null
-            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-                try {
-                    WallpaperColors.fromBitmap(bmp)
-                } catch (e: Exception) {
-                    Log.w(TAG, "WallpaperColors.fromBitmap failed", e)
-                    null
-                }
-            } else null
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O_MR1) return null
+            return try {
+                // Crop to the center-visible strip (removes the parallax over-width on both sides)
+                // so color extraction reflects what the user actually sees, not the hidden margins.
+                val visibleBmp = if (surfaceWidth > 0 && bmp.width > surfaceWidth) {
+                    val startX = (bmp.width - surfaceWidth) / 2
+                    Bitmap.createBitmap(bmp, startX, 0, surfaceWidth, bmp.height)
+                } else bmp
+                WallpaperColors.fromBitmap(visibleBmp)
+            } catch (e: Exception) {
+                Log.w(TAG, "WallpaperColors.fromBitmap failed", e)
+                null
+            }
         }
 
         /**

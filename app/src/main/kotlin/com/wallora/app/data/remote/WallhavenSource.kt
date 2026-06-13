@@ -1,7 +1,7 @@
 package com.wallora.app.data.remote
 
-import com.wallora.app.BuildConfig
 import com.wallora.app.data.remote.api.WallhavenApi
+import com.wallora.app.di.UserKeyCache
 import com.wallora.app.data.remote.dto.WallhavenWallpaper
 import com.wallora.app.domain.WallpaperSource
 import com.wallora.app.domain.model.Category
@@ -14,10 +14,11 @@ import javax.inject.Singleton
 @Singleton
 class WallhavenSource @Inject constructor(
     private val api: WallhavenApi,
+    private val userKeyCache: UserKeyCache,
 ) : WallpaperSource {
 
     override val id: SourceId = SourceId.WALLHAVEN
-    // Wallhaven works without a key for SFW content; key is optional
+    // Wallhaven works without a key for SFW content; a user key unlocks more content
     override val isConfigured: Boolean = true
 
     override suspend fun browse(categories: List<Category>, page: String): Page<Wallpaper> {

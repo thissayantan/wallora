@@ -4,8 +4,8 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import coil.Coil
+import com.wallora.app.BuildConfig
 import com.wallora.app.R
-import com.wallora.app.data.local.dao.WallpaperDao
 import com.wallora.app.data.repository.SettingsRepository
 import com.wallora.app.data.repository.WallpaperRepository
 import com.wallora.app.domain.WallpaperSource
@@ -24,7 +24,6 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -57,9 +56,26 @@ class SettingsViewModel @Inject constructor(
         settingsRepository.enabledSources
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SourceId.entries.toSet())
 
-    /** Map of SourceId → isConfigured (API key present). */
-    val sourceConfiguredMap: Map<SourceId, Boolean> =
-        sources.associate { it.id to it.isConfigured }
+    /** Reactive map: SourceId → isConfigured (considers user-supplied keys). */
+    val sourceConfiguredMap: StateFlow<Map<SourceId, Boolean>> = combine(
+        settingsRepository.userPexelsKey,
+        settingsRepository.userUnsplashKey,
+    ) { pexelsKey, unsplashKey ->
+        mapOf(
+            SourceId.PEXELS to (BuildConfig.PEXELS_API_KEY.isNotBlank() || pexelsKey.isNotBlank()),
+            SourceId.UNSPLASH to (BuildConfig.UNSPLASH_ACCESS_KEY.isNotBlank() || unsplashKey.isNotBlank()),
+            SourceId.WALLHAVEN to true,
+            SourceId.REDDIT to true,
+        )
+    }.stateIn(
+        viewModelScope, SharingStarted.WhileSubscribed(5_000),
+        mapOf(
+            SourceId.PEXELS to BuildConfig.PEXELS_API_KEY.isNotBlank(),
+            SourceId.UNSPLASH to BuildConfig.UNSPLASH_ACCESS_KEY.isNotBlank(),
+            SourceId.WALLHAVEN to true,
+            SourceId.REDDIT to true,
+        ),
+    )
 
     fun setSourceEnabled(source: SourceId, enabled: Boolean) = viewModelScope.launch {
         settingsRepository.setSourceEnabled(source, enabled)
@@ -71,10 +87,53 @@ class SettingsViewModel @Inject constructor(
         settingsRepository.selectedCategories
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptySet())
 
+    val customKeywords: StateFlow<Set<String>> =
+        settingsRepository.customKeywords
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptySet())
+
     fun toggleCategory(category: Category) = viewModelScope.launch {
         val current = selectedCategories.value.toMutableSet()
         if (category in current) current.remove(category) else current.add(category)
         settingsRepository.setSelectedCategories(current)
+    }
+
+    fun addCustomKeyword(keyword: String) = viewModelScope.launch {
+        val trimmed = keyword.trim()
+        if (trimmed.isBlank()) return@launch
+        val current = customKeywords.value.toMutableSet()
+        current.add(trimmed)
+        settingsRepository.setCustomKeywords(current)
+    }
+
+    fun removeCustomKeyword(keyword: String) = viewModelScope.launch {
+        val current = customKeywords.value.toMutableSet()
+        current.remove(keyword)
+        settingsRepository.setCustomKeywords(current)
+    }
+
+    // ── Reddit subreddits ─────────────────────────────────────────────────────
+
+    val userSubreddits: StateFlow<List<String>> =
+        settingsRepository.userSubreddits
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsRepository.DEFAULT_SUBREDDITS)
+
+    fun addSubreddit(name: String) = viewModelScope.launch {
+        val trimmed = name.trim().removePrefix("r/").removePrefix("/r/")
+        if (trimmed.isBlank()) return@launch
+        val current = userSubreddits.value.toMutableSet()
+        current.add(trimmed)
+        settingsRepository.setUserSubreddits(current)
+    }
+
+    fun removeSubreddit(name: String) = viewModelScope.launch {
+        val current = userSubreddits.value.toMutableSet()
+        current.remove(name)
+        if (current.isEmpty()) current.addAll(SettingsRepository.DEFAULT_SUBREDDITS)
+        settingsRepository.setUserSubreddits(current)
+    }
+
+    fun resetSubreddits() = viewModelScope.launch {
+        settingsRepository.setUserSubreddits(SettingsRepository.DEFAULT_SUBREDDITS.toSet())
     }
 
     // ── Rotation state ────────────────────────────────────────────────────────
@@ -107,20 +166,19 @@ class SettingsViewModel @Inject constructor(
         settingsRepository.rotationOnUnlock
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
 
-    val nextChangeLabel: StateFlow<String> =
-        combine(
-            settingsRepository.rotationEnabled,
-            settingsRepository.rotationTimes,
-        ) { enabled, times ->
-            if (!enabled || times.isEmpty()) return@combine ""
-            val nextMs = AlarmScheduleCalculator.nextTrigger(times, System.currentTimeMillis())
-                ?: return@combine ""
-            val fmt = SimpleDateFormat("HH:mm", Locale.getDefault())
-            val nowDay = System.currentTimeMillis() / 86_400_000L
-            val nextDay = nextMs / 86_400_000L
-            if (nextDay == nowDay) "Today ${fmt.format(Date(nextMs))}"
-            else "Tomorrow ${fmt.format(Date(nextMs))}"
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), "")
+    val nextChangeLabel: StateFlow<String> = combine(
+        settingsRepository.rotationEnabled,
+        settingsRepository.rotationTimes,
+    ) { enabled, times ->
+        if (!enabled || times.isEmpty()) return@combine ""
+        val nextMs = AlarmScheduleCalculator.nextTrigger(times, System.currentTimeMillis())
+            ?: return@combine ""
+        val fmt = SimpleDateFormat("HH:mm", Locale.getDefault())
+        val nowDay = System.currentTimeMillis() / 86_400_000L
+        val nextDay = nextMs / 86_400_000L
+        if (nextDay == nowDay) "Today ${fmt.format(Date(nextMs))}"
+        else "Tomorrow ${fmt.format(Date(nextMs))}"
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), "")
 
     fun setRotationEnabled(enabled: Boolean) = viewModelScope.launch {
         settingsRepository.setRotationEnabled(enabled)
@@ -181,19 +239,11 @@ class SettingsViewModel @Inject constructor(
         settingsRepository.setRotationOnUnlock(enabled)
     }
 
-    // ── Gesture & parallax ────────────────────────────────────────────────────
-
-    val doubleTapEnabled: StateFlow<Boolean> =
-        settingsRepository.doubleTapGestureEnabled
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false) // default OFF
+    // ── Parallax ──────────────────────────────────────────────────────────────
 
     val parallaxEnabled: StateFlow<Boolean> =
         settingsRepository.parallaxEnabled
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
-
-    fun setDoubleTapEnabled(enabled: Boolean) = viewModelScope.launch {
-        settingsRepository.setDoubleTapGesture(enabled)
-    }
 
     fun setParallaxEnabled(enabled: Boolean) = viewModelScope.launch {
         settingsRepository.setParallaxEnabled(enabled)
@@ -207,6 +257,35 @@ class SettingsViewModel @Inject constructor(
 
     fun resetDefaultEditParams() = viewModelScope.launch {
         settingsRepository.setDefaultEditParams(EditParams.Default)
+    }
+
+    // ── User API keys ─────────────────────────────────────────────────────────
+
+    val userPexelsKey: StateFlow<String> =
+        settingsRepository.userPexelsKey
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), "")
+
+    val userUnsplashKey: StateFlow<String> =
+        settingsRepository.userUnsplashKey
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), "")
+
+    val userWallhavenKey: StateFlow<String> =
+        settingsRepository.userWallhavenKey
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), "")
+
+    fun saveUserPexelsKey(key: String) = viewModelScope.launch {
+        settingsRepository.setUserPexelsKey(key.trim())
+        _events.emit(SettingsEvent.ShowMessage("Pexels key saved"))
+    }
+
+    fun saveUserUnsplashKey(key: String) = viewModelScope.launch {
+        settingsRepository.setUserUnsplashKey(key.trim())
+        _events.emit(SettingsEvent.ShowMessage("Unsplash key saved"))
+    }
+
+    fun saveUserWallhavenKey(key: String) = viewModelScope.launch {
+        settingsRepository.setUserWallhavenKey(key.trim())
+        _events.emit(SettingsEvent.ShowMessage("Wallhaven key saved"))
     }
 
     // ── Theme ─────────────────────────────────────────────────────────────────
@@ -223,9 +302,9 @@ class SettingsViewModel @Inject constructor(
 
     fun clearCache() = viewModelScope.launch {
         withContext(Dispatchers.IO) {
-            wallpaperRepository.clearCache()          // Room page cache
-            downloadClient.cache?.evictAll()           // OkHttp disk cache (wallpaper_http_cache)
-            Coil.imageLoader(context).diskCache?.clear() // Coil thumbnail disk cache
+            wallpaperRepository.clearCache()
+            downloadClient.cache?.evictAll()
+            Coil.imageLoader(context).diskCache?.clear()
         }
         _events.emit(SettingsEvent.ShowMessage(context.getString(R.string.settings_clear_cache_done)))
     }

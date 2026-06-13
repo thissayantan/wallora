@@ -106,8 +106,15 @@ enum class Category(
         displayName = "Anime",
         pexelsQuery = "anime illustration",
         wallhavenQuery = "anime",
-        wallhavenCategories = "010", // anime only
+        wallhavenCategories = "010",
         subreddits = listOf("Animewallpaper", "Amoledbackgrounds"),
         unsplashQuery = "anime illustration",
+    ),
+    AI_ART(
+        displayName = "AI Art",
+        pexelsQuery = "digital art vibrant colorful",
+        wallhavenQuery = "digital art illustration",
+        subreddits = listOf("AIArt", "midjourney", "StableDiffusion"),
+        unsplashQuery = "digital art colorful",
     ),
 }

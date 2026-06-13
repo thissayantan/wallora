@@ -11,7 +11,9 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -144,10 +146,15 @@ fun WalloraNavGraph() {
             // NOTE: We pass the wallpaper via back-stack saved state to avoid re-fetching
             // for the MVP. If wallpaper isn't found in state, show loading.
             composable(WalloraRoute.Detail.route) { backStackEntry ->
-                // Retrieve wallpaper from the previous back stack entry's saved state
-                val wallpaper = navController.previousBackStackEntry
-                    ?.savedStateHandle
-                    ?.get<Wallpaper>("wallpaper")
+                // Remember the wallpaper keyed on backStackEntry so it is read exactly once
+                // when the composable enters the composition. During the exit animation the
+                // back-stack changes and previousBackStackEntry becomes null, which without
+                // this remember would trigger a spurious second popBackStack() and blank the screen.
+                val wallpaper = remember(backStackEntry) {
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.get<Wallpaper>("wallpaper")
+                }
                 if (wallpaper != null) {
                     DetailScreen(
                         wallpaper = wallpaper,
@@ -162,8 +169,7 @@ fun WalloraNavGraph() {
                         onMoreLikeThis = { /* TODO Phase 2 search */ },
                     )
                 } else {
-                    // Wallpaper not in saved state — navigate back
-                    navController.popBackStack()
+                    LaunchedEffect(Unit) { navController.popBackStack() }
                 }
             }
             composable(WalloraRoute.Editor.route) {

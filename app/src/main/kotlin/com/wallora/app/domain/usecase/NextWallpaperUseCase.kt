@@ -68,7 +68,34 @@ class NextWallpaperUseCase @Inject constructor(
     ): NextWallpaperResult = withContext(Dispatchers.IO) {
         val playlistMode = settingsRepository.rotationPlaylist.first()
 
-        // Use cached candidates if available (avoids re-fetching the API on every trigger).
+        // Fast path: if a wallpaper was pre-fetched and cached to disk, apply it instantly.
+        // This makes gesture-triggered changes feel immediate even after a process restart.
+        val prefetched = settingsRepository.prefetchedWallpaperUrls.first()
+        if (prefetched != null) {
+            Log.d(TAG, "Using pre-fetched wallpaper: ${prefetched.first}")
+            settingsRepository.clearPrefetchedWallpaperUrls()
+            // Reconstruct a minimal Wallpaper so we can record history + kick prefetch
+            val quickWallpaper = Wallpaper(
+                id = "prefetch",
+                sourceId = SourceId.WALLHAVEN,
+                thumbUrl = prefetched.second,
+                fullUrl = prefetched.first,
+                width = 0, height = 0,
+                author = "", authorUrl = "", sourcePageUrl = "",
+                colorHint = null, category = null, tags = emptyList(),
+            )
+            settingsRepository.setCurrentWallpaperUrls(prefetched.first, prefetched.second)
+            val isLiveActive = settingsRepository.isLiveWallpaperActive.first()
+            if (!isLiveActive) {
+                applyWallpaperUseCase(quickWallpaper, target)
+            } else {
+                repository.addToHistory(quickWallpaper)
+            }
+            scheduleBackgroundPrefetch(playlistMode, quickWallpaper)
+            return@withContext NextWallpaperResult.Applied(quickWallpaper)
+        }
+
+        // Normal path: pick from candidate cache or API
         val candidates = candidateCache.ifEmpty {
             getCandidates(playlistMode).also { candidateCache = it }
         }
@@ -128,9 +155,12 @@ class NextWallpaperUseCase @Inject constructor(
                 val window = RotationEngine.noRepeatWindow(fresh.size, MAX_NO_REPEAT_WINDOW)
                 val nextPick = RotationEngine.pickNext(fresh, updatedHistory.take(window).toSet())
                 if (nextPick is PickResult.Found) {
-                    val url = nextPick.wallpaper.fullUrl
-                    Log.d(TAG, "Prefetching: $url")
-                    okHttpClient.newCall(Request.Builder().url(url).build()).execute().close()
+                    val next = nextPick.wallpaper
+                    Log.d(TAG, "Prefetching: ${next.fullUrl}")
+                    okHttpClient.newCall(Request.Builder().url(next.fullUrl).build()).execute().close()
+                    // Persist the pre-fetched URL so the next invocation can apply it instantly
+                    // (survives process restart — the image is already in OkHttp disk cache)
+                    settingsRepository.setPrefetchedWallpaperUrls(next.fullUrl, next.thumbUrl)
                 }
             } catch (e: Exception) {
                 Log.d(TAG, "Background prefetch skipped: ${e.message}")

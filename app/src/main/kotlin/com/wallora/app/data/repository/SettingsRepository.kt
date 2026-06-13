@@ -196,8 +196,72 @@ class SettingsRepository @Inject constructor(
     private val cacheTtlMsKey = longPreferencesKey("cache_ttl_ms")
 
     val cacheTtlMs: Flow<Long> = dataStore.data.map { prefs ->
-        prefs[cacheTtlMsKey] ?: 3_600_000L // 1 hour TTL
+        prefs[cacheTtlMsKey] ?: 3_600_000L
     }
 
     suspend fun setCacheTtlMs(ms: Long) = dataStore.edit { it[cacheTtlMsKey] = ms }
+
+    // ── User API keys (override BuildConfig at runtime) ──────────────────────
+    private val userPexelsKeyKey = stringPreferencesKey("user_pexels_key")
+    private val userUnsplashKeyKey = stringPreferencesKey("user_unsplash_key")
+    private val userWallhavenKeyKey = stringPreferencesKey("user_wallhaven_key")
+
+    val userPexelsKey: Flow<String> = dataStore.data.map { it[userPexelsKeyKey] ?: "" }
+    val userUnsplashKey: Flow<String> = dataStore.data.map { it[userUnsplashKeyKey] ?: "" }
+    val userWallhavenKey: Flow<String> = dataStore.data.map { it[userWallhavenKeyKey] ?: "" }
+
+    suspend fun setUserPexelsKey(key: String) = dataStore.edit { it[userPexelsKeyKey] = key }
+    suspend fun setUserUnsplashKey(key: String) = dataStore.edit { it[userUnsplashKeyKey] = key }
+    suspend fun setUserWallhavenKey(key: String) = dataStore.edit { it[userWallhavenKeyKey] = key }
+
+    // ── User Reddit subreddits ───────────────────────────────────────────────
+    private val userSubredditsKey = stringSetPreferencesKey("user_subreddits")
+
+    val userSubreddits: Flow<List<String>> = dataStore.data.map { prefs ->
+        prefs[userSubredditsKey]?.toList()?.sorted() ?: DEFAULT_SUBREDDITS
+    }
+
+    suspend fun setUserSubreddits(subs: Set<String>) =
+        dataStore.edit { it[userSubredditsKey] = subs }
+
+    // ── Custom category keywords ─────────────────────────────────────────────
+    private val customKeywordsKey = stringSetPreferencesKey("custom_keywords")
+
+    val customKeywords: Flow<Set<String>> = dataStore.data.map { prefs ->
+        prefs[customKeywordsKey] ?: emptySet()
+    }
+
+    suspend fun setCustomKeywords(keywords: Set<String>) =
+        dataStore.edit { it[customKeywordsKey] = keywords }
+
+    // ── Prefetched next wallpaper (for instant gesture apply) ────────────────
+    private val prefetchedFullUrlKey = stringPreferencesKey("prefetched_full_url")
+    private val prefetchedThumbUrlKey = stringPreferencesKey("prefetched_thumb_url")
+
+    val prefetchedWallpaperUrls: Flow<Pair<String, String>?> = dataStore.data.map { prefs ->
+        val full = prefs[prefetchedFullUrlKey] ?: return@map null
+        full to (prefs[prefetchedThumbUrlKey] ?: "")
+    }
+
+    suspend fun setPrefetchedWallpaperUrls(fullUrl: String, thumbUrl: String) {
+        dataStore.edit { prefs ->
+            prefs[prefetchedFullUrlKey] = fullUrl
+            prefs[prefetchedThumbUrlKey] = thumbUrl
+        }
+    }
+
+    suspend fun clearPrefetchedWallpaperUrls() {
+        dataStore.edit { prefs ->
+            prefs.remove(prefetchedFullUrlKey)
+            prefs.remove(prefetchedThumbUrlKey)
+        }
+    }
+
+    companion object {
+        val DEFAULT_SUBREDDITS = listOf(
+            "wallpapers", "wallpaper", "EarthPorn", "spaceporn", "CityPorn",
+            "Amoledbackgrounds", "MobileWallpaper", "AIArt", "midjourney",
+            "ImaginaryLandscapes", "carporn", "ArchitecturePorn",
+        )
+    }
 }

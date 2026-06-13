@@ -12,6 +12,7 @@ interface PexelsApi {
     suspend fun getCurated(
         @Query("page") page: Int = 1,
         @Query("per_page") perPage: Int = PAGE_SIZE,
+        @Query("orientation") orientation: String = "portrait",
     ): PexelsListResponse
 
     /** Keyword search. */

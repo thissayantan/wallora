@@ -3,29 +3,41 @@ package com.wallora.app.ui.settings
 import android.app.WallpaperManager
 import android.content.ComponentName
 import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.InputChip
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -38,10 +50,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.wallora.app.BuildConfig
 import com.wallora.app.R
 import com.wallora.app.domain.model.Category
 import com.wallora.app.domain.model.EditParams
@@ -66,7 +80,10 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val enabledSources by viewModel.enabledSources.collectAsStateWithLifecycle()
+    val sourceConfiguredMap by viewModel.sourceConfiguredMap.collectAsStateWithLifecycle()
     val selectedCategories by viewModel.selectedCategories.collectAsStateWithLifecycle()
+    val customKeywords by viewModel.customKeywords.collectAsStateWithLifecycle()
+    val userSubreddits by viewModel.userSubreddits.collectAsStateWithLifecycle()
     val rotationEnabled by viewModel.rotationEnabled.collectAsStateWithLifecycle()
     val intervalMs by viewModel.rotationIntervalMs.collectAsStateWithLifecycle()
     val playlist by viewModel.rotationPlaylist.collectAsStateWithLifecycle()
@@ -75,16 +92,22 @@ fun SettingsScreen(
     val chargingOnly by viewModel.rotationChargingOnly.collectAsStateWithLifecycle()
     val rotationOnUnlock by viewModel.rotationOnUnlock.collectAsStateWithLifecycle()
     val nextChange by viewModel.nextChangeLabel.collectAsStateWithLifecycle()
-    val doubleTapEnabled by viewModel.doubleTapEnabled.collectAsStateWithLifecycle()
     val parallaxEnabled by viewModel.parallaxEnabled.collectAsStateWithLifecycle()
     val defaultParams by viewModel.defaultEditParams.collectAsStateWithLifecycle()
     val theme by viewModel.theme.collectAsStateWithLifecycle()
+    val userPexelsKey by viewModel.userPexelsKey.collectAsStateWithLifecycle()
+    val userUnsplashKey by viewModel.userUnsplashKey.collectAsStateWithLifecycle()
+    val userWallhavenKey by viewModel.userWallhavenKey.collectAsStateWithLifecycle()
 
     var showIntervalPicker by remember { mutableStateOf(false) }
     var showPlaylistPicker by remember { mutableStateOf(false) }
     var showAddTimePicker by remember { mutableStateOf(false) }
     var showThemePicker by remember { mutableStateOf(false) }
+    var showAddKeywordDialog by remember { mutableStateOf(false) }
+    var showAddSubredditDialog by remember { mutableStateOf(false) }
     var addTimeInput by remember { mutableStateOf("") }
+    var addKeywordInput by remember { mutableStateOf("") }
+    var addSubredditInput by remember { mutableStateOf("") }
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
 
@@ -104,14 +127,15 @@ fun SettingsScreen(
                 .padding(scaffoldPadding)
                 .verticalScroll(rememberScrollState()),
         ) {
+
             // ── Sources ───────────────────────────────────────────────────────
             SettingsSectionHeader(stringResource(R.string.settings_sources))
             SourceId.entries.forEach { source ->
-                val isConfigured = viewModel.sourceConfiguredMap[source] ?: false
+                val isConfigured = sourceConfiguredMap[source] ?: false
                 ListItem(
                     headlineContent = { Text(source.displayName) },
                     supportingContent = {
-                        if (!isConfigured) Text(stringResource(R.string.source_key_missing))
+                        if (!isConfigured) Text("Add API key below to enable")
                     },
                     trailingContent = {
                         Switch(
@@ -125,10 +149,10 @@ fun SettingsScreen(
 
             HorizontalDivider()
 
-            // ── Categories ────────────────────────────────────────────────────
-            SettingsSectionHeader("Default categories")
+            // ── Browse categories ─────────────────────────────────────────────
+            SettingsSectionHeader("Browse categories")
             Text(
-                text = "Leave empty to show all",
+                text = "Select categories to focus on — leave all off to show everything",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
@@ -143,61 +167,121 @@ fun SettingsScreen(
                     FilterChip(
                         selected = cat in selectedCategories,
                         onClick = { viewModel.toggleCategory(cat) },
-                        label = { Text(cat.name.lowercase().replaceFirstChar { it.uppercase() }) },
+                        label = { Text(cat.displayName) },
                     )
                 }
+                // Custom keywords
+                customKeywords.sorted().forEach { keyword ->
+                    InputChip(
+                        selected = true,
+                        onClick = {},
+                        label = { Text(keyword) },
+                        trailingIcon = {
+                            IconButton(onClick = { viewModel.removeCustomKeyword(keyword) }) {
+                                Icon(Icons.Default.Close, contentDescription = "Remove $keyword")
+                            }
+                        },
+                    )
+                }
+                AssistChip(
+                    onClick = { showAddKeywordDialog = true },
+                    label = { Text("Add keyword") },
+                    leadingIcon = { Icon(Icons.Default.Add, contentDescription = null) },
+                )
             }
 
             HorizontalDivider()
 
-            // ── Auto-rotation ─────────────────────────────────────────────────
-            SettingsSectionHeader(stringResource(R.string.settings_rotation))
+            // ── Reddit subreddits ─────────────────────────────────────────────
+            SettingsSectionHeader("Reddit sources")
+            Text(
+                text = "Subreddits Wallora browses for wallpapers",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+            )
+            FlowRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp, vertical = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                userSubreddits.forEach { sub ->
+                    InputChip(
+                        selected = false,
+                        onClick = {},
+                        label = { Text("r/$sub") },
+                        trailingIcon = {
+                            IconButton(onClick = { viewModel.removeSubreddit(sub) }) {
+                                Icon(Icons.Default.Close, contentDescription = "Remove r/$sub")
+                            }
+                        },
+                    )
+                }
+                AssistChip(
+                    onClick = { showAddSubredditDialog = true },
+                    label = { Text("Add subreddit") },
+                    leadingIcon = { Icon(Icons.Default.Add, contentDescription = null) },
+                )
+            }
             ListItem(
-                headlineContent = { Text(stringResource(R.string.settings_rotation)) },
+                headlineContent = { Text("Reset to defaults") },
+                modifier = Modifier.clickable { viewModel.resetSubreddits() },
+            )
+
+            HorizontalDivider()
+
+            // ── Auto-change wallpaper ─────────────────────────────────────────
+            SettingsSectionHeader("Auto-change wallpaper")
+            ListItem(
+                headlineContent = { Text("Enable auto-change") },
                 supportingContent = {
-                    if (nextChange.isNotEmpty()) Text("Next change: $nextChange")
+                    if (nextChange.isNotEmpty()) Text("Next: $nextChange")
+                    else Text("Rotates wallpaper on a schedule or at set times")
                 },
                 trailingContent = {
                     Switch(checked = rotationEnabled, onCheckedChange = viewModel::setRotationEnabled)
                 },
             )
-            if (rotationEnabled) {
+            // Interval — always visible, not hidden behind the toggle
+            ListItem(
+                headlineContent = { Text(stringResource(R.string.settings_rotation_interval)) },
+                supportingContent = {
+                    Text(INTERVAL_OPTIONS.firstOrNull { it.first == intervalMs }?.second ?: "Custom")
+                },
+                modifier = Modifier.clickable { showIntervalPicker = true },
+            )
+            ListItem(
+                headlineContent = { Text("Playlist") },
+                supportingContent = {
+                    Text(if (playlist == "FAVORITES") "Favorites only" else "Current categories")
+                },
+                modifier = Modifier.clickable { showPlaylistPicker = true },
+            )
+            ListItem(
+                headlineContent = { Text(stringResource(R.string.settings_rotation_times)) },
+                supportingContent = {
+                    if (times.isEmpty()) Text("No specific times set")
+                    else Text(times.sorted().joinToString(", "))
+                },
+                trailingContent = {
+                    TextButton(onClick = { showAddTimePicker = true }) { Text("Add") }
+                },
+            )
+            times.sorted().forEach { t ->
                 ListItem(
-                    headlineContent = { Text(stringResource(R.string.settings_rotation_interval)) },
-                    supportingContent = {
-                        Text(INTERVAL_OPTIONS.firstOrNull { it.first == intervalMs }?.second ?: "Custom")
-                    },
-                    modifier = Modifier.clickable { showIntervalPicker = true },
-                )
-                ListItem(
-                    headlineContent = { Text("Playlist") },
-                    supportingContent = {
-                        Text(if (playlist == "FAVORITES") "Favorites" else "Current categories")
-                    },
-                    modifier = Modifier.clickable { showPlaylistPicker = true },
-                )
-                ListItem(
-                    headlineContent = { Text(stringResource(R.string.settings_rotation_times)) },
-                    supportingContent = {
-                        if (times.isEmpty()) Text("No specific times") else Text(times.sorted().joinToString(", "))
-                    },
+                    headlineContent = { Text(t) },
                     trailingContent = {
-                        TextButton(onClick = { showAddTimePicker = true }) { Text("Add") }
+                        TextButton(onClick = { viewModel.removeRotationTime(t) }) { Text("Remove") }
                     },
+                    modifier = Modifier.padding(start = 16.dp),
                 )
-                times.sorted().forEach { t ->
-                    ListItem(
-                        headlineContent = { Text(t) },
-                        trailingContent = {
-                            TextButton(onClick = { viewModel.removeRotationTime(t) }) { Text("Remove") }
-                        },
-                        modifier = Modifier.padding(start = 16.dp),
-                    )
-                }
+            }
+            if (rotationEnabled) {
                 ListItem(
                     headlineContent = { Text(stringResource(R.string.settings_rotation_on_unlock)) },
                     supportingContent = {
-                        Text(stringResource(R.string.settings_rotation_on_unlock_static_hint))
+                        Text("Requires live wallpaper mode")
                     },
                     trailingContent = {
                         Switch(checked = rotationOnUnlock, onCheckedChange = viewModel::setRotationOnUnlock)
@@ -215,19 +299,55 @@ fun SettingsScreen(
 
             HorizontalDivider()
 
-            // ── Gesture & parallax ────────────────────────────────────────────
-            SettingsSectionHeader("Live Wallpaper & Gestures")
+            // ── Change from anywhere ──────────────────────────────────────────
+            SettingsSectionHeader("Change wallpaper from anywhere")
+            Surface(
+                color = MaterialTheme.colorScheme.secondaryContainer,
+                shape = MaterialTheme.shapes.medium,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+            ) {
+                Column(Modifier.padding(12.dp)) {
+                    Text(
+                        "No need to open the app — Wallora integrates with your launcher, " +
+                            "notification shade, and automation apps.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    )
+                }
+            }
             ListItem(
-                headlineContent = { Text(stringResource(R.string.settings_gesture)) },
-                supportingContent = { Text(stringResource(R.string.settings_gesture_hint)) },
-                trailingContent = {
-                    Switch(checked = doubleTapEnabled, onCheckedChange = viewModel::setDoubleTapEnabled)
+                headlineContent = { Text("Long-press app icon") },
+                supportingContent = { Text("Tap \"Next wallpaper\" — works with any launcher") },
+            )
+            ListItem(
+                headlineContent = { Text("Nova / Lawnchair gesture") },
+                supportingContent = {
+                    Text("Launcher settings → Gestures → App shortcuts → Wallora → Next wallpaper")
                 },
             )
             ListItem(
+                headlineContent = { Text("Quick Settings tile") },
+                supportingContent = {
+                    Text("Pull down shade → edit tiles → drag \"Next wallpaper\" into active tiles")
+                },
+            )
+            ListItem(
+                headlineContent = { Text("Tasker / automation") },
+                supportingContent = {
+                    Text("Intent action: com.wallora.app.action.NEXT_WALLPAPER\nClass: com.wallora.app.ui.NextWallpaperActivity")
+                },
+            )
+
+            HorizontalDivider()
+
+            // ── Live wallpaper & parallax ─────────────────────────────────────
+            SettingsSectionHeader("Live wallpaper & parallax")
+            ListItem(
                 headlineContent = { Text(stringResource(R.string.settings_parallax)) },
                 supportingContent = {
-                    Text("${stringResource(R.string.settings_parallax_hint)} — Nova Launcher: enable Settings → Scroll wallpaper")
+                    Text("Scrolls the wallpaper as you swipe between home screens. Requires live wallpaper mode and a launcher that sends scroll offsets (Nova Launcher: Settings → Scroll wallpaper).")
                 },
                 trailingContent = {
                     Switch(checked = parallaxEnabled, onCheckedChange = viewModel::setParallaxEnabled)
@@ -235,7 +355,9 @@ fun SettingsScreen(
             )
             ListItem(
                 headlineContent = { Text(stringResource(R.string.settings_set_live_wallpaper)) },
-                supportingContent = { Text("Opens system wallpaper picker") },
+                supportingContent = {
+                    Text("Enables parallax, on-unlock rotation, and auto-change without keeping the screen on")
+                },
                 modifier = Modifier.clickable {
                     val intent = Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER).apply {
                         putExtra(
@@ -254,21 +376,62 @@ fun SettingsScreen(
 
             HorizontalDivider()
 
-            // ── Default look ──────────────────────────────────────────────────
-            SettingsSectionHeader(stringResource(R.string.settings_default_look))
-            val paramsLabel = if (defaultParams == EditParams.Default) "Default" else
-                "blur=${defaultParams.blur}, bright=${String.format("%.1f", defaultParams.brightness)}, contrast=${String.format("%.1f", defaultParams.contrast)}"
+            // ── Default filters ───────────────────────────────────────────────
+            SettingsSectionHeader("Default filters")
+            val paramsLabel = if (defaultParams == EditParams.Default) {
+                "None applied"
+            } else {
+                buildString {
+                    if (defaultParams.blur > 0) append("blur=${defaultParams.blur.toInt()}% ")
+                    if (defaultParams.brightness != 0f) append("brightness=${String.format("%+.0f", defaultParams.brightness * 100)}% ")
+                    if (defaultParams.contrast != 1f) append("contrast=${String.format("%.1f", defaultParams.contrast)}× ")
+                    if (defaultParams.saturation != 1f) append("saturation=${String.format("%.1f", defaultParams.saturation)}×")
+                }.trim()
+            }
             ListItem(
-                headlineContent = { Text("Current adjustments") },
-                supportingContent = { Text(paramsLabel) },
+                headlineContent = { Text("Wallpaper filters") },
+                supportingContent = {
+                    Text(paramsLabel + if (paramsLabel == "None applied") "\nTap Edit & Set in any wallpaper preview to configure" else "")
+                },
                 trailingContent = {
-                    TextButton(onClick = viewModel::resetDefaultEditParams) { Text(stringResource(R.string.editor_reset)) }
+                    if (defaultParams != EditParams.Default) {
+                        TextButton(onClick = viewModel::resetDefaultEditParams) { Text("Reset") }
+                    }
                 },
             )
 
             HorizontalDivider()
 
-            // ── Theme ─────────────────────────────────────────────────────────
+            // ── API Keys ──────────────────────────────────────────────────────
+            SettingsSectionHeader("API Keys")
+            Text(
+                text = "Add your own free API keys to enable more sources. Keys are stored on-device only.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+            )
+            ApiKeyField(
+                label = "Pexels API key",
+                hint = "Get free key at pexels.com/api",
+                currentKey = userPexelsKey,
+                onSave = viewModel::saveUserPexelsKey,
+            )
+            ApiKeyField(
+                label = "Unsplash Access Key",
+                hint = "Get free key at unsplash.com/developers",
+                currentKey = userUnsplashKey,
+                onSave = viewModel::saveUserUnsplashKey,
+            )
+            ApiKeyField(
+                label = "Wallhaven API key (optional)",
+                hint = "wallhaven.cc/settings/account — unlocks higher limits",
+                currentKey = userWallhavenKey,
+                onSave = viewModel::saveUserWallhavenKey,
+            )
+
+            HorizontalDivider()
+
+            // ── Appearance ────────────────────────────────────────────────────
             SettingsSectionHeader(stringResource(R.string.settings_theme))
             val themeLabel = when (theme) {
                 "LIGHT" -> stringResource(R.string.settings_theme_light)
@@ -283,7 +446,7 @@ fun SettingsScreen(
 
             HorizontalDivider()
 
-            // ── Cache ─────────────────────────────────────────────────────────
+            // ── Storage ───────────────────────────────────────────────────────
             SettingsSectionHeader(stringResource(R.string.settings_cache))
             ListItem(
                 headlineContent = { Text(stringResource(R.string.settings_clear_cache)) },
@@ -293,35 +456,31 @@ fun SettingsScreen(
 
             HorizontalDivider()
 
-            // ── About / Licenses ──────────────────────────────────────────────
+            // ── About ─────────────────────────────────────────────────────────
             SettingsSectionHeader(stringResource(R.string.settings_about))
             ListItem(
-                headlineContent = { Text("Version") },
-                supportingContent = { Text("1.0") },
+                headlineContent = { Text("Wallora v1.0") },
+                supportingContent = { Text("Open-source · MIT License") },
+            )
+            ListItem(
+                headlineContent = { Text("Developer") },
+                supportingContent = { Text("Sayantan Dey") },
+                trailingContent = {
+                    TextButton(onClick = {
+                        context.startActivity(
+                            Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/thissayantan/wallora"))
+                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        )
+                    }) { Text("GitHub") }
+                },
             )
             ListItem(
                 headlineContent = { Text("Photo credits") },
                 supportingContent = {
-                    Text(
-                        "Photos from Pexels (pexels.com) • Wallhaven (wallhaven.cc) • " +
-                        "Unsplash (unsplash.com) • Reddit (reddit.com). " +
-                        "Attribution per each source's license."
-                    )
+                    Text("Photos from Pexels · Wallhaven · Unsplash · Reddit. Attribution per each source's license.")
                 },
             )
-            // API key status for transparency
-            ListItem(
-                headlineContent = { Text("API key status") },
-                supportingContent = {
-                    val configured = buildList {
-                        if (BuildConfig.PEXELS_API_KEY.isNotBlank()) add("Pexels")
-                        if (BuildConfig.UNSPLASH_ACCESS_KEY.isNotBlank()) add("Unsplash")
-                        if (BuildConfig.WALLHAVEN_API_KEY.isNotBlank()) add("Wallhaven")
-                        add("Wallhaven (keyless SFW)")
-                    }
-                    Text(configured.joinToString(", "))
-                },
-            )
+
             Spacer(Modifier.height(32.dp))
         }
     }
@@ -358,7 +517,7 @@ fun SettingsScreen(
             title = { Text("Playlist source") },
             text = {
                 Column {
-                    listOf("CATEGORIES" to "Current categories", "FAVORITES" to "Favorites").forEach { (key, label) ->
+                    listOf("CATEGORIES" to "Current categories", "FAVORITES" to "Favorites only").forEach { (key, label) ->
                         ListItem(
                             headlineContent = { Text(label) },
                             trailingContent = {
@@ -411,24 +570,165 @@ fun SettingsScreen(
             title = { Text(stringResource(R.string.settings_theme)) },
             text = {
                 Column {
-                    listOf("SYSTEM" to R.string.settings_theme_system, "LIGHT" to R.string.settings_theme_light, "DARK" to R.string.settings_theme_dark)
-                        .forEach { (key, labelRes) ->
-                            ListItem(
-                                headlineContent = { Text(stringResource(labelRes)) },
-                                trailingContent = {
-                                    if (key == theme) Text("✓", color = MaterialTheme.colorScheme.primary)
-                                },
-                                modifier = Modifier.clickable {
-                                    viewModel.setTheme(key)
-                                    showThemePicker = false
-                                },
-                            )
-                        }
+                    listOf(
+                        "SYSTEM" to R.string.settings_theme_system,
+                        "LIGHT" to R.string.settings_theme_light,
+                        "DARK" to R.string.settings_theme_dark,
+                    ).forEach { (key, labelRes) ->
+                        ListItem(
+                            headlineContent = { Text(stringResource(labelRes)) },
+                            trailingContent = {
+                                if (key == theme) Text("✓", color = MaterialTheme.colorScheme.primary)
+                            },
+                            modifier = Modifier.clickable {
+                                viewModel.setTheme(key)
+                                showThemePicker = false
+                            },
+                        )
+                    }
                 }
             },
             confirmButton = {},
         )
     }
+
+    if (showAddKeywordDialog) {
+        AlertDialog(
+            onDismissRequest = { showAddKeywordDialog = false; addKeywordInput = "" },
+            title = { Text("Add custom category") },
+            text = {
+                Column {
+                    Text(
+                        "Type any keyword to add it as a browsable category.",
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(bottom = 8.dp),
+                    )
+                    OutlinedTextField(
+                        value = addKeywordInput,
+                        onValueChange = { addKeywordInput = it },
+                        label = { Text("Keyword") },
+                        placeholder = { Text("e.g. ocean sunset") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                        keyboardActions = KeyboardActions(onDone = {
+                            if (addKeywordInput.isNotBlank()) {
+                                viewModel.addCustomKeyword(addKeywordInput)
+                                addKeywordInput = ""
+                                showAddKeywordDialog = false
+                            }
+                        }),
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    if (addKeywordInput.isNotBlank()) {
+                        viewModel.addCustomKeyword(addKeywordInput)
+                        addKeywordInput = ""
+                        showAddKeywordDialog = false
+                    }
+                }) { Text("Add") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showAddKeywordDialog = false; addKeywordInput = "" }) { Text("Cancel") }
+            },
+        )
+    }
+
+    if (showAddSubredditDialog) {
+        AlertDialog(
+            onDismissRequest = { showAddSubredditDialog = false; addSubredditInput = "" },
+            title = { Text("Add subreddit") },
+            text = {
+                OutlinedTextField(
+                    value = addSubredditInput,
+                    onValueChange = { addSubredditInput = it },
+                    label = { Text("Subreddit name") },
+                    placeholder = { Text("e.g. wallpapers or r/wallpapers") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = {
+                        if (addSubredditInput.isNotBlank()) {
+                            viewModel.addSubreddit(addSubredditInput)
+                            addSubredditInput = ""
+                            showAddSubredditDialog = false
+                        }
+                    }),
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    if (addSubredditInput.isNotBlank()) {
+                        viewModel.addSubreddit(addSubredditInput)
+                        addSubredditInput = ""
+                        showAddSubredditDialog = false
+                    }
+                }) { Text("Add") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showAddSubredditDialog = false; addSubredditInput = "" }) { Text("Cancel") }
+            },
+        )
+    }
+}
+
+@Composable
+private fun ApiKeyField(
+    label: String,
+    hint: String,
+    currentKey: String,
+    onSave: (String) -> Unit,
+) {
+    var editing by remember { mutableStateOf(false) }
+    var draft by remember(currentKey) { mutableStateOf(currentKey) }
+    var showKey by remember { mutableStateOf(false) }
+
+    ListItem(
+        headlineContent = { Text(label) },
+        supportingContent = {
+            if (editing) {
+                Column {
+                    OutlinedTextField(
+                        value = draft,
+                        onValueChange = { draft = it },
+                        placeholder = { Text(hint) },
+                        singleLine = true,
+                        visualTransformation = if (showKey) VisualTransformation.None else PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                        keyboardActions = KeyboardActions(onDone = {
+                            onSave(draft)
+                            editing = false
+                        }),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 4.dp),
+                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        TextButton(onClick = { showKey = !showKey }) {
+                            Text(if (showKey) "Hide" else "Show")
+                        }
+                        TextButton(onClick = { onSave(draft); editing = false }) {
+                            Text("Save")
+                        }
+                        TextButton(onClick = { onSave(""); draft = ""; editing = false }) {
+                            Text("Clear")
+                        }
+                    }
+                }
+            } else {
+                Text(
+                    if (currentKey.isNotBlank()) "Key configured (${currentKey.take(6)}…)" else hint,
+                    color = if (currentKey.isNotBlank()) MaterialTheme.colorScheme.primary
+                    else MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        },
+        trailingContent = {
+            if (!editing) {
+                TextButton(onClick = { editing = true }) { Text("Edit") }
+            }
+        },
+    )
 }
 
 @Composable

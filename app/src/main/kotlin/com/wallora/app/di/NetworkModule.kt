@@ -80,12 +80,14 @@ object NetworkModule {
     @Singleton
     @Provides
     @Named(RETROFIT_PEXELS)
-    fun providePexelsRetrofit(json: Json): Retrofit {
+    fun providePexelsRetrofit(json: Json, userKeyCache: UserKeyCache): Retrofit {
         val client = baseClientBuilder(throttleMs = 500L)
             .addInterceptor { chain ->
-                val request = chain.request().newBuilder()
-                    .header("Authorization", BuildConfig.PEXELS_API_KEY)
-                    .build()
+                // Read current effective key at request time (volatile — updated when user changes key)
+                val key = userKeyCache.effectivePexelsKey
+                val request = if (key.isNotBlank()) {
+                    chain.request().newBuilder().header("Authorization", key).build()
+                } else chain.request()
                 chain.proceed(request)
             }.build()
         return Retrofit.Builder()
@@ -98,13 +100,12 @@ object NetworkModule {
     @Singleton
     @Provides
     @Named(RETROFIT_WALLHAVEN)
-    fun provideWallhavenRetrofit(json: Json): Retrofit {
+    fun provideWallhavenRetrofit(json: Json, userKeyCache: UserKeyCache): Retrofit {
         val client = baseClientBuilder(throttleMs = 1_000L)
             .addInterceptor { chain ->
+                val key = userKeyCache.effectiveWallhavenKey
                 val req = chain.request().newBuilder().apply {
-                    if (BuildConfig.WALLHAVEN_API_KEY.isNotBlank()) {
-                        header("X-API-Key", BuildConfig.WALLHAVEN_API_KEY)
-                    }
+                    if (key.isNotBlank()) header("X-API-Key", key)
                 }.build()
                 chain.proceed(req)
             }.build()
@@ -137,12 +138,13 @@ object NetworkModule {
     @Singleton
     @Provides
     @Named(RETROFIT_UNSPLASH)
-    fun provideUnsplashRetrofit(json: Json): Retrofit {
-        val client = baseClientBuilder(throttleMs = 1_200L) // Unsplash 50 req/hr free tier
+    fun provideUnsplashRetrofit(json: Json, userKeyCache: UserKeyCache): Retrofit {
+        val client = baseClientBuilder(throttleMs = 1_200L)
             .addInterceptor { chain ->
+                val key = userKeyCache.effectiveUnsplashKey
                 val req = chain.request().newBuilder()
                     .header("Accept-Version", "v1")
-                    .header("Authorization", "Client-ID ${BuildConfig.UNSPLASH_ACCESS_KEY}")
+                    .apply { if (key.isNotBlank()) header("Authorization", "Client-ID $key") }
                     .build()
                 chain.proceed(req)
             }.build()
