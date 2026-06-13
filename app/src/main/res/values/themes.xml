@@ -2,7 +2,20 @@
 <!-- Material 3 theme — Compose uses dynamicColorScheme at runtime; this XML theme
      is only needed for the Activity window background and splash screen. -->
 <resources>
-    <style name="Theme.Wallora" parent="android:Theme.Material.Light.NoActionBar">
+    <!-- Post-splash activity theme (applied after SplashScreen dismisses) -->
+    <style name="Theme.Wallora" parent="Theme.SplashScreen">
+        <item name="android:windowBackground">@android:color/black</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <!-- SplashScreen API attributes -->
+        <item name="windowSplashScreenBackground">#1565C0</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="postSplashScreenTheme">@style/Theme.Wallora.Main</item>
+    </style>
+
+    <!-- Base activity theme used after splash exits -->
+    <style name="Theme.Wallora.Main" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:windowBackground">@android:color/black</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>

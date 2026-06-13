@@ -99,6 +99,7 @@ ktlint {
 dependencies {
     // Core
     implementation(libs.core.ktx)
+    implementation(libs.core.splashscreen)
     implementation(libs.bundles.lifecycle)
     implementation(libs.activity.compose)
 

@@ -141,7 +141,7 @@ every task; run unit tests after every phase. See CLAUDE.md for autonomy rules.
       charging), Gesture toggle, Parallax toggle (DEFAULT ON, subtitle), Default look
       EditParams (live mode), Theme (system/light/dark), Cache size + clear,
       About/Licenses (per-source attribution). Commit.
-- [ ] P6-b: Adaptive/themed app icon (adaptive icon with foreground + background,
+- [x] P6-b: Adaptive/themed app icon (adaptive icon with foreground + background,
       monochrome variant), splash screen API (SplashScreen compat). Commit.
 - [ ] P6-c: Performance pass — Coil memory/disk cache tuning, confirm thumbs-only in
       grids / full-res only in detail+apply, fix any empty/error states missed earlier,
