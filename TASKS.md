@@ -146,6 +146,6 @@ every task; run unit tests after every phase. See CLAUDE.md for autonomy rules.
 - [x] P6-c: Performance pass — Coil memory/disk cache tuning, confirm thumbs-only in
       grids / full-res only in detail+apply, fix any empty/error states missed earlier,
       no jank audit. Commit.
-- [ ] P6-d: Final verification — `./gradlew assembleDebug` + `./gradlew testDebugUnitTest`
+- [x] P6-d: Final verification — `./gradlew assembleDebug` + `./gradlew testDebugUnitTest`
       both green; lint reasonably clean; README.md (API key setup, how to build,
       screenshots TODO); review DECISIONS.md for completeness. Final commit.

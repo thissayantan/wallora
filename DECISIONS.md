@@ -28,3 +28,20 @@ temp File, then using that file on next apply). The rotation apply itself is alr
 fast once the full-res URL is known. Pre-fetch will be revisited in Phase 6 performance
 pass if needed; the mechanism (kick off OkHttp download, store to cacheDir file) is
 straightforward to add then.
+
+**Splash screen theme parent**: `Theme.Wallora` now extends `Theme.SplashScreen` (from
+`core-splashscreen 1.0.1`) and declares `postSplashScreenTheme = Theme.Wallora.Main`.
+`MainActivity.installSplashScreen()` must be called before `super.onCreate()` to honour
+the splash. The base `Theme.Wallora.Main` parent remains
+`android:Theme.Material.Light.NoActionBar`; Compose handles all runtime theming via
+`WalloraTheme` (dynamic color + dark mode).
+
+**Coil memory cache type**: `MemoryCache.Builder.maxSizeBytes()` in Coil 2.7.0 takes
+`Int`, not `Long`. Memory cache sized at 20% of maxMemory(), coerced to [32 MB, 256 MB]
+then cast to Int. Disk cache uses `Long` (DiskCache.Builder.maxSizeBytes accepts Long)
+set to 250 MB.
+
+**Non-RenderScript blur**: `ImageAdjustments.applyStackBlur()` uses a three-pass
+downscale → iterative box blur → upscale algorithm. No `android.renderscript` or
+`androidx.renderscript` dependency — fully compatible with minSdk 31 without the
+deprecated RenderScript Intrinsics Replacement Toolkit.
