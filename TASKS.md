@@ -124,19 +124,19 @@ every task; run unit tests after every phase. See CLAUDE.md for autonomy rules.
       (1.3–1.5x), onOffsetsChanged horizontal translation with smoothing, fixed-offset
       launcher fallback, persisted EditParams (blur/brightness/etc.) applied at render
       time; Settings toggle DEFAULT ON. Commit.
-- [ ] P5-e: On-unlock rotation — runtime ACTION_USER_PRESENT receiver registered while
+- [x] P5-e: On-unlock rotation — runtime ACTION_USER_PRESENT receiver registered while
       Engine is alive (visible), calls NextWallpaperUseCase; Settings option shown only
       when live wallpaper mode. Commit.
-- [ ] P5-f: onComputeColors + notifyColorsChanged for Material You — derive
+- [x] P5-f: onComputeColors + notifyColorsChanged for Material You — derive
       WallpaperColors from current rendered bitmap (EditParams applied). Commit.
-- [ ] P5-g: Glance widget (thumbnail + Next button) calling NextWallpaperUseCase;
+- [x] P5-g: Glance widget (thumbnail + Next button) calling NextWallpaperUseCase;
       Quick Settings tile ("Next wallpaper") calling same use case; "Set as live
       wallpaper" entry point in Settings. Commit.
-- [ ] P5-phase-test: `./gradlew testDebugUnitTest`.
+- [x] P5-phase-test: `./gradlew testDebugUnitTest`.
 
 ## Phase 6 — Settings, polish, finish
 
-- [ ] P6-a: Full Settings screen per SPEC §10: Sources (toggles + key status),
+- [x] P6-a: Full Settings screen per SPEC §10: Sources (toggles + key status),
       Categories default, Rotation (mode/playlist/interval/times/on-unlock/Wi-Fi/
       charging), Gesture toggle, Parallax toggle (DEFAULT ON, subtitle), Default look
       EditParams (live mode), Theme (system/light/dark), Cache size + clear,

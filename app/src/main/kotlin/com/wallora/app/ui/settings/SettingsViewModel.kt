@@ -4,14 +4,23 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wallora.app.data.local.dao.WallpaperDao
 import com.wallora.app.data.repository.SettingsRepository
+import com.wallora.app.data.repository.WallpaperRepository
+import com.wallora.app.domain.WallpaperSource
+import com.wallora.app.domain.model.Category
+import com.wallora.app.domain.model.EditParams
+import com.wallora.app.domain.model.SourceId
 import com.wallora.app.worker.AlarmScheduleCalculator
 import com.wallora.app.worker.AlarmScheduler
 import com.wallora.app.worker.RotationWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -21,14 +30,49 @@ import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
 
+sealed class SettingsEvent {
+    data class ShowMessage(val message: String) : SettingsEvent()
+}
+
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val settingsRepository: SettingsRepository,
+    private val wallpaperRepository: WallpaperRepository,
     private val alarmScheduler: AlarmScheduler,
+    private val sources: Set<@JvmSuppressWildcards WallpaperSource>,
 ) : ViewModel() {
 
     private val TAG = "SettingsViewModel"
+
+    private val _events = MutableSharedFlow<SettingsEvent>()
+    val events: SharedFlow<SettingsEvent> = _events.asSharedFlow()
+
+    // ── Source toggles ────────────────────────────────────────────────────────
+
+    val enabledSources: StateFlow<Set<SourceId>> =
+        settingsRepository.enabledSources
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SourceId.entries.toSet())
+
+    /** Map of SourceId → isConfigured (API key present). */
+    val sourceConfiguredMap: Map<SourceId, Boolean> =
+        sources.associate { it.id to it.isConfigured }
+
+    fun setSourceEnabled(source: SourceId, enabled: Boolean) = viewModelScope.launch {
+        settingsRepository.setSourceEnabled(source, enabled)
+    }
+
+    // ── Category defaults ─────────────────────────────────────────────────────
+
+    val selectedCategories: StateFlow<Set<Category>> =
+        settingsRepository.selectedCategories
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptySet())
+
+    fun toggleCategory(category: Category) = viewModelScope.launch {
+        val current = selectedCategories.value.toMutableSet()
+        if (category in current) current.remove(category) else current.add(category)
+        settingsRepository.setSelectedCategories(current)
+    }
 
     // ── Rotation state ────────────────────────────────────────────────────────
 
@@ -56,7 +100,10 @@ class SettingsViewModel @Inject constructor(
         settingsRepository.rotationChargingOnly
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
 
-    /** Human-readable "next change" time, e.g. "Today 14:30" or "Tomorrow 08:00". */
+    val rotationOnUnlock: StateFlow<Boolean> =
+        settingsRepository.rotationOnUnlock
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+
     val nextChangeLabel: StateFlow<String> =
         combine(
             settingsRepository.rotationEnabled,
@@ -72,14 +119,12 @@ class SettingsViewModel @Inject constructor(
             else "Tomorrow ${fmt.format(Date(nextMs))}"
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), "")
 
-    // ── Write operations ──────────────────────────────────────────────────────
-
     fun setRotationEnabled(enabled: Boolean) = viewModelScope.launch {
         settingsRepository.setRotationEnabled(enabled)
-        val intervalMs = settingsRepository.rotationIntervalMs.stateIn(viewModelScope, SharingStarted.Eagerly, 3_600_000L).value
-        val wifiOnly = settingsRepository.rotationWifiOnly.stateIn(viewModelScope, SharingStarted.Eagerly, false).value
-        val chargingOnly = settingsRepository.rotationChargingOnly.stateIn(viewModelScope, SharingStarted.Eagerly, false).value
-        val times = settingsRepository.rotationTimes.stateIn(viewModelScope, SharingStarted.Eagerly, emptySet()).value
+        val intervalMs = rotationIntervalMs.value
+        val wifiOnly = rotationWifiOnly.value
+        val chargingOnly = rotationChargingOnly.value
+        val times = rotationTimes.value
         if (enabled) {
             RotationWorker.schedule(context, intervalMs, wifiOnly, chargingOnly)
             if (times.isNotEmpty()) alarmScheduler.scheduleNext(context, times)
@@ -91,10 +136,8 @@ class SettingsViewModel @Inject constructor(
 
     fun setRotationInterval(ms: Long) = viewModelScope.launch {
         settingsRepository.setRotationIntervalMs(ms)
-        val wifiOnly = rotationWifiOnly.value
-        val chargingOnly = rotationChargingOnly.value
         if (rotationEnabled.value) {
-            RotationWorker.schedule(context, ms, wifiOnly, chargingOnly)
+            RotationWorker.schedule(context, ms, rotationWifiOnly.value, rotationChargingOnly.value)
         }
     }
 
@@ -114,9 +157,7 @@ class SettingsViewModel @Inject constructor(
         current.remove(time)
         settingsRepository.setRotationTimes(current)
         alarmScheduler.cancel(context)
-        if (current.isNotEmpty() && rotationEnabled.value) {
-            alarmScheduler.scheduleNext(context, current)
-        }
+        if (current.isNotEmpty() && rotationEnabled.value) alarmScheduler.scheduleNext(context, current)
     }
 
     fun setWifiOnly(enabled: Boolean) = viewModelScope.launch {
@@ -131,5 +172,54 @@ class SettingsViewModel @Inject constructor(
         if (rotationEnabled.value) {
             RotationWorker.schedule(context, rotationIntervalMs.value, rotationWifiOnly.value, enabled)
         }
+    }
+
+    fun setRotationOnUnlock(enabled: Boolean) = viewModelScope.launch {
+        settingsRepository.setRotationOnUnlock(enabled)
+    }
+
+    // ── Gesture & parallax ────────────────────────────────────────────────────
+
+    val doubleTapEnabled: StateFlow<Boolean> =
+        settingsRepository.doubleTapGestureEnabled
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
+
+    val parallaxEnabled: StateFlow<Boolean> =
+        settingsRepository.parallaxEnabled
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
+
+    fun setDoubleTapEnabled(enabled: Boolean) = viewModelScope.launch {
+        settingsRepository.setDoubleTapGesture(enabled)
+    }
+
+    fun setParallaxEnabled(enabled: Boolean) = viewModelScope.launch {
+        settingsRepository.setParallaxEnabled(enabled)
+    }
+
+    // ── Default look (EditParams) ─────────────────────────────────────────────
+
+    val defaultEditParams: StateFlow<EditParams> =
+        settingsRepository.defaultEditParams
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), EditParams.Default)
+
+    fun resetDefaultEditParams() = viewModelScope.launch {
+        settingsRepository.setDefaultEditParams(EditParams.Default)
+    }
+
+    // ── Theme ─────────────────────────────────────────────────────────────────
+
+    val theme: StateFlow<String> =
+        settingsRepository.theme
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), "SYSTEM")
+
+    fun setTheme(theme: String) = viewModelScope.launch {
+        settingsRepository.setTheme(theme)
+    }
+
+    // ── Cache ─────────────────────────────────────────────────────────────────
+
+    fun clearCache() = viewModelScope.launch {
+        wallpaperRepository.clearCache()
+        _events.emit(SettingsEvent.ShowMessage("Cache cleared"))
     }
 }
