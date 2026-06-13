@@ -1,8 +1,8 @@
 # Wallora
 
-**A minimal, Material You wallpaper app for Android.**
+**A minimal, Material You wallpaper app for Android — 100% free, no ads, no subscriptions, ever.**
 
-Browse, search, and auto-rotate beautiful wallpapers from Pexels, Wallhaven, Unsplash, and Reddit — with a live wallpaper engine, parallax scrolling, a home-screen widget, and a Quick Settings tile.
+Browse, search, and auto-rotate stunning wallpapers from Pexels, Wallhaven, Unsplash, and Reddit. Wallora is the only free app that ties all of this together: a live wallpaper engine with Material You colour extraction, gesture-based wallpaper swapping from any launcher, a Quick Settings tile, and a home-screen widget — features that are either missing from other apps or locked behind a paywall.
 
 [![Build](https://img.shields.io/badge/build-passing-brightgreen)](#building)
 [![API](https://img.shields.io/badge/API-31%2B-blue)](https://developer.android.com/about/versions/12/android-12)
@@ -11,13 +11,25 @@ Browse, search, and auto-rotate beautiful wallpapers from Pexels, Wallhaven, Uns
 
 <p align="center">
   <a href="https://github.com/thissayantan/wallora/releases/download/v1.0.0/app-release.apk">
-    <img src="https://img.shields.io/badge/Download%20APK-v1.0.0-6750A4?style=for-the-badge&logo=android&logoColor=white" alt="Download APK">
+    <img src="https://img.shields.io/badge/Download%20APK-v1.0.0-6750A4?style=for-the-badge&logo=android&logoColor=white" alt="Download APK v1.0.0">
   </a>
   &nbsp;
   <a href="https://github.com/thissayantan/wallora/releases/latest">
     <img src="https://img.shields.io/github/v/release/thissayantan/wallora?style=for-the-badge&color=4E36A0&label=Latest%20Release" alt="Latest Release">
   </a>
 </p>
+
+---
+
+## Why Wallora?
+
+| | What makes it different |
+|---|---|
+| **Free** | No ads, no subscriptions, no in-app purchases — and open source. |
+| **Material You** | Sets wallpaper colours back into Android so your entire UI — system bars, widgets, apps — adapts instantly to every wallpaper change. |
+| **Auto-rotation without opening the app** | Scheduled rotation via WorkManager, time-of-day alarms, and on-unlock triggers all run silently in the background. |
+| **Change wallpaper from anywhere** | Launcher gesture, Quick Settings tile, home-screen widget, Tasker intent — no other free app exposes all four. |
+| **Prefetch cache** | The next wallpaper is downloaded in the background immediately after each apply, so swapping feels instant. |
 
 ---
 
@@ -34,8 +46,8 @@ Browse, search, and auto-rotate beautiful wallpapers from Pexels, Wallhaven, Uns
 | 🔄 | **Auto-rotation** — interval (WorkManager) + specific times (AlarmManager) + on-unlock |
 | 🌊 | **Live wallpaper** — parallax scrolling, crossfade transitions, Material You colours |
 | 🪟 | **Home-screen widget** — current wallpaper thumbnail + one-tap "Next" button |
-| 🔲 | **Quick Settings tile** — change wallpaper from the notification shade |
-| 🎨 | **Material You** — dynamic colour, WallpaperColors from the current bitmap |
+| 🔲 | **Quick Settings tile** — change wallpaper from the notification shade without unlocking |
+| 🎨 | **Material You** — dynamic colour extracted from the live wallpaper bitmap |
 | 🌙 | **Theme** — System / Light / Dark |
 | ⚡ | **Prefetch cache** — next wallpaper downloaded in the background after each apply |
 
@@ -43,7 +55,66 @@ Browse, search, and auto-rotate beautiful wallpapers from Pexels, Wallhaven, Uns
 
 ## Screenshots
 
-_Coming soon — contributions welcome!_
+<table>
+  <tr>
+    <td align="center"><img src="docs/screenshots/ss_home.png" width="200"/><br/><sub>Home grid</sub></td>
+    <td align="center"><img src="docs/screenshots/ss_detail.png" width="200"/><br/><sub>Full-res preview</sub></td>
+    <td align="center"><img src="docs/screenshots/ss_settings.png" width="200"/><br/><sub>Settings — sources</sub></td>
+    <td align="center"><img src="docs/screenshots/ss_settings2.png" width="200"/><br/><sub>Settings — live wallpaper & gestures</sub></td>
+  </tr>
+</table>
+
+---
+
+## Automatic wallpaper changing & Material You
+
+Wallora runs a background rotation engine that changes your wallpaper on a schedule you control — no taps required. Every time a new wallpaper is applied:
+
+1. The live wallpaper engine decodes the bitmap and calls `notifyColorsChanged()`.
+2. Android extracts dominant colours from the bitmap and seeds the Material You palette.
+3. Your system UI (status bar, nav bar), widgets, and supporting apps re-theme themselves automatically.
+
+You set the interval (15 min → 24 h), pick a playlist or use the curated category feed, and Wallora does the rest.
+
+---
+
+## Change wallpaper without opening the app
+
+This is where Wallora stands out from every other free wallpaper app. You can trigger "next wallpaper" from four different places — pick whichever fits your workflow:
+
+### 1. Launcher gesture (Nova Launcher, Lawnchair, etc.)
+
+| Launcher | Steps |
+|---|---|
+| **Nova Launcher** | Nova Settings → Gestures & inputs → pick a gesture (e.g. double-tap) → App shortcuts → Wallora → **Next wallpaper** |
+| **Lawnchair** | Home screen settings → Gestures → choose gesture → App shortcuts → Wallora → **Next wallpaper** |
+| **Any launcher** | Long-press the Wallora icon → **Next wallpaper** (static shortcut, works everywhere) |
+
+After tapping, you'll see a brief "Changing wallpaper…" toast and the wallpaper updates in seconds (usually instant if prefetch already ran).
+
+### 2. Quick Settings tile (no unlock needed)
+
+1. Pull down the notification shade and tap the pencil / edit icon.
+2. Find **Next wallpaper** in the tile list and drag it to your active tiles.
+3. Tap the tile at any time — even from the lock screen — to swap wallpapers instantly.
+
+This is unique to Wallora among free apps. No other free wallpaper app ships a functional Quick Settings tile.
+
+### 3. Home-screen widget
+
+Add the **Wallora widget** to your home screen. It shows the current wallpaper as a thumbnail. Tapping the **Next** button changes the wallpaper without opening the app.
+
+### 4. Tasker / automation apps
+
+Send an explicit intent to trigger the next wallpaper from any automation app (Tasker, MacroDroid, Automate, etc.):
+
+```
+Action:   com.wallora.app.action.NEXT_WALLPAPER
+Package:  com.wallora.app
+Class:    com.wallora.app.ui.NextWallpaperActivity
+```
+
+In Tasker: **Task → App → Send Intent** with the values above.
 
 ---
 
@@ -144,27 +215,6 @@ app/
 - Parallax via over-wide bitmap (1.3×) + `onOffsetsChanged` translation
 - `allowHardware(false)` in detail preview to sidestep GPU texture-size overflow on high-res images
 - Baseline Profile deferred (requires device/managed emulator); see `DECISIONS.md`
-
----
-
-## Gesture & shortcut binding
-
-### Next wallpaper — fastest ways
-
-| Method | How |
-|---|---|
-| **App shortcut** | Long-press the Wallora icon → **Next wallpaper** |
-| **Nova Launcher gesture** | Nova Settings → Gestures & inputs → *your gesture* → App shortcuts → Wallora → Next wallpaper |
-| **Tasker / automation** | Send intent `com.wallora.app.action.NEXT_WALLPAPER` to `com.wallora.app.ui.NextWallpaperActivity` |
-| **Quick Settings tile** | Add "Next wallpaper" tile from notification shade edit mode |
-
-### Double-tap (live wallpaper mode)
-
-Off by default — most launchers consume double-tap for their own gestures. Enable in Settings → Live Wallpaper & Gestures only if your launcher passes it through.
-
-### Parallax (Nova Launcher 8)
-
-Nova Settings → **Desktop** → enable **Scroll wallpaper**.
 
 ---
 
