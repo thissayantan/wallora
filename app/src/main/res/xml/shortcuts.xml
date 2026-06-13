@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+        Static shortcut: "Next wallpaper"
+        Appears in the app long-press menu. Fires NextWallpaperActivity which
+        invokes NextWallpaperUseCase without opening the main UI.
+        Also usable by launcher gesture binding (e.g. Nova Launcher: Settings →
+        Gestures → assign shortcut → Wallora → Next wallpaper).
+    -->
+    <shortcut
+        android:shortcutId="next_wallpaper"
+        android:enabled="true"
+        android:icon="@drawable/ic_qs_next"
+        android:shortcutShortLabel="@string/shortcut_next_short_label"
+        android:shortcutLongLabel="@string/shortcut_next_label">
+        <intent
+            android:action="com.wallora.app.action.NEXT_WALLPAPER"
+            android:targetPackage="com.wallora.app"
+            android:targetClass="com.wallora.app.ui.NextWallpaperActivity" />
+        <categories android:name="android.shortcut.conversation" />
+    </shortcut>
+
+</shortcuts>

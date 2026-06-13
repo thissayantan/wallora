@@ -61,7 +61,7 @@ class WalloraQsTileService : TileService() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             tile.subtitle = getString(R.string.app_name)
         }
-        tile.icon = Icon.createWithResource(this, R.mipmap.ic_launcher)
+        tile.icon = Icon.createWithResource(this, R.drawable.ic_qs_next)
         tile.updateTile()
     }
 }

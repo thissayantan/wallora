@@ -14,6 +14,13 @@
         <item name="postSplashScreenTheme">@style/Theme.Wallora.Main</item>
     </style>
 
+    <!-- No-UI trampoline activity: transparent, no animation, excluded from recents -->
+    <style name="Theme.Wallora.Trampoline" parent="android:Theme.Translucent.NoTitleBar">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:windowAnimationStyle">@null</item>
+    </style>
+
     <!-- Base activity theme used after splash exits -->
     <style name="Theme.Wallora.Main" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:windowBackground">@android:color/black</item>

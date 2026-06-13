@@ -35,7 +35,7 @@ under the live service; parallax has no bitmap to translate.
 
 ## Group A — image pipeline (HIGH PRIORITY)
 
-- [ ] A1. **Detail preview black (Root cause #1).** In `DetailScreen.kt` build the
+- [x] A1. **Detail preview black (Root cause #1).** In `DetailScreen.kt` build the
       full-res `ImageRequest` with `.allowHardware(false)` (software bitmap → always
       drawable; sidesteps GPU texture overflow and HDR/gainmap quirks on Android 17 QPR),
       and `.size(displayWidth, displayHeight)` to downsample below the texture cap before
@@ -44,13 +44,13 @@ under the live service; parallax has no bitmap to translate.
       `Listener` that logs `onError` to `android.util.Log` tagged "WalloraDetail". Keep
       the grid on hardware bitmaps (small thumbs are fine).
 
-- [ ] A2-static. **"Black behind apply progress" (Root cause #1 — resolved by A1).**
+- [x] A2-static. **"Black behind apply progress" (Root cause #1 — resolved by A1).**
       `ApplyWallpaperUseCase` already fully decodes via `SafeBitmapDecoder.decodeRegion`
       before `WallpaperManager.setBitmap`, so static apply is NOT half-decoded. The
       black-behind-progress is the A1 preview showing through. No code change beyond A1.
       Check off once A1 is done.
 
-- [ ] A2-live. **Live engine bitmap wiring (Root cause #2).** Add a `current_wallpaper`
+- [x] A2-live. **Live engine bitmap wiring (Root cause #2).** Add a `current_wallpaper`
       key to `SettingsRepository` (JSON-serialised `Wallpaper` or just `fullUrl+thumbUrl`
       strings). `NextWallpaperUseCase.invoke()` writes the picked wallpaper there after
       every rotation. `WalloraEngine` observes the new Flow (like it already observes
@@ -60,14 +60,14 @@ under the live service; parallax has no bitmap to translate.
       wallpaper, kick `nextWallpaperUseCase(HOME)` once. Re-verify that `notifyColorsChanged`
       fires after load. (Shared with E1 — do together.)
 
-- [ ] A3. After fixing A1/A2: add DECISIONS.md entry documenting both root causes and the
+- [x] A3. After fixing A1/A2: add DECISIONS.md entry documenting both root causes and the
       chosen decode flags. Add a unit test for `SafeBitmapDecoder.calculateInSampleSize`
       on an oversized image (pure JVM). Add a manual check list entry for HDR/large-image
       testing on-device.
 
 ## Group B — gestures & quick controls
 
-- [ ] B1. **Bindable "next wallpaper" trigger.** Add exported no-UI trampoline
+- [x] B1. **Bindable "next wallpaper" trigger.** Add exported no-UI trampoline
       `NextWallpaperActivity` (Theme.Wallora.Trampoline — translucent/NoDisplay,
       `excludeFromRecents=true`, `taskAffinity=""`). It injects `NextWallpaperUseCase` via
       Hilt and launches it on an `@ApplicationScope` CoroutineScope so the work survives
@@ -80,7 +80,7 @@ under the live service; parallax has no bitmap to translate.
       launchers consume the double-tap; use a launcher gesture instead." Update README with
       "How to bind a Nova gesture to Next Wallpaper."
 
-- [ ] B2. **QS tile monochrome icon.** Create `res/drawable/ic_qs_next.xml` — a 24dp
+- [x] B2. **QS tile monochrome icon.** Create `res/drawable/ic_qs_next.xml` — a 24dp
       monochrome vector combining a wallpaper/image frame and a next/refresh arrow, single
       color (`#FFFFFFFF` so QS colours it). In `WalloraQsTileService` replace
       `Icon.createWithResource(this, R.mipmap.ic_launcher)` with
@@ -100,7 +100,7 @@ under the live service; parallax has no bitmap to translate.
 
 ## Group D — state persistence
 
-- [ ] D1. **Category chip selection survives navigation.** `HomeViewModel.selectedCategories`
+- [x] D1. **Category chip selection survives navigation.** `HomeViewModel.selectedCategories`
       is a transient `MutableStateFlow(emptySet())` — not persisted. Wire it to the EXISTING
       `SettingsRepository.selectedCategories` Flow and `setSelectedCategories()` (already
       used by `SettingsViewModel`). `toggleCategory` writes through the repository; the
