@@ -89,10 +89,10 @@ every task; run unit tests after every phase. See CLAUDE.md for autonomy rules.
       Reset per slider, crop/pan gesture, full-res apply on confirm; live-mode:
       "apply to this wallpaper only" vs "set as default look" toggle, persisted via
       DataStore EditParams; Material You: WallpaperColors from final edited bitmap. Commit.
-- [ ] P3-d: RotationEngine + NextWallpaperUseCase — playlist (Favorites or current
+- [x] P3-d: RotationEngine + NextWallpaperUseCase — playlist (Favorites or current
       category+sources), history no-repeat table, pre-fetch next on Wi-Fi (toggle).
       Unit tests: no-repeat exhaustion loop, playlist selection. Commit.
-- [ ] P3-phase-test: `./gradlew testDebugUnitTest`.
+- [x] P3-phase-test: `./gradlew testDebugUnitTest`.
 
 ## Phase 4 — Auto-rotation triggers
 
