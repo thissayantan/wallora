@@ -24,25 +24,35 @@ jobs:
       - name: Build release APK
         run: ./gradlew assembleRelease
 
-      - name: Get version name
+      - name: Get version info
         id: version
         run: |
           VERSION=$(grep 'versionName' app/build.gradle.kts | grep -oP '"\K[^"]+')
           SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
-          echo "name=Wallora v${VERSION} (${SHORT_SHA})" >> "$GITHUB_OUTPUT"
-          echo "apk_name=wallora-${VERSION}-${SHORT_SHA}.apk" >> "$GITHUB_OUTPUT"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "name=Wallora v${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "tag=v${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "apk_name=wallora-v${VERSION}.apk" >> "$GITHUB_OUTPUT"
 
       - name: Rename APK
         run: cp app/build/outputs/apk/release/app-release.apk "${{ steps.version.outputs.apk_name }}"
 
-      - name: Update rolling release
+      - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: latest
+          tag_name: ${{ steps.version.outputs.tag }}
           name: ${{ steps.version.outputs.name }}
           body: |
-            Latest build from `master`.
-            Commit: ${{ github.sha }}
+            ## Wallora ${{ steps.version.outputs.name }}
+
+            A minimal, privacy-respecting wallpaper app for Android.
+
+            ### Install
+            Download `wallora-v${{ steps.version.outputs.version }}.apk` and install via:
+            - Settings → Apps → Install unknown apps (enable for your browser/Files app)
+            - Or: `adb install wallora-v${{ steps.version.outputs.version }}.apk`
+
+            ### What's new
             ${{ github.event.head_commit.message }}
-          prerelease: false
+          make_latest: true
           files: ${{ steps.version.outputs.apk_name }}
