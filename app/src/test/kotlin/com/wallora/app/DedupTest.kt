@@ -99,4 +99,67 @@ class DedupTest {
         assertEquals("WALLHAVEN:2", result[1].globalKey)
         assertEquals("REDDIT:3", result[2].globalKey)
     }
+
+    // ---- Cross-page dedup regression (fast-scroll crash) ----
+    // Before the fix, MultiSourcePagingSource.load() used distinctBy per page, so the same
+    // wallpaper on two pages produced duplicate LazyStaggeredGrid keys → crash.
+    // The fix uses a shared seenKeys set across load() calls on the same PagingSource instance.
+    // These tests verify that algorithm directly.
+
+    private fun crossPageDedupFilter(
+        seenKeys: MutableSet<String>,
+        items: List<Wallpaper>,
+    ): List<Wallpaper> = items.filter { seenKeys.add(it.globalKey) }
+
+    @Test
+    fun `cross-page dedup filters wallpaper seen on a prior page`() {
+        val seenKeys: MutableSet<String> =
+            java.util.Collections.synchronizedSet(HashSet())
+        val page1 = listOf(
+            makeWallpaper("1", SourceId.PEXELS),
+            makeWallpaper("42", SourceId.UNSPLASH),
+        )
+        val page2 = listOf(
+            makeWallpaper("42", SourceId.UNSPLASH), // already seen in page1 → must be dropped
+            makeWallpaper("99", SourceId.WALLHAVEN),
+        )
+
+        val result1 = crossPageDedupFilter(seenKeys, page1)
+        val result2 = crossPageDedupFilter(seenKeys, page2)
+
+        assertEquals(2, result1.size)
+        assertEquals(1, result2.size)
+        assertEquals("WALLHAVEN:99", result2[0].globalKey)
+    }
+
+    @Test
+    fun `cross-page dedup accumulates seen keys across multiple pages`() {
+        val seenKeys: MutableSet<String> =
+            java.util.Collections.synchronizedSet(HashSet())
+        val page1 = listOf(makeWallpaper("a", SourceId.PEXELS))
+        val page2 = listOf(makeWallpaper("b", SourceId.PEXELS), makeWallpaper("a", SourceId.PEXELS))
+        val page3 = listOf(makeWallpaper("a", SourceId.PEXELS), makeWallpaper("b", SourceId.PEXELS), makeWallpaper("c", SourceId.PEXELS))
+
+        val r1 = crossPageDedupFilter(seenKeys, page1)
+        val r2 = crossPageDedupFilter(seenKeys, page2)
+        val r3 = crossPageDedupFilter(seenKeys, page3)
+
+        assertEquals(1, r1.size) // a
+        assertEquals(1, r2.size) // b; a dropped
+        assertEquals(1, r3.size) // c; a+b dropped
+        assertEquals("PEXELS:c", r3[0].globalKey)
+    }
+
+    @Test
+    fun `fresh seenKeys set allows the same key again (simulates new PagingSource on refresh)`() {
+        val seenKeys1: MutableSet<String> = java.util.Collections.synchronizedSet(HashSet())
+        val seenKeys2: MutableSet<String> = java.util.Collections.synchronizedSet(HashSet())
+        val items = listOf(makeWallpaper("1", SourceId.PEXELS))
+
+        val r1 = crossPageDedupFilter(seenKeys1, items)
+        val r2 = crossPageDedupFilter(seenKeys2, items) // new instance seenKeys
+
+        assertEquals(1, r1.size)
+        assertEquals(1, r2.size) // not filtered — separate set, simulates post-refresh generation
+    }
 }

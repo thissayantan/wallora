@@ -31,6 +31,15 @@ class MultiSourcePagingSource(
     private val cacheTtlMs: Long,
 ) : PagingSource<MultiSourcePagingSource.PageKey, Wallpaper>() {
 
+    /**
+     * Tracks globalKeys already emitted by this PagingSource instance.
+     * Scoped to the instance lifetime so dedup spans all pages in a generation
+     * (resets on refresh when a new instance is created). Thread-safe because
+     * Paging 3 may call load() from multiple threads in theory.
+     */
+    private val seenKeys: MutableSet<String> =
+        java.util.Collections.synchronizedSet(HashSet())
+
     /** Holds a map of sourceId → next-page cursor for that source. */
     data class PageKey(val cursors: Map<String, String>)
 
@@ -96,8 +105,10 @@ class MultiSourcePagingSource(
         // Round-robin interleave results from all sources
         val interleaved = roundRobinInterleave(resultLists.values.toList())
 
-        // Deduplicate by globalKey (URL-level dedup)
-        val deduped = interleaved.distinctBy { it.globalKey }
+        // Cross-page dedup: filter by seenKeys so the same wallpaper never appears
+        // twice across pages. distinctBy would only catch within-page duplicates;
+        // cross-page duplicates cause an IllegalArgumentException in LazyStaggeredGrid.
+        val deduped = interleaved.filter { seenKeys.add(it.globalKey) }
 
         val nextKey = if (nextCursors.isEmpty()) null else PageKey(nextCursors)
 
