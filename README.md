@@ -37,7 +37,7 @@ Browse, search, and auto-rotate stunning wallpapers from Pexels, Wallhaven, Unsp
 
 | | Feature |
 |---|---|
-| 🖼️ | **Multi-source browsing** — staggered grid from Pexels, Wallhaven, Unsplash, and Reddit |
+| 🖼️ | **Multi-source browsing** — staggered grid from Pexels, Wallhaven, Unsplash, Pixabay, and Reddit |
 | 🔍 | **Search** — real-time fan-out search across all enabled sources simultaneously |
 | 🏷️ | **Category filters** — Nature, Space, Animals, Abstract, AMOLED, Anime, and more |
 | ❤️ | **Favorites & History** — persist your saves and track what you've set |
@@ -178,6 +178,9 @@ UNSPLASH_ACCESS_KEY=your_access_key_here
 
 # Wallhaven — https://wallhaven.cc/settings/account  (optional; unlocks NSFW filter)
 WALLHAVEN_API_KEY=your_key_here
+
+# Pixabay — https://pixabay.com/api/docs/  (free)
+PIXABAY_API_KEY=your_key_here
 ```
 
 Sources without a key are shown as **disabled** in Settings → Sources. They are still compiled in behind `isConfigured = false` and tested against committed JSON fixtures.
@@ -190,7 +193,7 @@ Sources without a key are shown as **disabled** in Settings → Sources. They ar
 app/
   data/
     local/       Room: WallpaperEntity, FavoriteEntity, HistoryEntity, RecentSearchEntity
-    remote/      Pexels · Wallhaven · Reddit · Unsplash  (Retrofit + kotlinx.serialization)
+    remote/      Pexels · Wallhaven · Unsplash · Pixabay · Reddit  (Retrofit + kotlinx.serialization)
     paging/      MultiSourcePagingSource (round-robin fan-out + URL dedup)
     repository/  WallpaperRepository, SettingsRepository (DataStore Preferences)
     util/        SafeBitmapDecoder, ImageAdjustments

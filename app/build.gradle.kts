@@ -25,8 +25,8 @@ android {
         applicationId = "com.wallora.app"
         minSdk = 31
         targetSdk = 35
-        versionCode = 2
-        versionName = "1.1"
+        versionCode = 3
+        versionName = "1.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -37,6 +37,8 @@ android {
             "\"${localProps.getProperty("UNSPLASH_ACCESS_KEY", "")}\"")
         buildConfigField("String", "WALLHAVEN_API_KEY",
             "\"${localProps.getProperty("WALLHAVEN_API_KEY", "")}\"")
+        buildConfigField("String", "PIXABAY_API_KEY",
+            "\"${localProps.getProperty("PIXABAY_API_KEY", "")}\"")
 
         // Room schema export
         ksp {

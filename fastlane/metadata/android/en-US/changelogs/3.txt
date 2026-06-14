@@ -1,0 +1,8 @@
+v1.2 — Vibrant feed & fast-scroll crash fix
+
+• Fix crash when scrolling fast before images finish loading (duplicate grid key bug)
+• Add Pixabay as a new wallpaper source — saturated, high-contrast photos (free API key)
+• Add Vibrant, Neon, and Gradient categories for bold, colorful content
+• Fresh installs now default to Vibrant + Abstract + Space for an eye-catching first impression
+• Widen Wallhaven top-list range from 6 months to 1 year for more varied high-rated content
+• Reorder category chips: vibrant categories lead, Minimal/AMOLED moved to end

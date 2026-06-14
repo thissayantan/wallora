@@ -160,3 +160,46 @@ secrets absent (forks). Fastlane metadata (`changelogs/1.txt`, screenshots, icon
 added under `fastlane/metadata/android/en-US/`. README IzzyOnDroid badge + install section
 added; badge links go live after RFP accepted. RFP to be filed by the developer at
 https://gitlab.com/IzzyOnDroid/repo/-/issues.
+
+---
+
+## 2026-06-14 (round 2 — vibrant feed + Pixabay source)
+
+**Fast-scroll duplicate-key crash**: Device crash log showed
+`IllegalArgumentException: Key "UNSPLASH:IbpngRvnDzo" was already used` in
+`LazyVerticalStaggeredGrid`. Root cause: `MultiSourcePagingSource.load()` used
+`distinctBy { it.globalKey }` which dedups within a single page load only. A wallpaper
+re-appearing on a later page (or from a Room cache hit) produced two grid items sharing
+the same key, crashing Compose's staggered-grid measure pass. Fixed by adding a
+per-instance `seenKeys: MutableSet<String>` (synchronized) and replacing `distinctBy`
+with `filter { seenKeys.add(it.globalKey) }`. The set persists across all `load()` calls
+on the same PagingSource instance (which covers one full scroll session) and resets on
+refresh when a new instance is created. Regression test added to `DedupTest.kt`.
+
+**Vibrancy overhaul — Pixabay + category redesign**: User flagged the feed as "pale" after
+comparing against Pinterest/Pixabay/Unsplash "mobile wallpaper" reference galleries.
+Root cause: DEFAULT_CATEGORIES = {MINIMAL, AMOLED, NATURE} are the three muted/dark
+categories; the empty-category fallbacks (Pexels getCurated, Unsplash order_by=popular)
+pull editorial/desaturated content. Decisions:
+
+1. **Added Pixabay as a 5th source** (`SourceId.PIXABAY`). Pixabay returns inherently
+   saturated, wallpaper-friendly photos. API key as query param (no auth interceptor needed).
+   Full Hilt multibinding + UserKeyCache + SettingsRepository key flow + SettingsViewModel
+   sourceConfiguredMap wiring. isConfigured=false if key absent → silently excluded.
+
+2. **Added three vibrant categories**: VIBRANT (colorful vibrant wallpaper), NEON (neon
+   lights glow), GRADIENT (gradient colorful background). Each has queries for all five
+   sources including Pixabay.
+
+3. **Reordered Category.entries**: Vibrant categories (VIBRANT, ABSTRACT, NEON, GRADIENT,
+   SPACE, AI_ART) lead the chip row. Topical categories (NATURE, LANDSCAPES, CITY, …)
+   follow. MINIMAL and AMOLED moved to end — still selectable, just not dominant.
+
+4. **Changed DEFAULT_CATEGORIES** from {MINIMAL, AMOLED, NATURE} to {VIBRANT, ABSTRACT,
+   SPACE} — bold/colorful first impression on fresh install.
+
+5. **Widened Wallhaven topRange** from 6M to 1y — more variety in top-rated content while
+   still filtering for highest-quality wallpapers.
+
+6. Deliberately NOT wiring `color=`/`colors=` single-hue filters: locking to one color
+   kills the variety the user wants (they want "different types", not a single hue wall).
