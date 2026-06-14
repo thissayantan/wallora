@@ -263,7 +263,7 @@ class SettingsRepository @Inject constructor(
     companion object {
         val DEFAULT_SUBREDDITS = listOf("iWallpaper")
 
-        /** Default categories shown on fresh install — bold & colorful mix for a vibrant first impression. */
-        val DEFAULT_CATEGORIES = setOf(Category.VIBRANT, Category.ABSTRACT, Category.SPACE)
+        /** Default categories — one distinct subject per source so the grid looks Pinterest-varied on first open. */
+        val DEFAULT_CATEGORIES = setOf(Category.NATURE, Category.SPACE, Category.CITY, Category.ABSTRACT, Category.ANIMALS)
     }
 }

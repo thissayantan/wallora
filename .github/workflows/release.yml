@@ -40,6 +40,15 @@ jobs:
             echo "No keystore secret found — will fall back to debug signing"
           fi
 
+      - name: Inject API keys
+        # Writes repo secrets into local.properties so BuildConfig picks them up.
+        # Keys absent from secrets silently produce empty strings (safe default — source skips itself).
+        run: |
+          [ -n "${{ secrets.PEXELS_API_KEY }}" ]   && echo "PEXELS_API_KEY=${{ secrets.PEXELS_API_KEY }}"     >> local.properties || true
+          [ -n "${{ secrets.UNSPLASH_ACCESS_KEY }}" ] && echo "UNSPLASH_ACCESS_KEY=${{ secrets.UNSPLASH_ACCESS_KEY }}" >> local.properties || true
+          [ -n "${{ secrets.WALLHAVEN_API_KEY }}" ] && echo "WALLHAVEN_API_KEY=${{ secrets.WALLHAVEN_API_KEY }}" >> local.properties || true
+          [ -n "${{ secrets.PIXABAY_API_KEY }}" ]  && echo "PIXABAY_API_KEY=${{ secrets.PIXABAY_API_KEY }}"   >> local.properties || true
+
       - name: Build release APK
         run: ./gradlew assembleRelease
 

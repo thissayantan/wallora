@@ -203,3 +203,26 @@ pull editorial/desaturated content. Decisions:
 
 6. Deliberately NOT wiring `color=`/`colors=` single-hue filters: locking to one color
    kills the variety the user wants (they want "different types", not a single hue wall).
+
+## 2026-06-14
+
+**Per-source category distribution (variety fix)**: User reported that even with vibrant
+categories, the feed looked monotonous — all images shared the same dark-background +
+colorful-swirl aesthetic. Root cause: all selected categories were passed to EVERY source,
+so all 5 sources converged on the highest-scoring "abstract fluid art" look. Fix: in
+MultiSourcePagingSource, each source receives `categories[index % categories.size]` — one
+category determined by its position. With NATURE/SPACE/CITY/ABSTRACT/ANIMALS as defaults,
+round-robin interleave yields nature → space → city → abstract → animal images in sequence.
+`buildCacheKey` updated to use per-source `effectiveCategories` so cache keys are
+per-source-per-category (not shared). When categories is empty or a search query is active,
+all sources fall through to the global categories (unchanged behavior).
+
+**DEFAULT_CATEGORIES changed** from {VIBRANT, ABSTRACT, SPACE} (three similar-aesthetic
+vibrant/abstract categories) to {NATURE, SPACE, CITY, ABSTRACT, ANIMALS} — five subjects
+that are visually distinct from each other so each grid column shows a genuinely different
+subject category, producing the Pinterest-style variety the user wanted.
+
+**PIXABAY_API_KEY added to GitHub Actions secrets** (not committed to source). The release
+workflow now writes all four API keys from secrets into local.properties before
+assembleRelease, so the GitHub-released APK has all sources working out of the box. New
+installs without any keys still work — sources are fail-soft when unconfigured.

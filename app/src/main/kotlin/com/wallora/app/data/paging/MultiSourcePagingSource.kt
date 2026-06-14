@@ -55,12 +55,20 @@ class MultiSourcePagingSource(
         val resultLists = mutableListOf<List<Wallpaper>>()
         val nextCursors = mutableMapOf<String, String>()
 
-        for (source in sources) {
+        for ((index, source) in sources.withIndex()) {
             val sourceKey = source.id.name
             val cursor = key.cursors[sourceKey] ?: "1"
 
+            // Each source gets one category by round-robin so the grid shows different
+            // subjects side-by-side (nature next to space next to city …) rather than
+            // all sources querying the same mixed bag.
+            val effectiveCategories = when {
+                query != null || categories.isEmpty() -> categories
+                else -> listOf(categories[index % categories.size])
+            }
+
             // Check TTL cache first
-            val cacheKey = buildCacheKey(source.id.name, cursor)
+            val cacheKey = buildCacheKey(source.id.name, cursor, effectiveCategories)
             val minTimestamp = System.currentTimeMillis() - cacheTtlMs
             val cached = wallpaperDao.getByCacheKey(cacheKey, minTimestamp)
 
@@ -75,7 +83,7 @@ class MultiSourcePagingSource(
             } else {
                 try {
                     val page = if (query != null) source.search(query, cursor)
-                               else source.browse(categories, cursor)
+                               else source.browse(effectiveCategories, cursor)
                     items = page.items
                     nextCursor = page.nextPage
 
@@ -112,8 +120,8 @@ class MultiSourcePagingSource(
         )
     }
 
-    private fun buildCacheKey(sourceId: String, page: String): String {
-        val catPart = if (query != null) "search:$query" else categories.joinToString(",") { it.name }
+    private fun buildCacheKey(sourceId: String, page: String, effectiveCategories: List<Category>): String {
+        val catPart = if (query != null) "search:$query" else effectiveCategories.joinToString(",") { it.name }
         return "$sourceId:$catPart:$page"
     }
 
