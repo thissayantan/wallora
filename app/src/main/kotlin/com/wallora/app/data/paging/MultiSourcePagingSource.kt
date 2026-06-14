@@ -52,7 +52,7 @@ class MultiSourcePagingSource(
 
     override suspend fun load(params: LoadParams<PageKey>): LoadResult<PageKey, Wallpaper> {
         val key = params.key ?: FIRST_PAGE
-        val resultLists = mutableMapOf<String, List<Wallpaper>>()
+        val resultLists = mutableListOf<List<Wallpaper>>()
         val nextCursors = mutableMapOf<String, String>()
 
         for (source in sources) {
@@ -70,40 +70,33 @@ class MultiSourcePagingSource(
             if (cached.isNotEmpty()) {
                 items = cached.map { it.toDomain() }
                 // For cached pages, assume there's a next page unless it's clearly empty
-                nextCursor = (cursor.toIntOrNull()?.plus(1))?.toString()
+                nextCursor = cursor.toIntOrNull()?.plus(1)?.toString()
                 Log.d(TAG, "${source.id}: cache hit (${items.size} items)")
             } else {
                 try {
-                    val page = if (query != null) {
-                        source.search(query, cursor)
-                    } else {
-                        source.browse(categories, cursor)
-                    }
+                    val page = if (query != null) source.search(query, cursor)
+                               else source.browse(categories, cursor)
                     items = page.items
                     nextCursor = page.nextPage
 
-                    // Persist to Room cache
                     val now = System.currentTimeMillis()
-                    wallpaperDao.insertAll(items.map { wallpaper ->
-                        WallpaperEntity.fromDomain(wallpaper, cacheKey, now)
-                    })
+                    wallpaperDao.insertAll(items.map { WallpaperEntity.fromDomain(it, cacheKey, now) })
                     Log.d(TAG, "${source.id}: network fetch (${items.size} items)")
                 } catch (e: CancellationException) {
                     throw e  // never swallow — flatMapLatest cancels in-flight loads on category change
                 } catch (e: Exception) {
                     Log.w(TAG, "${source.id}: fetch failed, skipping source", e)
-                    resultLists[sourceKey] = emptyList()
                     // Don't advance cursor on failure — retry on next page load
                     continue
                 }
             }
 
-            resultLists[sourceKey] = items
+            resultLists.add(items)
             if (nextCursor != null) nextCursors[sourceKey] = nextCursor
         }
 
         // Round-robin interleave results from all sources
-        val interleaved = roundRobinInterleave(resultLists.values.toList())
+        val interleaved = roundRobinInterleave(resultLists)
 
         // Cross-page dedup: filter by seenKeys so the same wallpaper never appears
         // twice across pages. distinctBy would only catch within-page duplicates;

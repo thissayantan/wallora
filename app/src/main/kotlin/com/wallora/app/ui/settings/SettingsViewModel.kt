@@ -62,27 +62,29 @@ class SettingsViewModel @Inject constructor(
         settingsRepository.userUnsplashKey,
         settingsRepository.userPixabayKey,
     ) { pexelsKey, unsplashKey, pixabayKey ->
-        mapOf(
-            SourceId.PEXELS to (BuildConfig.PEXELS_API_KEY.isNotBlank() || pexelsKey.isNotBlank()),
-            SourceId.UNSPLASH to (BuildConfig.UNSPLASH_ACCESS_KEY.isNotBlank() || unsplashKey.isNotBlank()),
-            SourceId.WALLHAVEN to true,
-            SourceId.REDDIT to true,
-            SourceId.PIXABAY to (BuildConfig.PIXABAY_API_KEY.isNotBlank() || pixabayKey.isNotBlank()),
-        )
-    }.stateIn(
-        viewModelScope, SharingStarted.WhileSubscribed(5_000),
-        mapOf(
-            SourceId.PEXELS to BuildConfig.PEXELS_API_KEY.isNotBlank(),
-            SourceId.UNSPLASH to BuildConfig.UNSPLASH_ACCESS_KEY.isNotBlank(),
-            SourceId.WALLHAVEN to true,
-            SourceId.REDDIT to true,
-            SourceId.PIXABAY to BuildConfig.PIXABAY_API_KEY.isNotBlank(),
-        ),
-    )
+        configuredMap(userPexels = pexelsKey, userUnsplash = unsplashKey, userPixabay = pixabayKey)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), configuredMap())
 
     fun setSourceEnabled(source: SourceId, enabled: Boolean) = viewModelScope.launch {
         settingsRepository.setSourceEnabled(source, enabled)
     }
+
+    /**
+     * A source is configured when it needs no key (Wallhaven, Reddit) or when a key is present
+     * from BuildConfig or the user. User-key args default to blank so the same builder serves
+     * the StateFlow's initial value.
+     */
+    private fun configuredMap(
+        userPexels: String = "",
+        userUnsplash: String = "",
+        userPixabay: String = "",
+    ): Map<SourceId, Boolean> = mapOf(
+        SourceId.PEXELS to (BuildConfig.PEXELS_API_KEY.isNotBlank() || userPexels.isNotBlank()),
+        SourceId.UNSPLASH to (BuildConfig.UNSPLASH_ACCESS_KEY.isNotBlank() || userUnsplash.isNotBlank()),
+        SourceId.WALLHAVEN to true,
+        SourceId.REDDIT to true,
+        SourceId.PIXABAY to (BuildConfig.PIXABAY_API_KEY.isNotBlank() || userPixabay.isNotBlank()),
+    )
 
     // ── Category defaults ─────────────────────────────────────────────────────
 

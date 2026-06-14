@@ -3,6 +3,7 @@ package com.wallora.app.di
 import com.wallora.app.BuildConfig
 import com.wallora.app.data.repository.SettingsRepository
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -27,25 +28,16 @@ class UserKeyCache @Inject constructor(
         private set
 
     init {
+        collectKey(settingsRepository.userPexelsKey, BuildConfig.PEXELS_API_KEY) { effectivePexelsKey = it }
+        collectKey(settingsRepository.userUnsplashKey, BuildConfig.UNSPLASH_ACCESS_KEY) { effectiveUnsplashKey = it }
+        collectKey(settingsRepository.userWallhavenKey, BuildConfig.WALLHAVEN_API_KEY) { effectiveWallhavenKey = it }
+        collectKey(settingsRepository.userPixabayKey, BuildConfig.PIXABAY_API_KEY) { effectivePixabayKey = it }
+    }
+
+    /** Collects a user-key flow and assigns the effective key (user override, else BuildConfig fallback). */
+    private fun collectKey(userKey: Flow<String>, fallback: String, assign: (String) -> Unit) {
         appScope.launch {
-            settingsRepository.userPexelsKey.collect { userKey ->
-                effectivePexelsKey = userKey.ifBlank { BuildConfig.PEXELS_API_KEY }
-            }
-        }
-        appScope.launch {
-            settingsRepository.userUnsplashKey.collect { userKey ->
-                effectiveUnsplashKey = userKey.ifBlank { BuildConfig.UNSPLASH_ACCESS_KEY }
-            }
-        }
-        appScope.launch {
-            settingsRepository.userWallhavenKey.collect { userKey ->
-                effectiveWallhavenKey = userKey.ifBlank { BuildConfig.WALLHAVEN_API_KEY }
-            }
-        }
-        appScope.launch {
-            settingsRepository.userPixabayKey.collect { userKey ->
-                effectivePixabayKey = userKey.ifBlank { BuildConfig.PIXABAY_API_KEY }
-            }
+            userKey.collect { assign(it.ifBlank { fallback }) }
         }
     }
 }
