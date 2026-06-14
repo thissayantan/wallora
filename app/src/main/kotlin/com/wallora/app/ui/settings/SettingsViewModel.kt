@@ -60,12 +60,14 @@ class SettingsViewModel @Inject constructor(
     val sourceConfiguredMap: StateFlow<Map<SourceId, Boolean>> = combine(
         settingsRepository.userPexelsKey,
         settingsRepository.userUnsplashKey,
-    ) { pexelsKey, unsplashKey ->
+        settingsRepository.userPixabayKey,
+    ) { pexelsKey, unsplashKey, pixabayKey ->
         mapOf(
             SourceId.PEXELS to (BuildConfig.PEXELS_API_KEY.isNotBlank() || pexelsKey.isNotBlank()),
             SourceId.UNSPLASH to (BuildConfig.UNSPLASH_ACCESS_KEY.isNotBlank() || unsplashKey.isNotBlank()),
             SourceId.WALLHAVEN to true,
             SourceId.REDDIT to true,
+            SourceId.PIXABAY to (BuildConfig.PIXABAY_API_KEY.isNotBlank() || pixabayKey.isNotBlank()),
         )
     }.stateIn(
         viewModelScope, SharingStarted.WhileSubscribed(5_000),
@@ -74,6 +76,7 @@ class SettingsViewModel @Inject constructor(
             SourceId.UNSPLASH to BuildConfig.UNSPLASH_ACCESS_KEY.isNotBlank(),
             SourceId.WALLHAVEN to true,
             SourceId.REDDIT to true,
+            SourceId.PIXABAY to BuildConfig.PIXABAY_API_KEY.isNotBlank(),
         ),
     )
 
@@ -273,6 +276,10 @@ class SettingsViewModel @Inject constructor(
         settingsRepository.userWallhavenKey
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), "")
 
+    val userPixabayKey: StateFlow<String> =
+        settingsRepository.userPixabayKey
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), "")
+
     fun saveUserPexelsKey(key: String) = viewModelScope.launch {
         settingsRepository.setUserPexelsKey(key.trim())
         _events.emit(SettingsEvent.ShowMessage("Pexels key saved"))
@@ -286,6 +293,11 @@ class SettingsViewModel @Inject constructor(
     fun saveUserWallhavenKey(key: String) = viewModelScope.launch {
         settingsRepository.setUserWallhavenKey(key.trim())
         _events.emit(SettingsEvent.ShowMessage("Wallhaven key saved"))
+    }
+
+    fun saveUserPixabayKey(key: String) = viewModelScope.launch {
+        settingsRepository.setUserPixabayKey(key.trim())
+        _events.emit(SettingsEvent.ShowMessage("Pixabay key saved"))
     }
 
     // ── Theme ─────────────────────────────────────────────────────────────────

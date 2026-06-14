@@ -27,6 +27,7 @@ const val RETROFIT_PEXELS = "pexels"
 const val RETROFIT_WALLHAVEN = "wallhaven"
 const val RETROFIT_REDDIT = "reddit"
 const val RETROFIT_UNSPLASH = "unsplash"
+const val RETROFIT_PIXABAY = "pixabay"
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -150,6 +151,19 @@ object NetworkModule {
             }.build()
         return Retrofit.Builder()
             .baseUrl("https://api.unsplash.com/")
+            .client(client)
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+            .build()
+    }
+
+    @Singleton
+    @Provides
+    @Named(RETROFIT_PIXABAY)
+    fun providePixabayRetrofit(json: Json): Retrofit {
+        // Pixabay key travels as a query param (?key=…), not a header, so no auth interceptor needed.
+        val client = baseClientBuilder(throttleMs = 800L).build()
+        return Retrofit.Builder()
+            .baseUrl("https://pixabay.com/")
             .client(client)
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()

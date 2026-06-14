@@ -1,0 +1,39 @@
+{
+  "total": 500,
+  "totalHits": 500,
+  "hits": [
+    {
+      "id": 987654321,
+      "tags": "vibrant, colorful, abstract",
+      "webformatURL": "https://pixabay.com/get/abcdef.jpg",
+      "largeImageURL": "https://pixabay.com/get/abcdef_1280.jpg",
+      "imageWidth": 1080,
+      "imageHeight": 1920,
+      "user": "PixabayUser",
+      "pageURL": "https://pixabay.com/photos/vibrant-colorful-abstract-987654321/",
+      "userImageURL": "https://cdn.pixabay.com/user/2024/01/01/00-00-00-123456_250x250.jpg"
+    },
+    {
+      "id": 111222333,
+      "tags": "neon, city, night",
+      "webformatURL": "https://pixabay.com/get/ghijkl.jpg",
+      "largeImageURL": "https://pixabay.com/get/ghijkl_1280.jpg",
+      "imageWidth": 1080,
+      "imageHeight": 1920,
+      "user": "NightShooter",
+      "pageURL": "https://pixabay.com/photos/neon-city-night-111222333/",
+      "userImageURL": ""
+    },
+    {
+      "id": 444555666,
+      "tags": "landscape, wide, nature",
+      "webformatURL": "https://pixabay.com/get/mnopqr.jpg",
+      "largeImageURL": "https://pixabay.com/get/mnopqr_1280.jpg",
+      "imageWidth": 1920,
+      "imageHeight": 1080,
+      "user": "WideShooter",
+      "pageURL": "https://pixabay.com/photos/landscape-wide-444555666/",
+      "userImageURL": ""
+    }
+  ]
+}

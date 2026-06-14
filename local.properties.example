@@ -14,3 +14,7 @@ UNSPLASH_ACCESS_KEY=
 # Wallhaven API key — optional, get at https://wallhaven.cc/settings/account
 # Not required for SFW content; key unlocks NSFW (which this app filters out anyway).
 WALLHAVEN_API_KEY=
+
+# Pixabay API key — get one for free at https://pixabay.com/api/docs/
+# Required for the Pixabay source (vibrant, saturated wallpapers). If absent, source is disabled.
+PIXABAY_API_KEY=

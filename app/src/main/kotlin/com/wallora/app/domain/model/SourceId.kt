@@ -6,4 +6,5 @@ enum class SourceId(val displayName: String) {
     WALLHAVEN("Wallhaven"),
     REDDIT("Reddit"),
     UNSPLASH("Unsplash"),
+    PIXABAY("Pixabay"),
 }

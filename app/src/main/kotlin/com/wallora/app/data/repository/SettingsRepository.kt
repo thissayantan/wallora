@@ -205,14 +205,17 @@ class SettingsRepository @Inject constructor(
     private val userPexelsKeyKey = stringPreferencesKey("user_pexels_key")
     private val userUnsplashKeyKey = stringPreferencesKey("user_unsplash_key")
     private val userWallhavenKeyKey = stringPreferencesKey("user_wallhaven_key")
+    private val userPixabayKeyKey = stringPreferencesKey("user_pixabay_key")
 
     val userPexelsKey: Flow<String> = dataStore.data.map { it[userPexelsKeyKey] ?: "" }
     val userUnsplashKey: Flow<String> = dataStore.data.map { it[userUnsplashKeyKey] ?: "" }
     val userWallhavenKey: Flow<String> = dataStore.data.map { it[userWallhavenKeyKey] ?: "" }
+    val userPixabayKey: Flow<String> = dataStore.data.map { it[userPixabayKeyKey] ?: "" }
 
     suspend fun setUserPexelsKey(key: String) = dataStore.edit { it[userPexelsKeyKey] = key }
     suspend fun setUserUnsplashKey(key: String) = dataStore.edit { it[userUnsplashKeyKey] = key }
     suspend fun setUserWallhavenKey(key: String) = dataStore.edit { it[userWallhavenKeyKey] = key }
+    suspend fun setUserPixabayKey(key: String) = dataStore.edit { it[userPixabayKeyKey] = key }
 
     // ── User Reddit subreddits ───────────────────────────────────────────────
     private val userSubredditsKey = stringSetPreferencesKey("user_subreddits")
@@ -260,7 +263,7 @@ class SettingsRepository @Inject constructor(
     companion object {
         val DEFAULT_SUBREDDITS = listOf("iWallpaper")
 
-        /** Default categories shown on fresh install — covers minimal, dark/AMOLED, and nature. */
-        val DEFAULT_CATEGORIES = setOf(Category.MINIMAL, Category.AMOLED, Category.NATURE)
+        /** Default categories shown on fresh install — bold & colorful mix for a vibrant first impression. */
+        val DEFAULT_CATEGORIES = setOf(Category.VIBRANT, Category.ABSTRACT, Category.SPACE)
     }
 }

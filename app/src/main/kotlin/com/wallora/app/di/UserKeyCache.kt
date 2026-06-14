@@ -23,6 +23,8 @@ class UserKeyCache @Inject constructor(
         private set
     @Volatile var effectiveWallhavenKey: String = BuildConfig.WALLHAVEN_API_KEY
         private set
+    @Volatile var effectivePixabayKey: String = BuildConfig.PIXABAY_API_KEY
+        private set
 
     init {
         appScope.launch {
@@ -38,6 +40,11 @@ class UserKeyCache @Inject constructor(
         appScope.launch {
             settingsRepository.userWallhavenKey.collect { userKey ->
                 effectiveWallhavenKey = userKey.ifBlank { BuildConfig.WALLHAVEN_API_KEY }
+            }
+        }
+        appScope.launch {
+            settingsRepository.userPixabayKey.collect { userKey ->
+                effectivePixabayKey = userKey.ifBlank { BuildConfig.PIXABAY_API_KEY }
             }
         }
     }

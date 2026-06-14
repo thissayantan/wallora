@@ -36,6 +36,7 @@ fun SettingsSourcesPage(
     val userPexelsKey by vm.userPexelsKey.collectAsStateWithLifecycle()
     val userUnsplashKey by vm.userUnsplashKey.collectAsStateWithLifecycle()
     val userWallhavenKey by vm.userWallhavenKey.collectAsStateWithLifecycle()
+    val userPixabayKey by vm.userPixabayKey.collectAsStateWithLifecycle()
 
     val snackbarHostState = remember { SnackbarHostState() }
     LaunchedEffect(Unit) {
@@ -103,6 +104,12 @@ fun SettingsSourcesPage(
                 hint = stringResource(R.string.settings_api_wallhaven_hint),
                 currentKey = userWallhavenKey,
                 onSave = vm::saveUserWallhavenKey,
+            )
+            ApiKeyField(
+                label = stringResource(R.string.settings_api_pixabay_label),
+                hint = stringResource(R.string.settings_api_pixabay_hint),
+                currentKey = userPixabayKey,
+                onSave = vm::saveUserPixabayKey,
             )
         }
     }

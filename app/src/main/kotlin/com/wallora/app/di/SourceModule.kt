@@ -1,10 +1,12 @@
 package com.wallora.app.di
 
 import com.wallora.app.data.remote.PexelsSource
+import com.wallora.app.data.remote.PixabaySource
 import com.wallora.app.data.remote.WallhavenSource
 import com.wallora.app.data.remote.RedditSource
 import com.wallora.app.data.remote.UnsplashSource
 import com.wallora.app.data.remote.api.PexelsApi
+import com.wallora.app.data.remote.api.PixabayApi
 import com.wallora.app.data.remote.api.WallhavenApi
 import com.wallora.app.data.remote.api.RedditApi
 import com.wallora.app.data.remote.api.UnsplashApi
@@ -42,6 +44,11 @@ object SourceModule {
     fun provideUnsplashApi(@Named(RETROFIT_UNSPLASH) retrofit: Retrofit): UnsplashApi =
         retrofit.create(UnsplashApi::class.java)
 
+    @Provides
+    @Singleton
+    fun providePixabayApi(@Named(RETROFIT_PIXABAY) retrofit: Retrofit): PixabayApi =
+        retrofit.create(PixabayApi::class.java)
+
     // Multibinding: set of all sources so the repository can iterate them
     @Provides
     @Singleton
@@ -62,4 +69,9 @@ object SourceModule {
     @Singleton
     @IntoSet
     fun bindUnsplashSource(source: UnsplashSource): WallpaperSource = source
+
+    @Provides
+    @Singleton
+    @IntoSet
+    fun bindPixabaySource(source: PixabaySource): WallpaperSource = source
 }
