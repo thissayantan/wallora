@@ -132,9 +132,9 @@
     <string name="settings_categories_title">Categories &amp; keywords</string>
     <string name="settings_categories_subtitle">Browse focus, custom topics, Reddit subreddits</string>
     <string name="settings_rotation_title">Auto-change wallpaper</string>
-    <string name="settings_rotation_subtitle">Schedule, interval and playlist</string>
+    <string name="settings_rotation_subtitle">Changes wallpaper automatically — works without live mode</string>
     <string name="settings_live_title">Live wallpaper &amp; parallax</string>
-    <string name="settings_live_subtitle">Parallax scrolling and live wallpaper mode</string>
+    <string name="settings_live_subtitle">Optional: adds parallax scrolling and on-unlock changing</string>
     <string name="settings_remote_title">Change from anywhere</string>
     <string name="settings_remote_subtitle">Launcher gesture, QS tile, widget, Tasker</string>
     <string name="settings_appearance_title">Appearance</string>
@@ -180,7 +180,8 @@
 
     <!-- Settings — Rotation page -->
     <string name="settings_rotation_enable">Enable auto-change</string>
-    <string name="settings_rotation_enable_desc">Rotates wallpaper on a schedule or at set times</string>
+    <string name="settings_rotation_enable_desc">Applies a wallpaper right away, then keeps rotating on your schedule</string>
+    <string name="settings_rotation_applying">Applying wallpaper…</string>
     <string name="settings_rotation_playlist">Playlist</string>
     <string name="settings_rotation_playlist_categories">Current categories</string>
     <string name="settings_rotation_playlist_favorites">Favorites only</string>
@@ -189,6 +190,8 @@
     <string name="settings_rotation_no_times">No specific times set</string>
 
     <!-- Settings — Live page -->
+    <string name="settings_set_live_wallpaper_desc">Optional — unlocks parallax scrolling and on-unlock changing. Auto-change works without this.</string>
+    <string name="settings_rotation_on_unlock_live_desc">Rotates wallpaper each time you unlock the screen</string>
     <string name="settings_parallax_desc">Scrolls as you swipe between home screens. Requires live wallpaper mode and a launcher that sends scroll offsets.</string>
     <string name="settings_filters_section">Wallpaper filters</string>
     <string name="settings_filters_none">No filters applied</string>

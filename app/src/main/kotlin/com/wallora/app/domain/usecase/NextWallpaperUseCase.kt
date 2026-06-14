@@ -1,5 +1,7 @@
 package com.wallora.app.domain.usecase
 
+import android.app.WallpaperManager
+import android.content.Context
 import android.util.Log
 import com.wallora.app.data.repository.SettingsRepository
 import com.wallora.app.data.repository.WallpaperRepository
@@ -10,6 +12,7 @@ import com.wallora.app.domain.model.SourceId
 import com.wallora.app.domain.model.Wallpaper
 import com.wallora.app.domain.rotation.PickResult
 import com.wallora.app.domain.rotation.RotationEngine
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -45,6 +48,7 @@ sealed class NextWallpaperResult {
  */
 @Singleton
 class NextWallpaperUseCase @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val repository: WallpaperRepository,
     private val settingsRepository: SettingsRepository,
     private val applyWallpaperUseCase: ApplyWallpaperUseCase,
@@ -85,8 +89,7 @@ class NextWallpaperUseCase @Inject constructor(
                 colorHint = null, category = null, tags = emptyList(),
             )
             settingsRepository.setCurrentWallpaperUrls(prefetched.first, prefetched.second)
-            val isLiveActive = settingsRepository.isLiveWallpaperActive.first()
-            if (!isLiveActive) {
+            if (!isLiveWallpaperActive()) {
                 applyWallpaperUseCase(quickWallpaper, target)
             } else {
                 repository.addToHistory(quickWallpaper)
@@ -120,8 +123,7 @@ class NextWallpaperUseCase @Inject constructor(
         Log.d(TAG, "Rotating to: ${wallpaper.globalKey}")
         settingsRepository.setCurrentWallpaperUrls(wallpaper.fullUrl, wallpaper.thumbUrl)
 
-        val isLiveActive = settingsRepository.isLiveWallpaperActive.first()
-        if (isLiveActive && target != WallpaperTarget.LOCK) {
+        if (isLiveWallpaperActive() && target != WallpaperTarget.LOCK) {
             repository.addToHistory(wallpaper)
             if (target == WallpaperTarget.BOTH) {
                 applyWallpaperUseCase(wallpaper, WallpaperTarget.LOCK)
@@ -166,6 +168,18 @@ class NextWallpaperUseCase @Inject constructor(
                 Log.d(TAG, "Background prefetch skipped: ${e.message}")
             }
         }
+    }
+
+    /**
+     * Returns true when Wallora's own live wallpaper service is the currently active wallpaper.
+     * This is the real source of truth — no flag lifecycle to maintain. When true, the rotation
+     * writes the new URL to DataStore and lets the live engine pick it up; it does NOT call
+     * WallpaperManager.setBitmap(FLAG_SYSTEM), which would deactivate the live wallpaper.
+     */
+    private fun isLiveWallpaperActive(): Boolean = try {
+        WallpaperManager.getInstance(context).wallpaperInfo?.packageName == context.packageName
+    } catch (_: Exception) {
+        false
     }
 
     private suspend fun getCandidates(playlistMode: String): List<Wallpaper> =

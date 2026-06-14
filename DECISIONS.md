@@ -226,3 +226,44 @@ subject category, producing the Pinterest-style variety the user wanted.
 workflow now writes all four API keys from secrets into local.properties before
 assembleRelease, so the GitHub-released APK has all sources working out of the box. New
 installs without any keys still work — sources are fail-soft when unconfigured.
+
+---
+
+## 2026-06-14 (round 3 — auto-changer + parallax fix)
+
+**Auto-changer "does nothing" — root cause**: `setRotationEnabled(true)` only scheduled
+`RotationWorker`, whose first run is ≥15 minutes (WorkManager minimum). Nothing visible happened
+until WorkManager fired. Fix: `SettingsViewModel.setRotationEnabled` now calls
+`nextWallpaperUseCase(HOME)` immediately after scheduling, giving instant feedback via snackbar.
+
+**`isLiveWallpaperActive` was an orphaned DataStore flag**: `setLiveWallpaperActive(true)` had no
+callers, so the flag was always `false`. `NextWallpaperUseCase` branched on it to decide
+live-vs-static apply — permanently landing on static `setBitmap`, which would have deactivated
+the live wallpaper on next rotation. Fixed by replacing the flag with a real runtime check:
+`WallpaperManager.getInstance(context).wallpaperInfo?.packageName == context.packageName`. This
+is the actual source of truth; no flag lifecycle to maintain. The DataStore key and getter/setter
+were removed from `SettingsRepository`.
+
+**Settings miscategorisation**: "On unlock" rotation lived under Rotation's Constraints section
+but only works through the live wallpaper engine. Moved it to the Live wallpaper page. The Rotation
+subtitle now reads "works without live mode"; the Live subtitle reads "optional — adds parallax
+and on-unlock". Enabling rotation also updated its description to say it applies immediately.
+
+**Parallax right-edge layering — root cause**: `CropCalculator.centerCropRect` produces a
+*centered* destRect with the over-wide (1.3×W) bitmap split ±overflow/2 on each side. But
+`ParallaxMath.translateX` previously panned the *full* overflow (0.3W) in a single direction:
+at xOffset=1 it translated −0.3W, sliding the rect to expose the rightmost 15% of the surface
+undrawn. And `renderOnCanvas` never cleared the canvas on the normal draw path — stale pixels
+from the previous frame filled that strip, producing the "layered/broken on the right" artifact.
+
+Fix A — **Symmetric pan**: `translateX = (0.5 − xOffset) × overflowPixels`. Range ±overflow/2,
+matching the centered destRect. At every offset the drawn rect fully covers [0, surfaceW]. Unit
+test added to assert this holds at every step in [0..1].
+
+Fix B — **Canvas clear every frame**: `renderOnCanvas` now calls `canvas.drawColor(BLACK)` at
+the top unconditionally, before drawing any bitmap. The early-return when bitmap is null was kept,
+but the clear happens first in all cases. This also eliminates alpha bleed in crossfade.
+
+`clampTranslateX` range updated to ±halfOverflow (was [−overflow, 0]).
+`fixedOffsetTranslateX` simplified to return 0 (bitmap is already centred by destRect; 0 is
+correct for the fixed-offset/parallax-disabled case).

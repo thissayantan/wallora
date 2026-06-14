@@ -49,7 +49,6 @@ fun SettingsRotationPage(
     val times by vm.rotationTimes.collectAsStateWithLifecycle()
     val wifiOnly by vm.rotationWifiOnly.collectAsStateWithLifecycle()
     val chargingOnly by vm.rotationChargingOnly.collectAsStateWithLifecycle()
-    val rotationOnUnlock by vm.rotationOnUnlock.collectAsStateWithLifecycle()
     val nextChange by vm.nextChangeLabel.collectAsStateWithLifecycle()
 
     var showIntervalPicker by remember { mutableStateOf(false) }
@@ -130,13 +129,6 @@ fun SettingsRotationPage(
 
             SectionHeader("Constraints")
 
-            ListItem(
-                headlineContent = { Text(stringResource(R.string.settings_rotation_on_unlock)) },
-                supportingContent = { Text("Requires live wallpaper mode") },
-                trailingContent = {
-                    Switch(checked = rotationOnUnlock, onCheckedChange = vm::setRotationOnUnlock)
-                },
-            )
             ListItem(
                 headlineContent = { Text(stringResource(R.string.settings_wifi_only)) },
                 trailingContent = { Switch(checked = wifiOnly, onCheckedChange = vm::setWifiOnly) },

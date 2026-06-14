@@ -12,6 +12,8 @@ import com.wallora.app.domain.WallpaperSource
 import com.wallora.app.domain.model.Category
 import com.wallora.app.domain.model.EditParams
 import com.wallora.app.domain.model.SourceId
+import com.wallora.app.domain.usecase.NextWallpaperUseCase
+import com.wallora.app.domain.usecase.WallpaperTarget
 import com.wallora.app.worker.AlarmScheduleCalculator
 import com.wallora.app.worker.AlarmScheduler
 import com.wallora.app.worker.RotationWorker
@@ -42,6 +44,7 @@ class SettingsViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val settingsRepository: SettingsRepository,
     private val wallpaperRepository: WallpaperRepository,
+    private val nextWallpaperUseCase: NextWallpaperUseCase,
     private val downloadClient: OkHttpClient,
     private val alarmScheduler: AlarmScheduler,
     private val sources: Set<@JvmSuppressWildcards WallpaperSource>,
@@ -194,6 +197,10 @@ class SettingsViewModel @Inject constructor(
         if (enabled) {
             RotationWorker.schedule(context, intervalMs, wifiOnly, chargingOnly)
             if (times.isNotEmpty()) alarmScheduler.scheduleNext(context, times)
+            // Apply a wallpaper immediately so the user sees feedback right away —
+            // WorkManager's first run is ≥15 min so without this "nothing happens."
+            _events.emit(SettingsEvent.ShowMessage(context.getString(R.string.settings_rotation_applying)))
+            nextWallpaperUseCase(WallpaperTarget.HOME)
         } else {
             RotationWorker.cancel(context)
             alarmScheduler.cancel(context)

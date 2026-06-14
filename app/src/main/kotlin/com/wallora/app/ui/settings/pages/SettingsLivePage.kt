@@ -34,6 +34,7 @@ fun SettingsLivePage(
     onBack: () -> Unit,
 ) {
     val parallaxEnabled by vm.parallaxEnabled.collectAsStateWithLifecycle()
+    val rotationOnUnlock by vm.rotationOnUnlock.collectAsStateWithLifecycle()
     val defaultParams by vm.defaultEditParams.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
@@ -69,7 +70,7 @@ fun SettingsLivePage(
             ListItem(
                 headlineContent = { Text(stringResource(R.string.settings_set_live_wallpaper)) },
                 supportingContent = {
-                    Text("Enables parallax, on-unlock rotation and auto-change without keeping the screen on")
+                    Text(stringResource(R.string.settings_set_live_wallpaper_desc))
                 },
                 modifier = Modifier.clickable {
                     val intent = Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER).apply {
@@ -87,6 +88,14 @@ fun SettingsLivePage(
                                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                         )
                     }
+                },
+            )
+
+            ListItem(
+                headlineContent = { Text(stringResource(R.string.settings_rotation_on_unlock)) },
+                supportingContent = { Text(stringResource(R.string.settings_rotation_on_unlock_live_desc)) },
+                trailingContent = {
+                    Switch(checked = rotationOnUnlock, onCheckedChange = vm::setRotationOnUnlock)
                 },
             )
 

@@ -21,22 +21,31 @@ import org.robolectric.annotation.Config
 class LiveWallpaperHelpersTest {
 
     // ── ParallaxMath ──────────────────────────────────────────────────────────
+    // Symmetric pan: bitmap destRect is centered by CropCalculator (overflow/2 on each side).
+    // translateX(0) = +overflow/2 (pan right, left edge flush), 0.5 = 0, 1 = -overflow/2.
 
     @Test
-    fun `parallax translateX at xOffset 0 shows left edge (no translation)`() {
-        // At xOffset=0 (leftmost page), left edge of bitmap aligns with surface — no translation
-        val result = ParallaxMath.translateX(xOffset = 0f, bitmapWidth = 1404, surfaceWidth = 1080)
-        assertEquals(0f, result, 0.01f)
+    fun `parallax translateX at xOffset 0 shifts half overflow right (left edge flush)`() {
+        val bitmapW = 1404
+        val surfaceW = 1080
+        val halfOverflow = (bitmapW - surfaceW) / 2f
+        val result = ParallaxMath.translateX(xOffset = 0f, bitmapWidth = bitmapW, surfaceWidth = surfaceW)
+        assertEquals(halfOverflow, result, 0.01f)
     }
 
     @Test
-    fun `parallax translateX at xOffset 1 shifts full overflow left`() {
-        // At xOffset=1 (rightmost page), bitmap shifts left by full overflow to show right edge
+    fun `parallax translateX at xOffset 1 shifts half overflow left (right edge flush)`() {
         val bitmapW = 1404
         val surfaceW = 1080
-        val overflow = bitmapW - surfaceW
+        val halfOverflow = (bitmapW - surfaceW) / 2f
         val result = ParallaxMath.translateX(xOffset = 1f, bitmapWidth = bitmapW, surfaceWidth = surfaceW)
-        assertEquals(-overflow.toFloat(), result, 0.01f)
+        assertEquals(-halfOverflow, result, 0.01f)
+    }
+
+    @Test
+    fun `parallax translateX at xOffset 0_5 returns 0 (centred)`() {
+        val result = ParallaxMath.translateX(0.5f, 1404, 1080)
+        assertEquals(0f, result, 0.01f)
     }
 
     @Test
@@ -46,24 +55,58 @@ class LiveWallpaperHelpersTest {
     }
 
     @Test
-    fun `parallax fixedOffset centres bitmap`() {
+    fun `parallax fixedOffset returns 0 (bitmap already centred by CropCalculator)`() {
+        // fixedOffsetTranslateX is 0 because the bitmap is already centered in the destRect
+        assertEquals(0f, ParallaxMath.fixedOffsetTranslateX(1404, 1080), 0.01f)
+    }
+
+    @Test
+    fun `parallax clampTranslateX clamps to positive half overflow`() {
         val bitmapW = 1404
         val surfaceW = 1080
-        val expected = -((bitmapW - surfaceW) / 2f)
-        assertEquals(expected, ParallaxMath.fixedOffsetTranslateX(bitmapW, surfaceW), 0.01f)
+        val halfOverflow = (bitmapW - surfaceW) / 2f
+        val clamped = ParallaxMath.clampTranslateX(1000f, bitmapW, surfaceW)
+        assertEquals(halfOverflow, clamped, 0.01f)
     }
 
     @Test
-    fun `parallax clampTranslateX prevents positive translation`() {
-        val clamped = ParallaxMath.clampTranslateX(100f, 1404, 1080)
-        assertEquals(0f, clamped, 0.01f)
+    fun `parallax clampTranslateX clamps to negative half overflow`() {
+        val bitmapW = 1404
+        val surfaceW = 1080
+        val halfOverflow = (bitmapW - surfaceW) / 2f
+        val clamped = ParallaxMath.clampTranslateX(-1000f, bitmapW, surfaceW)
+        assertEquals(-halfOverflow, clamped, 0.01f)
     }
 
     @Test
-    fun `parallax clampTranslateX prevents overflow past left edge`() {
-        val overflow = (1404 - 1080).toFloat()
-        val clamped = ParallaxMath.clampTranslateX(-1000f, 1404, 1080)
-        assertEquals(-overflow, clamped, 0.01f)
+    fun `parallax surface is always fully covered at every xOffset`() {
+        // Realistic dimensions: surface is 1080×2400 (portrait phone), bitmap is 1.3W × H
+        // (decoded by SafeBitmapDecoder to targetWidth=1404, targetHeight=2400).
+        // CropCalculator.centerCropRect sees bmpAspect (1404/2400) > surfAspect (1080/2400),
+        // so it fits to height → destRect spans -overflow/2 .. surfaceW + overflow/2.
+        // Symmetric pan (translate = (0.5-xOffset) * overflow) guarantees full coverage.
+        val surfaceW = 1080
+        val surfaceH = 2400
+        val bitmapW = (surfaceW * ParallaxMath.PARALLAX_SCALE).toInt() // 1404
+        val bitmapH = surfaceH                                           // 2400
+        val destRect = CropCalculator.centerCropRect(bitmapW, bitmapH, surfaceW, surfaceH)
+        for (step in 0..10) {
+            val xOffset = step / 10f
+            val translate = ParallaxMath.clampTranslateX(
+                ParallaxMath.translateX(xOffset, bitmapW, surfaceW),
+                bitmapW, surfaceW
+            )
+            val effectiveLeft = destRect.left + translate.toInt()
+            val effectiveRight = destRect.right + translate.toInt()
+            assertTrue(
+                "Left edge exposed at xOffset=$xOffset: effectiveLeft=$effectiveLeft",
+                effectiveLeft <= 0
+            )
+            assertTrue(
+                "Right edge exposed at xOffset=$xOffset: effectiveRight=$effectiveRight",
+                effectiveRight >= surfaceW
+            )
+        }
     }
 
     // ── CrossfadeAnimator ─────────────────────────────────────────────────────

@@ -272,11 +272,12 @@ class WalloraWallpaperService : WallpaperService() {
         }
 
         private fun renderOnCanvas(canvas: Canvas) {
+            // Always clear first — without this, any strip not painted this frame shows stale
+            // pixels from a previous frame (especially the parallax right-edge on the last page).
+            canvas.drawColor(Color.BLACK)
+
             val bmp = currentBitmap
-            if (bmp == null || bmp.isRecycled) {
-                canvas.drawColor(Color.BLACK)
-                return
-            }
+            if (bmp == null || bmp.isRecycled) return
 
             val paint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
 

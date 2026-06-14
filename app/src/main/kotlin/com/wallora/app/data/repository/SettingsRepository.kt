@@ -133,10 +133,12 @@ class SettingsRepository @Inject constructor(
         }
     }
 
-    // ── Gesture & live wallpaper ─────────────────────────────────────────────
+    // ── Gesture & parallax ───────────────────────────────────────────────────
+    // Note: "is live wallpaper active" is no longer stored in DataStore — the real source of
+    // truth is WallpaperManager.wallpaperInfo.packageName == context.packageName (checked at
+    // runtime in NextWallpaperUseCase so rotation never deactivates the live wallpaper).
     private val doubleTapGestureKey = booleanPreferencesKey("double_tap_gesture")
     private val parallaxEnabledKey = booleanPreferencesKey("parallax_enabled")
-    private val isLiveWallpaperActiveKey = booleanPreferencesKey("live_wallpaper_active")
 
     val doubleTapGestureEnabled: Flow<Boolean> = dataStore.data.map { prefs ->
         prefs[doubleTapGestureKey] ?: false  // DEFAULT OFF: most launchers consume the gesture
@@ -144,18 +146,12 @@ class SettingsRepository @Inject constructor(
     val parallaxEnabled: Flow<Boolean> = dataStore.data.map { prefs ->
         prefs[parallaxEnabledKey] ?: true  // DEFAULT ON per spec
     }
-    val isLiveWallpaperActive: Flow<Boolean> = dataStore.data.map { prefs ->
-        prefs[isLiveWallpaperActiveKey] ?: false
-    }
 
     suspend fun setDoubleTapGesture(enabled: Boolean) =
         dataStore.edit { it[doubleTapGestureKey] = enabled }
 
     suspend fun setParallaxEnabled(enabled: Boolean) =
         dataStore.edit { it[parallaxEnabledKey] = enabled }
-
-    suspend fun setLiveWallpaperActive(active: Boolean) =
-        dataStore.edit { it[isLiveWallpaperActiveKey] = active }
 
     // ── EditParams (default look for live mode) ───────────────────────────────
     private val editBlurKey = floatPreferencesKey("edit_blur")
